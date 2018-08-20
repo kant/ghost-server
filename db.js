@@ -1,7 +1,7 @@
 let pg = require('pg');
 
 let secret = require('./secret');
-let time = require('./time');
+let time = require('@expo/time');
 
 let pool = new pg.Pool({
   ...secret.postgres,
@@ -22,7 +22,7 @@ async function queryAsync(...args) {
   try {
     let tk = time.start();
     let result = await client.query(...args);
-    time.end(tk, 'db-query', { threshold: 0, message: args[0] });
+    time.end(tk, 'db-query', { threshold: 0, message: JSON.stringify(args) });
     return result;
   } finally {
     client.release();

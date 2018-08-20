@@ -1,5 +1,5 @@
 try {
-  module.exports = require('ghost-secret');
+  module.exports = require('./ghost-secret');
 } catch (e) {
   try {
     module.exports = require('../ghost-secret');
