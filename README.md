@@ -1,8 +1,17 @@
 # ghost-server
 
-First, to set things up you need to do two things:
+First, to set things up you need to do three things:
 
-1. Clone this repo https://github.com/expo/ghost-secret
+1. Make sure you have a recent version of node. 
+Do 
+```
+nvm install node
+```
+If you aren't sure.
+
+I'm using v10.9.0 so anything newer than that should be fine.
+
+2. Clone this repo https://github.com/expo/ghost-secret
 
 Put it either as a peer directory to this directory named `ghost-secret`;
 or if you put it somewhere else, create a symlink in this directory to it.
@@ -10,7 +19,7 @@ or if you put it somewhere else, create a symlink in this directory to it.
 Sorry this is an extra step, but this lets us keep secret credentials separate
 so we can open source this repo.
 
-2. `yarn` in this directory 
+3. `yarn` in this directory 
 
 Now, you can do three things that are useful:
 
