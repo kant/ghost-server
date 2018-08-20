@@ -11,7 +11,10 @@ class Api {
 
   async signInAsync(username, password) {
     let result = await AuthApi.signInAsync(username, password);
+
+    // Don't log passwords in cleartext!
     this._logArgs = [username, 'XXXXXX'];
+
     return result;
   }
 

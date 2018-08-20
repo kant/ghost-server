@@ -1344,9 +1344,9 @@ process-nextick-args@~2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-2.0.0.tgz#a37d732f4271b4ab1ad070d35508e8290788ffaa"
 
-project-repl@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/project-repl/-/project-repl-1.3.0.tgz#6799d486fa0d739e916c4fe9f0ebe7ecff9f28da"
+project-repl@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/project-repl/-/project-repl-1.3.1.tgz#6c6ad9bfc151ad4354faf88a07192b73b560878e"
   dependencies:
     recursive-readdir "^2.2.2"
 
@@ -1745,8 +1745,9 @@ term-size@^1.2.0:
   dependencies:
     execa "^0.7.0"
 
-thin-server@../thin-api/server:
+thin-server@^0.1.1:
   version "0.1.1"
+  resolved "https://registry.yarnpkg.com/thin-server/-/thin-server-0.1.1.tgz#2ed2ee6bce5e4cd70ce23e97201deaab54932ce0"
   dependencies:
     "@expo/time" "^1.0.0"
 
