@@ -24,8 +24,8 @@ minimatch@3.0.4:
     brace-expansion "^1.1.7"
 
 project-repl@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/project-repl/-/project-repl-1.0.0.tgz#24c543e6f583cf45b5f3031bc4fbed8afa0f640f"
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/project-repl/-/project-repl-1.0.1.tgz#3e7b862067cad1e45e93e023b492293ea22befe4"
   dependencies:
     recursive-readdir "^2.2.2"
 
