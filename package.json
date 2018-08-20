@@ -5,6 +5,13 @@
   "repository": "https://github.com/expo/ghost-server.git",
   "author": "Charlie Cheever <ccheever@gmail.com>",
   "license": "MIT",
+  "repl": {
+    "ignore": {
+      "modules": [
+        "project-repl"
+      ]
+    }
+  },
   "dependencies": {
     "express": "^4.16.3",
     "pg": "^7.4.3",
