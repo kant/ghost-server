@@ -4,8 +4,11 @@ let secret = require('./secret');
 let time = require('@expo/time');
 
 let pool = new pg.Pool({
-  ...secret.postgres,
-  database: secret.postgres.instance,
+  user: secret.postgres.user,
+  host: secret.postgres.host,
+  database: secret.postgres.database,
+  password: secret.postgres.password,
+  port: secret.postgres.port,
 });
 
 // the pool with emit an error on behalf of any idle clients
