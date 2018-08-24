@@ -3,13 +3,7 @@ let pg = require('pg');
 let secret = require('./secret');
 let time = require('@expo/time');
 
-let pool = new pg.Pool({
-  user: secret.postgres.user,
-  host: secret.postgres.host,
-  database: secret.postgres.database,
-  password: secret.postgres.password,
-  port: secret.postgres.port,
-});
+let pool = new pg.Pool(secret.postgres);
 
 // the pool with emit an error on behalf of any idle clients
 // it contains if a backend error or network partition happens
