@@ -26,6 +26,6 @@
   },
   "devDependencies": {
     "nodemon": "^1.18.3",
-    "project-repl": "^1.4.1"
+    "project-repl": "^1.4.3"
   }
 }
