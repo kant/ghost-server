@@ -1,10 +1,12 @@
 let time = require('@expo/time');
 let _tk = time.start();
 
+let bodyParser = require('body-parser');
 let cors = require('cors');
+let escapeHtml = require('escape-html');
 let express = require('express');
 let thinServer = require('thin-server');
-let bodyParser = require('body-parser');
+let spawnAsync = require('@expo/spawn-async');
 
 let Api = require('./Api');
 
@@ -13,10 +15,19 @@ async function serveAsync(port) {
   app.use(cors());
   app.use(bodyParser.json());
   app.post('/api', thinServer(Api));
-  app.get('/', (req, res) => {
+  app.get('/', async (req, res) => {
     let pkg = require('./package');
+    let gitResult = await spawnAsync('git', ['log', '--pretty=oneline', '-n1']);
     res.send(
-      '<pre>👻 ' + pkg.name + ' <a href="' + pkg.repository + '">v' + pkg.version + '</a></pre>'
+      '<pre>👻 ' +
+        pkg.name +
+        ' v' +
+        pkg.version +
+        '</a><br /><br /><a href="' +
+        pkg.repository +
+        '">' +
+        escapeHtml(gitResult.stdout) +
+        '</a></pre>'
     );
   });
   port = port || process.env.PORT || 1380;
