@@ -13,6 +13,12 @@ async function serveAsync(port) {
   app.use(cors());
   app.use(bodyParser.json());
   app.post('/api', thinServer(Api));
+  app.get('/', (req, res) => {
+    let pkg = require('./package');
+    res.send(
+      '<pre>👻 ' + pkg.name + ' <a href="' + pkg.repository + '">v' + pkg.version + '</a></pre>'
+    );
+  });
   port = port || process.env.PORT || 1380;
   app.listen(port, () => {
     time.end(_tk, 'server-start');
