@@ -19,10 +19,12 @@
   "dependencies": {
     "@expo/time": "^1.0.0",
     "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
     "express": "^4.16.3",
     "node-fetch": "^2.2.0",
     "pg": "^7.4.3",
-    "thin-server": "^0.1.1"
+    "thin-server": "../thin-api/server",
+    "xdl": "^51.0.0"
   },
   "devDependencies": {
     "nodemon": "^1.18.3",

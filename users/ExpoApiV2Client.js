@@ -14,6 +14,7 @@ class ExpoApiV2HttpClient {
   }
 
   async postAsync(methodName, args) {
+    // console.log('args=', args);
     return this._requestAsync(methodName, {
       httpMethod: 'post',
       body: args,
@@ -26,14 +27,23 @@ class ExpoApiV2HttpClient {
       url += '?' + querystring.stringify(options.queryParameters);
     }
 
+    // console.log('sessionSecret=', this.sessionSecret);
+
+    let headers = {
+      'Exponent-Platform': 'ghost',
+      'Exponent-Client': 'ghost-server',
+    };
+    if (this.sessionSecret) {
+      headers['Expo-Session'] = this.sessionSecret;
+    }
+
     let fetchOptions = {
       method: options.httpMethod,
-      headers: {
-        'Exponent-Platform': 'Ghost',
-      },
+      headers,
     };
 
     if (options.body) {
+      // console.log('body=', options.body);
       fetchOptions.headers['Content-Type'] = 'application/json';
       fetchOptions.body = JSON.stringify(options.body);
     }
@@ -42,15 +52,18 @@ class ExpoApiV2HttpClient {
     let resultText = await response.text();
     let result;
     try {
+      // console.log(resultText);
       result = JSON.parse(resultText);
     } catch (e) {
-      let err = new Error("THere was a problem understanding the server's response.");
+      console.error(resultText);
+      let err = new Error("There was a problem understanding the server's response.");
       err.responseBody = resultText;
       throw err;
     }
 
     if (!result || typeof result !== 'object') {
-      let err = new Error("THere was a problem understanding the server's response.");
+      console.error(resultText);
+      let err = new Error("There was a problem understanding the server's response.");
       err.responseBody = resultText;
       throw err;
     }
