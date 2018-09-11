@@ -36,7 +36,7 @@ class Api {
     return await this._authApi().logoutAsync(sessionSecret);
   }
 
-  async getVuewerAsync() {
+  async getViewerAsync() {
     return await this._authApi().profileAsync();
   }
 
