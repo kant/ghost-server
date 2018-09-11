@@ -68,6 +68,7 @@ class ExpoApiV2HttpClient {
       let responseError = result.errors[0];
       let error = new Error(responseError.message);
       error.ApiV2Error = true;
+      error.type = 'CLIENT_ERROR';
       error.code = responseError.code;
       error.serverStack = responseError.stack;
       throw error;

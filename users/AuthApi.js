@@ -1,6 +1,7 @@
 let fetch = require('node-fetch');
 
 let data = require('../data');
+let ClientError = require('../ClientError');
 let ExpoApiV2Client = require('./ExpoApiV2Client');
 
 let SignupEndpoint = 'https://exp.host/--/api/v2/auth/createOrUpdateUser';
@@ -49,7 +50,6 @@ class AuthApi {
   // };
 
   async signupAsync(userData) {
-    // console.log("userData=", userData);
     let response = await fetch(SignupEndpoint, {
       method: 'POST',
       headers: {
@@ -62,12 +62,18 @@ class AuthApi {
 
     let result = await response.json();
 
+    if (result.errors && result.errors.length > 0) {
+      let responseError = result.errors[0];
+      let err = ClientError(responseError.message, responseError.code);
+      throw err;
+    }
+
     // Use a try/catch here since we don't want this API to fail just
     // because logging fialed (since the account will have been created)
     try {
       await data.writeGhostSignupAsync(result);
     } catch (e) {
-      console.error("Failed to log signup", e);
+      console.error('Failed to log signup', e);
     }
     return result;
   }
