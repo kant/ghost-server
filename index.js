@@ -36,7 +36,7 @@ async function serveAsync(port) {
     );
   });
 
-  // Report the time it takes to load all the code separate 
+  // Report the time it takes to load all the code separate
   // from the time it takes to connect to the database
   time.end(_tkLoaded, 'loaded');
 

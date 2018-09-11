@@ -14,7 +14,6 @@ class ExpoApiV2HttpClient {
   }
 
   async postAsync(methodName, args) {
-    // console.log('args=', args);
     return this._requestAsync(methodName, {
       httpMethod: 'post',
       body: args,
@@ -27,7 +26,6 @@ class ExpoApiV2HttpClient {
       url += '?' + querystring.stringify(options.queryParameters);
     }
 
-    // console.log('sessionSecret=', this.sessionSecret);
 
     let headers = {
       'Exponent-Platform': 'ghost',
@@ -37,15 +35,12 @@ class ExpoApiV2HttpClient {
       headers['Expo-Session'] = this.sessionSecret;
     }
 
-    console.log("headers=", headers);
-
     let fetchOptions = {
       method: options.httpMethod,
       headers,
     };
 
     if (options.body) {
-      // console.log('body=', options.body);
       fetchOptions.headers['Content-Type'] = 'application/json';
       fetchOptions.body = JSON.stringify(options.body);
     }
