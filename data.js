@@ -7,11 +7,11 @@ async function writeGhostSignupAsync(resultData) {
   let signupUsername = resultData.data.user.username;
   await db.queryAsync(
     `
-    INSERT INTO ghostSignups ( 
-      signupTime,
-      userId,
-      signupUsername,
-      signupEmail
+    INSERT INTO "ghostSignups" ( 
+      "signupTime","
+      "userId",
+      "signupUsername",
+      "signupEmail"
     ) VALUES ($1, $2, $3, $4)`,
     [signupTime, userId, signupUsername, signupEmail]
   );
