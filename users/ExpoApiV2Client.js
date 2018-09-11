@@ -49,7 +49,6 @@ class ExpoApiV2HttpClient {
     let resultText = await response.text();
     let result;
     try {
-      // console.log(resultText);
       result = JSON.parse(resultText);
     } catch (e) {
       console.error(resultText);

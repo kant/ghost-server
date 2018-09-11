@@ -61,7 +61,14 @@ class AuthApi {
     });
 
     let result = await response.json();
-    await data.writeGhostSignupAsync(result);
+
+    // Use a try/catch here since we don't want this API to fail just
+    // because logging fialed (since the account will have been created)
+    try {
+      await data.writeGhostSignupAsync(result);
+    } catch (e) {
+      console.error("Failed to log signup", e);
+    }
     return result;
   }
 }

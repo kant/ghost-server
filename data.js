@@ -8,7 +8,7 @@ async function writeGhostSignupAsync(resultData) {
   await db.queryAsync(
     `
     INSERT INTO "ghostSignups" ( 
-      "signupTime","
+      "signupTime",
       "userId",
       "signupUsername",
       "signupEmail"
