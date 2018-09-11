@@ -37,6 +37,8 @@ class ExpoApiV2HttpClient {
       headers['Expo-Session'] = this.sessionSecret;
     }
 
+    console.log("headers=", headers);
+
     let fetchOptions = {
       method: options.httpMethod,
       headers,

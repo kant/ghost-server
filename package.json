@@ -25,8 +25,7 @@
     "express": "^4.16.3",
     "node-fetch": "^2.2.0",
     "pg": "^7.4.3",
-    "thin-server": "^0.1.2",
-    "xdl": "^51.0.0"
+    "thin-server": "^0.5.0"
   },
   "devDependencies": {
     "nodemon": "^1.18.3",

@@ -5,7 +5,7 @@ export PGDATABASE=`node -e "console.log(require('./secret').postgres.database)"`
 export PGPASSWORD=`node -e "console.log(require('./secret').postgres.password)"`
 
 echo "// Ghost Database"
-echo 'Type `\dt` to list tables'
+echo 'Type `\dt` to list tables, \d+ <table-name> to describe a table'
 pgcli  --host=$PGHOST --user=$PGUSER --dbname=$PGDATABASE $*
 
 

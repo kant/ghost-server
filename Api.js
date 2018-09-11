@@ -11,38 +11,37 @@ class Api {
   }
 
   async loginAsync(username, password) {
-    
     // Don't log passwords in cleartext!
     this._logArgs = [username, 'XXXXXX'];
 
     let result = await this._authApi().loginAsync(username, password);
-
 
     return result;
   }
 
   _authApi() {
     let authApi = new AuthApi();
-    authApi._context = {...this._context};
+    authApi.context = { ...this.context };
     return authApi;
   }
 
-  async logoutAsync(sessionSecret) {
-    let _sessionSecret = sessionSecret || this.context.sessionSecret;
-    if (!_sessionSecret) {
-      console.warn("No current session to logout of; no-oping.");
-      // throw ClientError('No current session to log out of', 'NO_CURRENT_SESSION');
+  async logoutAsync() {
+    let sessionSecret = this.context.sessionSecret;
+    let result = {};
+    if (!sessionSecret) {
+      // console.warn('No current session to logout of; no-oping.');
+      this.responseAddWarning('NOT_LOGGED_IN', 'No current session to logout of');
+      return;
     }
-    return await this._authApi().logoutAsync(_sessionSecret);
+    return await this._authApi().logoutAsync(sessionSecret);
   }
 
   async profileAsync() {
-    return await this._authApi().profileAsync(this._context);
+    return await this._authApi().profileAsync();
   }
 
-  async signUpAsync(userInfo) {
-    let result = await this._authApi().signupAsync(userInfo);
-    return result;
+  async signupAsync(userInfo) {
+    return await this._authApi().signupAsync(userInfo);
   }
 }
 
