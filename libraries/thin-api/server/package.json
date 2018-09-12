@@ -1,0 +1,30 @@
+{
+  "name": "thin-server",
+  "version": "0.5.0",
+  "description": "A thin API layer",
+  "main": "index.js",
+  "repository": "https://github.com/expo/ghost-server.git",
+  "author": "Charlie Cheever <ccheever@gmail.com>",
+  "license": "MIT",
+  "repl": {
+    "devDependencies": true,
+    "ignore": {
+      "modules": [
+        "nodemon"
+      ]
+    }
+  },
+  "scripts": {
+    "start": "npx nodemon ./_test.js"
+  },
+  "dependencies": {
+    "@expo/time": "^1.0.0"
+  },
+  "devDependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "node-fetch": "^2.2.0",
+    "nodemon": "^1.18.3",
+    "project-repl": "^1.3.0"
+  }
+}
