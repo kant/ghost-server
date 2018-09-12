@@ -1,5 +1,6 @@
 let AuthApi = require('./users/AuthApi');
 let ClientError = require('./ClientError');
+let model = require('./model');
 
 class Api {
   async addAsync(...args) {
@@ -42,6 +43,14 @@ class Api {
 
   async signupAsync(userInfo) {
     return await this._authApi().signupAsync(userInfo);
+  }
+
+  async newPlayRecordAsync(obj) {
+    return await model.newPlayRecordAsync(obj);
+  }
+
+  async getPlayRecordsAsync(mediaId, opts) {
+    return await model.getPlayRecordsAsync(mediaId, opts);
   }
 }
 

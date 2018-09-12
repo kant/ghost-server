@@ -5,16 +5,13 @@ CREATE TABLE "ghostSignup" (
   "signupEmail" varchar(255)
 );
 
-CREATE TABLE "user" (
-  "userId" varchar(255) PRIMARY KEY,
-
-)
-
-CREATE TABLE "playResults" (
-  "playResultId" varchar(255) PRIMARY KEY,
-  "gameId" varchar(255),
+CREATE TABLE "playRecord" (
+  "playRecordId" varchar(255) PRIMARY KEY,
+  "mediaId" varchar(255),
   "userId" varchar(255),
   "score" NUMERIC,
+  "startTime" timestamp,
+  "endTime" timestamp,
   "createdTime" timestamp,
   "updatedTime" timestamp
 );
@@ -32,16 +29,7 @@ CREATE TABLE "playlist" (
   "userId" varchar(255),
   "name" varchar(255),
   "description" varchar(255),
-  "createdTime" timestamp,
-  "updatedTime" timestamp
-)
-
-CREATE TABLE "playlistItem" (
-  "playlistItemId" varchar(255) PRIMARY KEY,
-  "playlistId" varchar(255),
-  "addedByUserId" varchar(255),
-  "mediaId" varchar(255),
-  "itemNumber" int,
+  "mediaItems" jsonb,
   "createdTime" timestamp,
   "updatedTime" timestamp
 );
@@ -49,9 +37,9 @@ CREATE TABLE "playlistItem" (
 CREATE TABLE "media" (
   "mediaId" varchar(255) PRIMARY KEY,
   "name" text,
-  "description" json,
-  "dimensions" json,
-  "instructions" json,
+  "description" jsonb,
+  "dimensions" jsonb,
+  "instructions" jsonb,
   "createdTime" timestamp,
   "updatedTime" timestamp,
   "userId" varchar(255),

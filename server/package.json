@@ -25,7 +25,8 @@
     "express": "^4.16.3",
     "node-fetch": "^2.2.0",
     "pg": "^7.4.3",
-    "thin-server": "^0.5.0"
+    "thin-server": "^0.5.0",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "nodemon": "^1.18.3",

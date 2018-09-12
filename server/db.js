@@ -13,6 +13,7 @@ pool.on('error', (err, client) => {
 });
 
 async function queryAsync(...args) {
+  // console.log(args);
   let tk = time.start();
   let client = await pool.connect();
   time.end(tk, 'db-connect', { threshold: 10 });

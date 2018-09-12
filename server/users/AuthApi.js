@@ -1,6 +1,6 @@
 let fetch = require('node-fetch');
 
-let data = require('../data');
+let model = require('../model');
 let ClientError = require('../ClientError');
 let ExpoApiV2Client = require('./ExpoApiV2Client');
 
@@ -71,7 +71,7 @@ class AuthApi {
     // Use a try/catch here since we don't want this API to fail just
     // because logging fialed (since the account will have been created)
     try {
-      await data.writeGhostSignupAsync(result);
+      await model.writeGhostSignupAsync(result);
     } catch (e) {
       console.error('Failed to log signup', e);
     }
