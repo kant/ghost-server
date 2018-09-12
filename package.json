@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "workspaces": [
+    "server",
+    "js-client",
+    "libraries/time",
+    "libraries/thin-api/client",
+    "libraries/thin-api/server"
+  ]
+}
