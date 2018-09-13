@@ -5,6 +5,8 @@
     "js-client",
     "libraries/time",
     "libraries/thin-api/client",
-    "libraries/thin-api/server"
+    "libraries/thin-api/server",
+    "examples/api-example",
+    "examples/next-js-api"
   ]
 }

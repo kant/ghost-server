@@ -1,5 +1,4 @@
-try {
-  module.exports = require('./storage/FileSystemStorage');
-} catch (e) {
-  module.exports = require('./storage/InMemoryStorage');
+module.exports = require('./Storage.web');
+if (process && process.versions && process.versions.node) {
+  module.exports = eval("require('./storage/FileSystemStorage')");
 }

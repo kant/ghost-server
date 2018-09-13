@@ -1,6 +1,6 @@
 class InMemoryStorage {
   constructor(opts) {
-    this._opts = { ...opts };
+    this._opts = Object.assign({}, opts);
     this._store = {};
   }
 

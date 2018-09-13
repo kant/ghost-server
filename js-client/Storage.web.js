@@ -1,1 +1,1 @@
-module.exports = require('./storage/BrowserStorage');
+module.exports = require('./storage/BrowserLocalStorage');

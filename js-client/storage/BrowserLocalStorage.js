@@ -1,4 +1,4 @@
-class BrowserStorage {
+class BrowserLocalStorage {
   constructor(opts) {
     this._opts = Object.assign({}, opts);
     this._localStorage = this._opts.localStorage || localStorage;
@@ -21,4 +21,4 @@ class BrowserStorage {
   }
 }
 
-module.exports = BrowserStorage;
+module.exports = BrowserLocalStorage;

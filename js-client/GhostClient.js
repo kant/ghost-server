@@ -66,17 +66,15 @@ class GhostClient extends ThinClient {
     //     location: '',
     //   },
     // };
-    let userMetadata = {
-      ...userData.user_metadata,
+    let userMetadata = Object.assign({}, userData.user_metadata, {
       onboarded: true,
       legacy: false,
       ghostSignup: true,
-    };
-    let outputUserData = {
-      ...userData,
+    });
+    let outputUserData = Object.assign({}, userData, {
       connection: 'Username-Password-Authentication',
       user_metadata: userMetadata,
-    };
+    });
     let result = await this.callAsync('signup', outputUserData);
     await this.loginAsync(outputUserData.username, outputUserData.password);
     return result;
