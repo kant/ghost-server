@@ -55,6 +55,16 @@ async function getObjectAsync(id, table, opts) {
   return x[id];
 }
 
+async function objectExistsAsync(id, table, column) {
+  table = table || id.replace(/:.*$/, '');
+  column = column || table + 'Id';
+  let results = await db.queryAsync(
+    'SELECT 1 FROM ' + js(table) + ' WHERE ' + js(column) + ' = $1',
+    [id]
+  );
+  return results.rowCount > 0;
+}
+
 async function writeNewObjectAsync(obj, table, opts) {
   let o = { ...obj };
   let t = new Date();
@@ -96,7 +106,16 @@ async function updateObjectAsync(id, table, update, opts) {
     values.push(update[k]);
   }
   let updates = keys.map((k, n) => js(k) + ' = $' + (n + 1)).join(', ');
-  let q = 'UPDATE ' + js(table) + ' SET ' + updates + ' WHERE ' + js(column) + ' = $' + (keys.length + 1) + ';';
+  let q =
+    'UPDATE ' +
+    js(table) +
+    ' SET ' +
+    updates +
+    ' WHERE ' +
+    js(column) +
+    ' = $' +
+    (keys.length + 1) +
+    ';';
   values.push(id);
   let result = await db.queryAsync(q, values);
   assert.equal(result.rowCount, 1);
@@ -109,4 +128,5 @@ module.exports = {
   updateObjectAsync,
   objectsFromResults,
   objectsListFromResults,
+  objectExistsAsync,
 };

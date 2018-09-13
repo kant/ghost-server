@@ -41,8 +41,30 @@ async function getPlayRecordsAsync(mediaId, opts) {
   return data.objectsListFromResults(results);
 }
 
+async function getMediaAsync(mediaId) {
+  return await data.getObjectAsync(mediaId, 'media');
+}
+
+async function getAllMediaAsync() {
+  let q = 'SELECT * FROM "media" ORDER BY "updatedTime" DESC';
+  let results = await db.queryAsync(q);
+  return data.objectsListFromResults(results);
+}
+
+async function newMediaAsync(obj) {
+  obj.mediaId =
+    obj.mediaId ||
+    (await id.createUniqueIdAsync('media', obj.name, async (mediaId) => {
+      return data.objectExistsAsync(mediaId, 'media', 'mediaId');
+    }));
+  return await data.writeNewObjectAsync(obj, 'media');
+}
+
 module.exports = {
   writeGhostSignupAsync,
   newPlayRecordAsync,
   getPlayRecordsAsync,
+  getMediaAsync,
+  getAllMediaAsync,
+  newMediaAsync,
 };

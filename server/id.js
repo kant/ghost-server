@@ -20,10 +20,11 @@ function makeUuid(length = 27) {
   return body;
 }
 
-function _normalizeInfo(s) {
-  let n = s.replace(/[^a-zA-Z0-9_]/, '-');
-  if (n.length > 40) {
-    n = n.substr(0, 40);
+function _normalizeInfo(s, maxLength) {
+  maxLength = maxLength || 48;
+  let n = s.toLowerCase().replace(/[^a-zA-Z0-9_]/g, '-');
+  if (n.length > maxLength) {
+    n = n.substr(0, maxLength);
   }
   return n;
 }
@@ -41,22 +42,20 @@ function md5(message, length) {
 }
 
 function createId(type, s) {
-  let data;
-  if (s) {
-    let n = _normalizeInfo(s);
-    if (n === s) {
-      data = n;
-    } else {
-      data = n + '.' + md5(s, 8);
-    }
-  } else {
-    data = makeUuid();
+  return type + ':' + _normalizeInfo(s);
+}
+
+async function createUniqueIdAsync(type, s, existsAsync) {
+  let id = createId(type, s);
+  while (await existsAsync(id)) {
+    id = id.substr(0, 48) + '--' + makeUuid(8);
   }
-  return type + ':' + data;
+  return id;
 }
 
 module.exports = {
   makeUuid,
   createId,
+  createUniqueIdAsync,
   md5,
 };

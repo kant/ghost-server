@@ -52,6 +52,18 @@ class Api {
   async getPlayRecordsAsync(mediaId, opts) {
     return await model.getPlayRecordsAsync(mediaId, opts);
   }
+
+  async getMediaAsync(mediaId) {
+    return await model.getMediaAsync(mediaId);
+  }
+
+  async getAllMediaAsync() {
+    return await model.getAllMediaAsync();
+  }
+
+  async newMediaAsync(obj) {
+    return await model.newMediaAsync(obj);
+  }
 }
 
 module.exports = Api;
