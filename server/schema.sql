@@ -50,3 +50,32 @@ CREATE TABLE "media" (
   "deleted" int,
 );
 
+CREATE TABLE "user" (
+  "userId" varchar(255) PRIMARY KEY,
+  "name" text,
+  "about" jsonb,
+  "photoUrl" text,
+  "createdTime" timestamp,
+  "updatedTime" timestamp
+);
+
+CREATE TABLE "contact" (
+  "contactId" varchar(255) PRIMARY KEY,
+  "userId" varchar(255),
+  "contactType" varchar(24),
+  "normalizedContact" varchar(255),
+  "confirmed" boolean,
+  "deleted" boolean,
+  "commandeered" boolean,
+  "createdTime" timestamp,
+  "updatedTime" timestamp
+);
+
+CREATE TABLE "profileView" (
+  "viewedProfileUserId" varchar(255),
+  "viewerUserId" varchar(255),
+  "viewTime" timestamp
+);
+
+
+

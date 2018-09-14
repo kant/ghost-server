@@ -87,6 +87,31 @@ async function getAllEnginesAsync() {
   return data.objectsFromResults(results, 'engineId');
 }
 
+async function recordProfileView(viewingUserId, viewedUserId, when) {
+  when = when || new Date();
+  let result = await db.queryAsync(
+    'INSERT INTO "profileView" ("viewedProfileUserId", "viewerUserId", "viewTime") VALUES ($1, $2, $3);',
+    [viewedUserId, viewingUserId, when]
+  );
+  assert.equal(result.rowCount, 1);
+}
+
+async function getTotalProfileViews(userId) {
+  let result = await db.queryAsync(
+    'SELECT COUNT(1)::integer AS "views" FROM "profileView" WHERE "viewedProfileUserId" = $1',
+    [userId]
+  );
+  return result.rows[0].views;
+}
+
+async function getTotalMediaPlays(mediaId) {
+  let result = await db.queryAsync(
+    'SELECT COUNT(1)::integer AS "views" FROM "playRecord" WHERE "mediaId" = $1',
+    [mediaId]
+  );
+  return result.rows[0].views;
+}
+
 module.exports = {
   writeGhostSignupAsync,
   newPlayRecordAsync,
@@ -99,4 +124,7 @@ module.exports = {
   newEngineAsync,
   updateEngineAsync,
   getAllEnginesAsync,
+  recordProfileView,
+  getTotalProfileViews,
+  getTotalMediaPlays,
 };
