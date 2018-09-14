@@ -5,26 +5,16 @@ let _tkPrimedAndStarted = time.start();
 let bodyParser = require('body-parser');
 let cors = require('cors');
 let escapeHtml = require('escape-html');
-let express = require('express');
 let graphqlYoga = require('graphql-yoga');
 let thinServer = require('thin-server');
 let spawnAsync = require('@expo/spawn-async');
 
 let Api = require('./Api');
 let db = require('./db');
+let resolvers = require("./resolvers");
+let typeDefs = require("./typeDefs");
 
 async function serveAsync(port) {
-  let typeDefs = `
-  type Query {
-    hello(name: String): String!
-  }
-`;
-
-  let resolvers = {
-    Query: {
-      hello: (_, { name }) => `Hello ${name || 'World'}`,
-    },
-  };
 
   let endpoints = {
     status: '/status',
@@ -41,6 +31,8 @@ async function serveAsync(port) {
     res.json({ status: 'OK' });
   });
   app.post(endpoints.api, thinServer(Api));
+
+  // Homepage with some info  
   app.get('/', async (req, res) => {
     let pkg = require('./package');
     let gitResult = await spawnAsync('git', ['log', '--pretty=oneline', '-n1']);
