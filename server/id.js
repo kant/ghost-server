@@ -22,7 +22,7 @@ function makeUuid(length = 27) {
 
 function _normalizeInfo(s, maxLength) {
   maxLength = maxLength || 48;
-  let n = s.toLowerCase().replace(/[^a-zA-Z0-9_]/g, '-');
+  let n = s.toLowerCase().replace(/[ \.]/g, '-').replace(/[^-a-zA-Z0-9_]/g, '');
   if (n.length > maxLength) {
     n = n.substr(0, maxLength);
   }
@@ -46,9 +46,10 @@ function createId(type, s) {
 }
 
 async function createUniqueIdAsync(type, s, existsAsync) {
-  let id = createId(type, s);
+  let naturalId = createId(type, s);
+  let id = naturalId;
   while (await existsAsync(id)) {
-    id = id.substr(0, 48) + '--' + makeUuid(8);
+    id = naturalId.substr(0, 48) + '+' + makeUuid(8);
   }
   return id;
 }

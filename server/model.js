@@ -41,6 +41,10 @@ async function getPlayRecordsAsync(mediaId, opts) {
   return data.objectsListFromResults(results);
 }
 
+async function updatePlayRecordAsync(obj) {
+  return await data.updateObjectAsync(obj.playRecordId, 'playRecord');
+}
+
 async function getMediaAsync(mediaId) {
   return await data.getObjectAsync(mediaId, 'media');
 }
@@ -60,11 +64,39 @@ async function newMediaAsync(obj) {
   return await data.writeNewObjectAsync(obj, 'media');
 }
 
+async function updateMediaAsync(obj) {
+  return await data.updateObjectAsync(obj, 'media', { column: 'mediaId' });
+}
+
+async function newEngineAsync(obj) {
+  obj.engineId =
+    obj.engineId ||
+    (await id.createUniqueIdAsync('engine', obj.name, async (engineId) => {
+      return data.objectExistsAsync(engineId, 'engine', 'engineId');
+    }));
+  return await data.writeNewObjectAsync(obj, 'engine');
+}
+
+async function updateEngineAsync(obj) {
+  return await data.updateObjectAsync(obj, 'engine', { column: 'engineId' });
+}
+
+async function getAllEnginesAsync() {
+  let q = 'SELECT * FROM "engine"';
+  let results = await db.queryAsync(q);
+  return data.objectsFromResults(results, 'engineId');
+}
+
 module.exports = {
   writeGhostSignupAsync,
   newPlayRecordAsync,
   getPlayRecordsAsync,
+  updatePlayRecordAsync,
   getMediaAsync,
   getAllMediaAsync,
   newMediaAsync,
+  updateMediaAsync,
+  newEngineAsync,
+  updateEngineAsync,
+  getAllEnginesAsync,
 };

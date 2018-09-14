@@ -23,7 +23,19 @@ class GhostClient extends ThinClient {
   }
 
   clientSimpleMethods() {
-    return ['add', 'getViewer'];
+    return [
+      'add',
+      'getAllEngines',
+      'getAllMedia',
+      'getMedia',
+      'getPlayRecords',
+      'getViewer',
+      'newEngine',
+      'newMedia',
+      'newPlayRecord',
+      'updateEngine',
+      'updateMedia',
+    ];
   }
 
   clientDidReceiveCommand(command) {}

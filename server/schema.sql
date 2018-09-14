@@ -14,6 +14,7 @@ CREATE TABLE "playRecord" (
   "endTime" timestamp,
   "createdTime" timestamp,
   "updatedTime" timestamp
+  "deleted" int,
 );
 
 CREATE TABLE "engine" (
@@ -21,7 +22,8 @@ CREATE TABLE "engine" (
   "name" varchar(255),
   "url" varchar(255),
   "createdTime" timestamp, 
-  "updatedTime" timestamp
+  "updatedTime" timestamp,
+  "deleted" int,
 );
 
 CREATE TABLE "playlist" (
@@ -32,6 +34,7 @@ CREATE TABLE "playlist" (
   "mediaItems" jsonb,
   "createdTime" timestamp,
   "updatedTime" timestamp
+  "deleted" int,
 );
 
 CREATE TABLE "media" (
@@ -44,5 +47,6 @@ CREATE TABLE "media" (
   "updatedTime" timestamp,
   "userId" varchar(255),
   "engineId" varchar(255)
+  "deleted" int,
 );
 

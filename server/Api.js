@@ -61,8 +61,24 @@ class Api {
     return await model.getAllMediaAsync();
   }
 
+  async updateMediaAsync(obj) {
+    return await model.updateMediaAsync(obj);
+  }
+
   async newMediaAsync(obj) {
     return await model.newMediaAsync(obj);
+  }
+
+  async newEngineAsync(obj) {
+    return await model.newEngineAsync(obj);
+  }
+
+  async updateEngineAsync(obj) {
+    return await model.updateEngineAsync(obj);
+  }
+
+  async getAllEnginesAsync() {
+    return await model.getAllEnginesAsync();
   }
 }
 
