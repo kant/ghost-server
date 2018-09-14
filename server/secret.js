@@ -1,4 +1,5 @@
 try {
+  // For render.com deployment
   module.exports = require('/etc/secrets/ghost-secret');
 } catch (e) {
   try {

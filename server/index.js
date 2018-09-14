@@ -11,11 +11,10 @@ let spawnAsync = require('@expo/spawn-async');
 
 let Api = require('./Api');
 let db = require('./db');
-let resolvers = require("./resolvers");
-let typeDefs = require("./typeDefs");
+let resolvers = require('./resolvers');
+let typeDefs = require('./typeDefs');
 
 async function serveAsync(port) {
-
   let endpoints = {
     status: '/status',
     api: '/api',
@@ -32,7 +31,7 @@ async function serveAsync(port) {
   });
   app.post(endpoints.api, thinServer(Api));
 
-  // Homepage with some info  
+  // Homepage with some info
   app.get('/', async (req, res) => {
     let pkg = require('./package');
     let gitResult = await spawnAsync('git', ['log', '--pretty=oneline', '-n1']);

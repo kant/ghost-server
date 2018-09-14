@@ -112,6 +112,10 @@ async function getTotalMediaPlays(mediaId) {
   return result.rows[0].views;
 }
 
+async function getEngineAsync(engineId) {
+  return await data.getObjectAsync(engineId, 'engine', { column: 'engineId' });
+}
+
 module.exports = {
   writeGhostSignupAsync,
   newPlayRecordAsync,
