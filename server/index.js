@@ -6,6 +6,7 @@ let bodyParser = require('body-parser');
 let cors = require('cors');
 let escapeHtml = require('escape-html');
 let express = require('express');
+let graphqlYoga = require('graphql-yoga');
 let thinServer = require('thin-server');
 let spawnAsync = require('@expo/spawn-async');
 
@@ -13,16 +14,49 @@ let Api = require('./Api');
 let db = require('./db');
 
 async function serveAsync(port) {
-  let app = express();
+  let typeDefs = `
+  type Query {
+    hello(name: String): String!
+  }
+`;
+
+  let resolvers = {
+    Query: {
+      hello: (_, { name }) => `Hello ${name || 'World'}`,
+    },
+  };
+
+  let endpoints = {
+    status: '/status',
+    api: '/api',
+    graphql: '/graphql',
+    playground: '/graphql',
+    subscriptions: '/subscriptions',
+  };
+
+  let app = new graphqlYoga.GraphQLServer({ typeDefs, resolvers });
   app.use(cors());
   app.use(bodyParser.json());
-  app.get('/status', async (req, res) => {
+  app.get(endpoints.status, async (req, res) => {
     res.json({ status: 'OK' });
   });
-  app.post('/api', thinServer(Api));
+  app.post(endpoints.api, thinServer(Api));
   app.get('/', async (req, res) => {
     let pkg = require('./package');
     let gitResult = await spawnAsync('git', ['log', '--pretty=oneline', '-n1']);
+    let links = [];
+    for (let name in endpoints) {
+      links.push(
+        '    ' +
+          name +
+          '  ' +
+          '<a href=' +
+          JSON.stringify(endpoints[name]) +
+          '>' +
+          endpoints[name] +
+          '</a>'
+      );
+    }
     res.send(
       '<pre>👻 ' +
         pkg.name +
@@ -32,7 +66,9 @@ async function serveAsync(port) {
         pkg.repository +
         '">' +
         escapeHtml(gitResult.stdout) +
-        '</a></pre>'
+        '</a><br />' +
+        links.join('\n') +
+        '</pre>'
     );
   });
 
@@ -45,10 +81,18 @@ async function serveAsync(port) {
 
   // Start the server
   port = port || process.env.PORT || 1380;
-  app.listen(port, () => {
-    time.end(_tkPrimedAndStarted, 'server-start');
-    console.log('Ghost server listening on port ' + port);
-  });
+  app.start(
+    {
+      port,
+      endpoint: endpoints.graphql,
+      subscriptions: endpoints.subscriptions,
+      playground: endpoints.playground,
+    },
+    (info) => {
+      time.end(_tkPrimedAndStarted, 'server-start');
+      console.log('Ghost server listening on port ' + info.port);
+    }
+  );
 }
 
 module.exports = serveAsync;
