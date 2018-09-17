@@ -24,6 +24,9 @@ module.exports = {
     playlist: async (_, { playlistId }) => {
       return await model.getPlaylistAsync(playlistId);
     },
+    playlistsForUser: async (_, { userId }) => {
+      return await model.getPlaylistsForUser(userId);
+    },
   },
   Media: {
     user: async (media) => {

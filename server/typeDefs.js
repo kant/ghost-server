@@ -53,7 +53,9 @@ type Query {
     userByUsername(username: String!): User
     engine(engineId: ID!): Engine
     playlist(playlistId: ID!): Playlist
+    playlistsForUser(userId: ID!): [Playlist]
   }
+
 
 type Mutation {
   updateUser(userId: ID!, update: Json): User

@@ -30,11 +30,11 @@ CREATE TABLE "playlist" (
   "playlistId" varchar(255) PRIMARY KEY,
   "userId" varchar(255),
   "name" varchar(255),
-  "description" varchar(255),
+  "description" jsonb,
   "mediaItems" jsonb,
   "createdTime" timestamp,
-  "updatedTime" timestamp
-  "deleted" int,
+  "updatedTime" timestamp,
+  "deleted" int
 );
 
 CREATE TABLE "media" (
@@ -86,4 +86,3 @@ CREATE TABLE "session" (
   "updatedTime" timestamp,
   "createdIp" varchar(48)
 );
-
