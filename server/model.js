@@ -141,6 +141,35 @@ async function getUserByUsernameAsync(username) {
   }
 }
 
+async function getPlaylistAsync(playlistId) {
+  return await data.getObjectAsync(playlistId, 'playlist', { column: 'playlistId' });
+}
+
+async function updatePlaylistAsync(obj) {
+  return await data.updateObjectAsync(obj.playlistId, 'playlist', obj, { column: 'playlistId' });
+}
+
+async function deletePlaylistAsync(playlistId) {
+  return await data.updateObjectAsync(
+    playlistId,
+    'playlist',
+    { deleted: true },
+    { column: 'playlistId' }
+  );
+}
+
+async function getPlaylistsForUser(userId) {
+  let results = await db.queryAsync(
+    'SELECT * FROM "playlist" WHERE "userId" = $1 ORDER BY "updatedTime" DESC',
+    [userId]
+  );
+  return data.objectsListFromResults(results);
+}
+
+async function newePlaylistAsync(obj) {
+  return await data.writeNewObjectAsync(obj, 'playlist', { column: 'playlistId' });
+}
+
 module.exports = {
   writeGhostSignupAsync,
   newPlayRecordAsync,
@@ -161,4 +190,9 @@ module.exports = {
   updateUserAsync,
   getUserAsync,
   getUserByUsernameAsync,
+  getPlaylistAsync,
+  getPlaylistsForUser,
+  updatePlaylistAsync,
+  deletePlaylistAsync,
+  newePlaylistAsync,
 };

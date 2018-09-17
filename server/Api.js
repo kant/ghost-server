@@ -80,6 +80,22 @@ class Api {
   async getAllEnginesAsync() {
     return await model.getAllEnginesAsync();
   }
+
+  async newPlaylistAsync(obj) {
+    return await model.newPlaylistAsync(obj);
+  }
+
+  async updatePlaylistAsync(obj) {
+    return await model.updatePlaylistAsync(obj);
+  }
+
+  async getPlaylistAsync(playlistId) {
+    return await model.getPlaylistAsync(obj);
+  }
+
+  async deletePlaylistAsync(playlistId) {
+    return await model.deletePlaylistAsync(playlistId);
+  }
 }
 
 module.exports = Api;
