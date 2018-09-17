@@ -5,3 +5,4 @@ Rules for this repo.
 3. Use `require` instead of `import`
 4. Use the .prettierrc from the root directory
 5. Use project-repl for each subproject
+6. Make sure everything can be installed by just doing `yarn` in any recent officially supported version of node.
