@@ -166,7 +166,8 @@ async function getPlaylistsForUser(userId) {
   return data.objectsListFromResults(results);
 }
 
-async function newePlaylistAsync(obj) {
+async function newPlaylistAsync(obj) {
+  obj.playlistId = obj.playlistId || id.createUuidId('playlist');
   return await data.writeNewObjectAsync(obj, 'playlist', { column: 'playlistId' });
 }
 
@@ -194,5 +195,5 @@ module.exports = {
   getPlaylistsForUser,
   updatePlaylistAsync,
   deletePlaylistAsync,
-  newePlaylistAsync,
+  newPlaylistAsync,
 };

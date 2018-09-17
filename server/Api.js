@@ -90,7 +90,7 @@ class Api {
   }
 
   async getPlaylistAsync(playlistId) {
-    return await model.getPlaylistAsync(obj);
+    return await model.getPlaylistAsync(playlistId);
   }
 
   async deletePlaylistAsync(playlistId) {
