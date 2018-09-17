@@ -9,6 +9,9 @@
     "ignore": {
       "modules": [
         "nodemon"
+      ],
+      "files": [
+        "scratch"
       ]
     }
   },

@@ -53,7 +53,9 @@ CREATE TABLE "media" (
 CREATE TABLE "user" (
   "userId" varchar(255) PRIMARY KEY,
   "name" text,
+  "username" varchar(255),
   "about" jsonb,
+  "location" text,
   "photoUrl" text,
   "createdTime" timestamp,
   "updatedTime" timestamp

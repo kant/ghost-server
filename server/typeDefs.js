@@ -18,6 +18,8 @@ type Media {
 type User {
   userId: ID! @unique
   name: String
+  location: String
+  username: String
   about: Json
   photoUrl: String
   createdTime: Datetime
@@ -34,8 +36,13 @@ type Engine {
 
 type Query {
     hello(name: String): String!
-    media(mediaId: ID): Media
-    user(userId: ID): User
-    engine(engineId: ID): Engine
+    media(mediaId: ID!): Media
+    user(userId: ID!): User
+    userByUsername(username: String!): User
+    engine(engineId: ID!): Engine
   }
+
+type Mutation {
+  updateUser(userId: ID!, update: Json): User
+}
 `;

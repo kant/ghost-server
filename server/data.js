@@ -1,3 +1,5 @@
+let assert = require('assert');
+
 let db = require('./db');
 
 let js = JSON.stringify;
@@ -100,10 +102,10 @@ async function updateObjectAsync(id, table, update, opts) {
   opts = opts || {};
   let column = opts.column || table + 'Id';
   o.updatedTime = o.updatedTime || new Date();
-  let keys = Object.keys(update);
+  let keys = Object.keys(o);
   let values = [];
   for (let k of keys) {
-    values.push(update[k]);
+    values.push(o[k]);
   }
   let updates = keys.map((k, n) => js(k) + ' = $' + (n + 1)).join(', ');
   let q =

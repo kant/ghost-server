@@ -42,7 +42,9 @@ async function getPlayRecordsAsync(mediaId, opts) {
 }
 
 async function updatePlayRecordAsync(obj) {
-  return await data.updateObjectAsync(obj.playRecordId, 'playRecord');
+  return await data.updateObjectAsync(obj.playRecordId, 'playRecord', obj, {
+    column: 'playRecordId',
+  });
 }
 
 async function getMediaAsync(mediaId) {
@@ -65,7 +67,7 @@ async function newMediaAsync(obj) {
 }
 
 async function updateMediaAsync(obj) {
-  return await data.updateObjectAsync(obj, 'media', { column: 'mediaId' });
+  return await data.updateObjectAsync(obj.mediaId, 'media', obj, { column: 'mediaId' });
 }
 
 async function newEngineAsync(obj) {
@@ -116,6 +118,29 @@ async function getEngineAsync(engineId) {
   return await data.getObjectAsync(engineId, 'engine', { column: 'engineId' });
 }
 
+async function newUserAsync(obj) {
+  return await data.writeNewObjectAsync(obj, 'user', { column: 'userId' });
+}
+
+async function getUserAsync(userId) {
+  return await data.getObjectAsync(userId, 'user', { column: 'userId' });
+}
+
+async function updateUserAsync(obj) {
+  return await data.updateObjectAsync(obj.userId, 'user', obj, { column: 'userId' });
+}
+
+async function getUserByUsernameAsync(username) {
+  let results = await db.queryAsync('SELECT * FROM "user" WHERE "username" = $1;', [username]);
+  if (results.rowCount > 0) {
+    if (results.rowCount > 1) {
+      console.warn("Multiple users with username '" + username + "'");
+    }
+    let objs = data.objectsListFromResults(results);
+    return objs[0];
+  }
+}
+
 module.exports = {
   writeGhostSignupAsync,
   newPlayRecordAsync,
@@ -131,4 +156,9 @@ module.exports = {
   recordProfileView,
   getTotalProfileViews,
   getTotalMediaPlays,
+  getEngineAsync,
+  newUserAsync,
+  updateUserAsync,
+  getUserAsync,
+  getUserByUsernameAsync,
 };

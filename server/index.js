@@ -82,6 +82,7 @@ async function serveAsync(port) {
     (info) => {
       time.end(_tkPrimedAndStarted, 'server-start');
       console.log('Ghost server listening on port ' + info.port);
+      console.log('http://localhost:' + port + '/');
     }
   );
 }
