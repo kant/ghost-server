@@ -79,5 +79,11 @@ CREATE TABLE "profileView" (
   "viewTime" timestamp
 );
 
-
+CREATE TABLE "session" (
+  "sessionId" varchar(255) PRIMARY KEY,
+  "userId" varchar(255),
+  "createdTime" timestamp,
+  "updatedTime" timestamp,
+  "createdIp" varchar(48)
+);
 

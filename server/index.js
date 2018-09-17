@@ -23,7 +23,16 @@ async function serveAsync(port) {
     subscriptions: '/subscriptions',
   };
 
-  let app = new graphqlYoga.GraphQLServer({ typeDefs, resolvers });
+  let app = new graphqlYoga.GraphQLServer({
+    typeDefs,
+    resolvers,
+    context: ({ request }) => {
+      return {
+        request,
+        demo: 'charlie',
+      };
+    },
+  });
   app.use(cors());
   app.use(bodyParser.json());
   app.get(endpoints.status, async (req, res) => {

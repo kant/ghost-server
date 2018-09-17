@@ -4,7 +4,8 @@ let model = require('./model');
 
 module.exports = {
   Query: {
-    hello: (_, { name }) => `Hello ${name || 'World'}`,
+    hello: (_, { name }, context) =>
+      `Hello ${name || 'World'}` + JSON.stringify(Object.keys(context.request)) + JSON.stringify(Object.keys(context.request.headers)) + JSON.stringify(context.request.connection.remoteAddress),
     media: async (_, { mediaId }) => {
       return await model.getMediaAsync(mediaId);
     },
