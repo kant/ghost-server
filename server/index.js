@@ -57,12 +57,15 @@ async function serveAsync(port) {
           '</a>'
       );
     }
+
+    let title = '👻 ' + pkg.name + ' v' + pkg.version;
     res.send(
-      '<pre>👻 ' +
-        pkg.name +
-        ' v' +
-        pkg.version +
-        '</a><br /><br /><a href="' +
+      '<title>' +
+        title +
+        '</title>' +
+        '<pre>' +
+        title +
+        '<br /><br /><a href="' +
         pkg.repository +
         '">' +
         escapeHtml(gitResult.stdout) +
