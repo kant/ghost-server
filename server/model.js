@@ -171,6 +171,10 @@ async function newPlaylistAsync(obj) {
   return await data.writeNewObjectAsync(obj, 'playlist', { column: 'playlistId' });
 }
 
+async function multigetMediaAsync(mediaIdList) {
+  return await data.multigetObjectsAsync(mediaIdList, 'media', {column: 'mediaId'});
+}
+
 module.exports = {
   writeGhostSignupAsync,
   newPlayRecordAsync,
@@ -196,4 +200,5 @@ module.exports = {
   updatePlaylistAsync,
   deletePlaylistAsync,
   newPlaylistAsync,
+  multigetMediaAsync,
 };

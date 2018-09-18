@@ -5,7 +5,10 @@ let model = require('./model');
 module.exports = {
   Query: {
     hello: (_, { name }, context) =>
-      `Hello ${name || 'World'}` + JSON.stringify(Object.keys(context.request)) + JSON.stringify(Object.keys(context.request.headers)) + JSON.stringify(context.request.connection.remoteAddress),
+      `Hello ${name || 'World'}` +
+      JSON.stringify(Object.keys(context.request)) +
+      JSON.stringify(Object.keys(context.request.headers)) +
+      JSON.stringify(context.request.connection.remoteAddress),
     media: async (_, { mediaId }) => {
       return await model.getMediaAsync(mediaId);
     },
@@ -17,6 +20,22 @@ module.exports = {
     },
     engine: async (_, { engineId }) => {
       return await model.getEngineAsync(engineId);
+    },
+    playlist: async (_, { playlistId }) => {
+      return await model.getPlaylistAsync(playlistId);
+    },
+  },
+  Media: {
+    user: async (media) => {
+      return await model.getUserAsync(media.userId);
+    },
+    engine: async (media) => {
+      return await model.getEngineAsync(media.engineId);
+    },
+  },
+  Playlist: {
+    mediaItems: async (playlist) => {
+      return await model.multigetMediaAsync(playlist.mediaItems);
     },
   },
   Mutation: {
