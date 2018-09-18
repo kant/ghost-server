@@ -171,8 +171,8 @@ async function newPlaylistAsync(obj) {
   return await data.writeNewObjectAsync(obj, 'playlist', { column: 'playlistId' });
 }
 
-async function multigetMediaAsync(mediaIdList) {
-  return await data.multigetObjectsAsync(mediaIdList, 'media', {column: 'mediaId'});
+async function multigetMediaAsync(mediaIdList, opts) {
+  return await data.multigetObjectsAsync(mediaIdList, 'media', {column: 'mediaId', ...opts});
 }
 
 module.exports = {

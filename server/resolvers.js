@@ -38,9 +38,7 @@ module.exports = {
   },
   Playlist: {
     mediaItems: async (playlist) => {
-      let x=  await model.multigetMediaAsync(playlist.mediaItems);
-      console.log({x});
-      return [];
+      return await model.multigetMediaAsync(playlist.mediaItems, { asList: true });
     },
   },
   Mutation: {

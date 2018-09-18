@@ -29,6 +29,15 @@ async function multigetObjectsAsync(idList, table, opts) {
     let id = obj[column];
     x[id] = obj;
   }
+
+  if (opts.asList) {
+    let list = [];
+    for (let id of idList) {
+      list.push(x[id]);
+    }
+    return list;
+  }
+
   return x;
 }
 
