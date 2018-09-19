@@ -51,6 +51,18 @@ function objectsFromResults(results, key) {
   return x;
 }
 
+function oneObjectFromResults(results, opts) {
+  if (opts.assertExactlyOne) {
+    assert.equal(results.rowCount, 1);
+  } else {
+    if (!results.rowCount) {
+      return null;
+    }
+  }
+  let obj = Object.assign({}, results.rows[0]);
+  return obj;
+}
+
 function objectsListFromResults(results) {
   let x = [];
   for (let r of results.rows) {
@@ -140,4 +152,5 @@ module.exports = {
   objectsFromResults,
   objectsListFromResults,
   objectExistsAsync,
+  oneObjectFromResults,
 };

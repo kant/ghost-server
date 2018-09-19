@@ -172,7 +172,30 @@ async function newPlaylistAsync(obj) {
 }
 
 async function multigetMediaAsync(mediaIdList, opts) {
-  return await data.multigetObjectsAsync(mediaIdList, 'media', {column: 'mediaId', ...opts});
+  return await data.multigetObjectsAsync(mediaIdList, 'media', { column: 'mediaId', ...opts });
+}
+
+async function newSessionAsync(userId, opts) {
+  let sessionId = 'session:' + userId + '/' + id.makeUuid();
+
+  return await data.writeNewObjectAsync(
+    {
+      sessionId,
+      userId,
+      ...opts,
+    },
+    'session',
+    { column: 'sessionId' }
+  );
+}
+
+async function getSessionAsync(sessionId) {
+  return await data.getObjectAsync(sessionId, 'session', { column: 'sessionId' });
+}
+
+async function getSessionsForUserAsync(userId) {
+  let results = await db.queryAsync('SELECT * FROM "session" WHERE "userId" = $1', [userId]);
+  return data.objectsFromResults(results);
 }
 
 module.exports = {
@@ -201,4 +224,7 @@ module.exports = {
   deletePlaylistAsync,
   newPlaylistAsync,
   multigetMediaAsync,
+  newSessionAsync,
+  getSessionAsync,
+  getSessionsForUserAsync,
 };
