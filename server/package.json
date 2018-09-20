@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "nodemon": "^1.18.3",
-    "project-repl": "^1.4.3"
+    "project-repl": "^1.4.3",
+    "request-image-size": "^2.1.0"
   }
 }

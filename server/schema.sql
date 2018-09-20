@@ -40,20 +40,26 @@ CREATE TABLE "playlist" (
 CREATE TABLE "media" (
   "mediaId" varchar(255) PRIMARY KEY,
   "name" text,
+  "mediaUrl" text,
+  "homepageUrl" text,
+  "coverImage" jsonb,
   "description" jsonb,
   "dimensions" jsonb,
   "instructions" jsonb,
   "createdTime" timestamp,
   "updatedTime" timestamp,
   "userId" varchar(255),
-  "engineId" varchar(255)
-  "deleted" int,
+  "creators" jsonb,
+  "engineId" varchar(255),
+  "extraData" jsonb,
+  "deleted" int
 );
 
 CREATE TABLE "user" (
   "userId" varchar(255) PRIMARY KEY,
   "name" text,
   "username" varchar(255),
+  "links" jsonb,
   "about" jsonb,
   "location" text,
   "photoUrl" text,

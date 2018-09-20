@@ -1,9 +1,9 @@
 let data = require('./data');
 let db = require('./db');
-let id = require('./id');
+let idlib = require('./idlib');
 
 async function newPlayRecordAsync(obj) {
-  obj.playRecordId = obj.playRecordId || id.createId('pr');
+  obj.playRecordId = obj.playRecordId || idlib.createId('playRecord');
   return await data.writeNewObjectAsync(obj, 'playRecord');
 }
 
@@ -58,12 +58,7 @@ async function getAllMediaAsync() {
 }
 
 async function newMediaAsync(obj) {
-  obj.mediaId =
-    obj.mediaId ||
-    (await id.createUniqueIdAsync('media', obj.name, async (mediaId) => {
-      return data.objectExistsAsync(mediaId, 'media', 'mediaId');
-    }));
-  return await data.writeNewObjectAsync(obj, 'media');
+  return await data.writeNewObjectAsync(obj, 'media', { autoId: true });
 }
 
 async function updateMediaAsync(obj) {
@@ -71,12 +66,7 @@ async function updateMediaAsync(obj) {
 }
 
 async function newEngineAsync(obj) {
-  obj.engineId =
-    obj.engineId ||
-    (await id.createUniqueIdAsync('engine', obj.name, async (engineId) => {
-      return data.objectExistsAsync(engineId, 'engine', 'engineId');
-    }));
-  return await data.writeNewObjectAsync(obj, 'engine');
+  return await data.writeNewObjectAsync(obj, 'engine', { autoId: true });
 }
 
 async function updateEngineAsync(obj) {
@@ -119,7 +109,11 @@ async function getEngineAsync(engineId) {
 }
 
 async function newUserAsync(obj) {
-  return await data.writeNewObjectAsync(obj, 'user', { column: 'userId' });
+  return await data.writeNewObjectAsync(obj, 'user', {
+    column: 'userId',
+    autoId: true,
+    autoIdSource: obj.username,
+  });
 }
 
 async function getUserAsync(userId) {
@@ -128,6 +122,10 @@ async function getUserAsync(userId) {
 
 async function updateUserAsync(obj) {
   return await data.updateObjectAsync(obj.userId, 'user', obj, { column: 'userId' });
+}
+
+async function _deleteUserAsync(userId) {
+  return await data._deleteObjectAsync(userId, 'user', { column: 'userId' });
 }
 
 async function getUserByUsernameAsync(username) {
@@ -167,8 +165,7 @@ async function getPlaylistsForUser(userId) {
 }
 
 async function newPlaylistAsync(obj) {
-  obj.playlistId = obj.playlistId || id.createUuidId('playlist');
-  return await data.writeNewObjectAsync(obj, 'playlist', { column: 'playlistId' });
+  return await data.writeNewObjectAsync(obj, 'playlist', { column: 'playlistId', autoId: true });
 }
 
 async function multigetMediaAsync(mediaIdList, opts) {
@@ -176,7 +173,7 @@ async function multigetMediaAsync(mediaIdList, opts) {
 }
 
 async function newSessionAsync(userId, opts) {
-  let sessionId = 'session:' + userId + '/' + id.makeUuid();
+  let sessionId = 'session:' + userId + '/' + idlib.makeUuid();
 
   return await data.writeNewObjectAsync(
     {
@@ -218,6 +215,7 @@ module.exports = {
   updateUserAsync,
   getUserAsync,
   getUserByUsernameAsync,
+  _deleteUserAsync,
   getPlaylistAsync,
   getPlaylistsForUser,
   updatePlaylistAsync,

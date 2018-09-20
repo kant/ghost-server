@@ -1,6 +1,7 @@
 let assert = require('assert');
 
 let db = require('./db');
+let idlib = require('./idlib');
 
 let js = JSON.stringify;
 
@@ -92,29 +93,52 @@ async function writeNewObjectAsync(obj, table, opts) {
   let o = { ...obj };
   let t = new Date();
   opts = opts || {};
+  let column = opts.column || table + 'Id';
+  if (opts.autoId) {
+    if (!o[column]) {
+      o[column] = idlib.createId(table, opts.autoIdSource || o.name);
+    }
+  }
+  let id = o[column];
   o.updatedTime = o.updatedTime || t;
   o.createdTime = o.createdTime || t;
-  let keys = Object.keys(o);
-  let fields = keys.map(js).join(', ');
-  let values = [];
-  for (let k of keys) {
-    values.push(o[k]);
-  }
-  let verb = 'INSERT';
 
   // TODO(ccheever): Add ON CONFLICT stuff to handle UPSERTs
 
-  await db.queryAsync(
-    verb +
-      ' INTO ' +
-      js(table) +
-      '(' +
-      fields +
-      ') VALUES (' +
-      keys.map((_, n) => '$' + (n + 1)).join(', ') +
-      ')',
-    values
-  );
+  let complete = false;
+  while (!complete) {
+    try {
+      let keys = Object.keys(o);
+      let fields = keys.map(js).join(', ');
+      let values = [];
+      for (let k of keys) {
+        values.push(o[k]);
+      }
+      let verb = 'INSERT';
+
+      await db.queryAsync(
+        verb +
+          ' INTO ' +
+          js(table) +
+          '(' +
+          fields +
+          ') VALUES (' +
+          keys.map((_, n) => '$' + (n + 1)).join(', ') +
+          ')',
+        values
+      );
+      complete = true;
+    } catch (e) {
+      // If unique_violation (duplicate primary key)
+      if (e.code === '23505') {
+        if (opts.autoId) {
+          o[column] = id + '+' + idlib.makeUuid(12);
+        }
+      } else {
+        throw e;
+      }
+    }
+  }
   return o;
 }
 
@@ -123,6 +147,7 @@ async function updateObjectAsync(id, table, update, opts) {
   opts = opts || {};
   let column = opts.column || table + 'Id';
   o.updatedTime = o.updatedTime || new Date();
+  delete o[column];
   let keys = Object.keys(o);
   let values = [];
   for (let k of keys) {
@@ -144,6 +169,28 @@ async function updateObjectAsync(id, table, update, opts) {
   assert.equal(result.rowCount, 1);
 }
 
+function _pgReplacer() {
+  let values = [];
+  let r = (val) => {
+    values.push(val);
+    return '$' + values.length;
+  };
+  r.values = () => {
+    return values;
+  };
+  return r;
+}
+
+async function _deleteObjectAsync(id, table, opts) {
+  let column = opts.column || table + 'Id';
+  let r = _pgReplacer();
+  let result = await db.queryAsync(
+    'DELETE FROM ' + js(table) + ' WHERE ' + js(column) + ' = ' + r(id) + ';',
+    r.values()
+  );
+  return result.rowCount;
+}
+
 module.exports = {
   getObjectAsync,
   multigetObjectsAsync,
@@ -153,4 +200,6 @@ module.exports = {
   objectsListFromResults,
   objectExistsAsync,
   oneObjectFromResults,
+  _pgReplacer,
+  _deleteObjectAsync,
 };
