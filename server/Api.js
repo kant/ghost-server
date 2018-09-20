@@ -41,6 +41,14 @@ class Api {
     return await this._authApi().profileAsync();
   }
 
+  async getCurrentJamPlaylistAsync(playlistId) {
+    playlistId = playlistId || 'playlist:ludum-dare-42';
+    let playlist = await model.getPlaylistAsync(playlistId);
+    let mediaItems = await model.multigetMediaAsync(playlist.mediaItems, { asList: true });
+    playlist.mediaItems = mediaItems;
+    return playlist;
+  }
+
   async signupAsync(userInfo) {
     return await this._authApi().signupAsync(userInfo);
   }
