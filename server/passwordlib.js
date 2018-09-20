@@ -1,6 +1,6 @@
 let passwordHashAndSalt = require('password-hash-and-salt');
 
-let data = require('../data');
+let data = require('./data');
 
 async function _hashPasswordAsync(password) {
   return await new Promise((resolve, reject) => {

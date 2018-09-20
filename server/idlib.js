@@ -32,18 +32,6 @@ function _normalizeInfo(s, maxLength) {
   return n;
 }
 
-function md5(message, length) {
-  let h = crypto
-    .createHash('md5')
-    .update(message)
-    .digest('hex');
-  if (length) {
-    return h.substr(0, length);
-  } else {
-    return h;
-  }
-}
-
 function createId(type, s) {
   return type + ':' + _normalizeInfo(s);
 }
@@ -57,14 +45,8 @@ async function createUniqueIdAsync(type, s, existsAsync) {
   return id;
 }
 
-function createUuidId(type) {
-  return createId(type, makeUuid());
-}
-
 module.exports = {
   makeUuid,
   createId,
   createUniqueIdAsync,
-  createUuidId,
-  md5,
 };

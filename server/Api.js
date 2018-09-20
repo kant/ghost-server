@@ -1,4 +1,3 @@
-let AuthApi = require('./users/AuthApi');
 let ClientError = require('./ClientError');
 let model = require('./model');
 
@@ -11,46 +10,12 @@ class Api {
     return sum;
   }
 
-  async loginAsync(username, password) {
-    // Don't log passwords in cleartext!
-    this._logArgs = [username, 'XXXXXX'];
-
-    let result = await this._authApi().loginAsync(username, password);
-
-    return result;
-  }
-
-  _authApi() {
-    let authApi = new AuthApi();
-    authApi.context = { ...this.context };
-    return authApi;
-  }
-
-  async logoutAsync() {
-    let sessionSecret = this.context.sessionSecret;
-    let result = {};
-    if (!sessionSecret) {
-      // console.warn('No current session to logout of; no-oping.');
-      this.responseAddWarning('NOT_LOGGED_IN', 'No current session to logout of');
-      return;
-    }
-    return await this._authApi().logoutAsync(sessionSecret);
-  }
-
-  async getViewerAsync() {
-    return await this._authApi().profileAsync();
-  }
-
   async getCurrentJamPlaylistAsync(playlistId) {
     playlistId = playlistId || 'playlist:ludum-dare-42';
     let playlist = await model.getPlaylistAsync(playlistId);
     let mediaItems = await model.multigetMediaAsync(playlist.mediaItems, { asList: true });
     playlist.mediaItems = mediaItems;
     return playlist;
-  }
-
-  async signupAsync(userInfo) {
-    return await this._authApi().signupAsync(userInfo);
   }
 
   async newPlayRecordAsync(obj) {

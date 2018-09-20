@@ -1,7 +1,6 @@
 let data = require('./data');
 let db = require('./db');
 let idlib = require('./idlib');
-let passwordlib = require('./users/passwordlib');
 
 async function newPlayRecordAsync(obj) {
   obj.playRecordId = obj.playRecordId || idlib.createId('playRecord');
@@ -140,22 +139,6 @@ async function getUserByUsernameAsync(username) {
   }
 }
 
-async function setPasswordAsync(userId, password) {
-  let hashedPassword = await passwordlib.hashPasswordAsync(password);
-  await db.queryAsync(
-    'INSERT INTO "password" ("userId", "hashedPassword") VALUES ($1, $2) ON CONFLICT ("userId") DO UPDATE SET "hashedPassword" = $2;',
-    [userId, hashedPassword]
-  );
-}
-
-async function checkPasswordAsync(userId, password) {
-  let obj = await data.getObjectAsync(userId, 'password', { column: 'userId' });
-  if (obj) {
-    let { hashedPassword } = obj;
-    return await passwordlib.checkPasswordAsync(password, hashedPassword);
-  }
-}
-
 async function getPlaylistAsync(playlistId) {
   return await data.getObjectAsync(playlistId, 'playlist', { column: 'playlistId' });
 }
@@ -248,6 +231,4 @@ module.exports = {
   newSessionAsync,
   getSessionAsync,
   getSessionsForUserAsync,
-  setPasswordAsync,
-  checkPasswordAsync,
 };
