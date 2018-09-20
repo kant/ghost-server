@@ -43,7 +43,6 @@ module.exports = {
   },
   Mutation: {
     updateUser: async (_, { userId, update }) => {
-      console.log('updateUser', { userId, update });
       if (update.userId) {
         assert.equal(update.userId, userId);
       }
