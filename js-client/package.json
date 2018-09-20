@@ -11,6 +11,7 @@
     "project-repl": "^1.4.3"
   },
   "dependencies": {
+    "apollo-fetch": "^0.7.0",
     "thin-client": "^0.5.0"
   },
   "repl": {

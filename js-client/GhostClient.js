@@ -1,3 +1,4 @@
+let apolloFetch = require('apollo-fetch');
 let ThinClient = require('thin-client');
 
 let ApiError = require('./ApiError');
@@ -11,6 +12,12 @@ class GhostClient extends ThinClient {
     url = url || PRODUCTION_API_URL;
     super(url, context, opts);
     this._storage = this.opts.storage || new Storage();
+
+    // A little hacky -- replace api with graphql
+    this._apolloFetch = apolloFetch.createApolloFetch({
+      uri: url.substr(0, url.length - 3) + 'graphql',
+    });
+
     this._setContextAsync();
   }
 
@@ -100,6 +107,10 @@ class GhostClient extends ThinClient {
     await this._storage.deleteAsync('sessionSecret');
     await this._setContextAsync();
     return result;
+  }
+
+  async graphqlAsync(...args) {
+    return await this._apolloFetch(...args);
   }
 }
 
