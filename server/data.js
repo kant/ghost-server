@@ -107,23 +107,38 @@ async function writeNewObjectAsync(obj, table, opts) {
     try {
       let keys = Object.keys(o);
       let fields = keys.map(js).join(', ');
-      let values = [];
-      for (let k of keys) {
-        values.push(o[k]);
-      }
       let verb = 'INSERT';
 
-      await db.queryAsync(
+      let r = _pgReplacer();
+
+      let query =
         verb +
-          ' INTO ' +
-          js(table) +
-          '(' +
-          fields +
-          ') VALUES (' +
-          keys.map((_, n) => '$' + (n + 1)).join(', ') +
-          ')',
-        values
-      );
+        ' INTO ' +
+        js(table) +
+        ' (' +
+        fields +
+        ') VALUES (' +
+        keys.map((k) => r(o[k])).join(', ') +
+        ')';
+
+      if (opts.upsert) {
+        if (opts.autoId) {
+          throw new Error("Can't use `autoId` and `upsert` options together in `writeNewObjectAsync`");
+        }
+        query += ' ON CONFLICT (' + js(column) + ') DO UPDATE SET ';
+        let sets = [];
+        for (let key in o) {
+          let val = o[key];
+          sets.push(js(key) + ' = ' + r(val));
+        }
+        query += sets.join(', ');
+      }
+
+      query += ';';
+      console.log({ query, values: r.values() });
+
+      await db.queryAsync(query, r.values());
+
       complete = true;
     } catch (e) {
       // If unique_violation (duplicate primary key)
@@ -157,6 +172,7 @@ function _pgReplacer() {
   let values = [];
   let r = (val) => {
     values.push(val);
+    console.log('$' + values.length, val);
     return '$' + values.length;
   };
   r.values = () => {
