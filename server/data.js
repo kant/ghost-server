@@ -91,7 +91,6 @@ async function objectExistsAsync(id, table, column) {
 
 async function writeNewObjectAsync(obj, table, opts) {
   let o = { ...obj };
-  let t = new Date();
   opts = opts || {};
   let column = opts.column || table + 'Id';
   if (opts.autoId) {
@@ -100,8 +99,6 @@ async function writeNewObjectAsync(obj, table, opts) {
     }
   }
   let id = o[column];
-  o.updatedTime = o.updatedTime || t;
-  o.createdTime = o.createdTime || t;
 
   // TODO(ccheever): Add ON CONFLICT stuff to handle UPSERTs
 
@@ -146,26 +143,13 @@ async function updateObjectAsync(id, table, update, opts) {
   let o = { ...update };
   opts = opts || {};
   let column = opts.column || table + 'Id';
-  o.updatedTime = o.updatedTime || new Date();
   delete o[column];
   let keys = Object.keys(o);
   let values = [];
-  for (let k of keys) {
-    values.push(o[k]);
-  }
-  let updates = keys.map((k, n) => js(k) + ' = $' + (n + 1)).join(', ');
-  let q =
-    'UPDATE ' +
-    js(table) +
-    ' SET ' +
-    updates +
-    ' WHERE ' +
-    js(column) +
-    ' = $' +
-    (keys.length + 1) +
-    ';';
-  values.push(id);
-  let result = await db.queryAsync(q, values);
+  let r = _pgReplacer();
+  let updates = keys.map((k) => js(k) + ' = ' + r(o[k])).join(', ');
+  let q = 'UPDATE ' + js(table) + ' SET ' + updates + ' WHERE ' + js(column) + ' = ' + r(id) + ';';
+  let result = await db.queryAsync(q, r.values());
   assert.equal(result.rowCount, 1);
 }
 

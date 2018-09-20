@@ -1,3 +1,7 @@
+let model = require('../model');
+
+async function mainAsync() {
+
 await model.newUserAsync({userId: 'user:adam', location: 'Redwood City', name: 'Adam Perry', username: 'anp'});
 await model.newUserAsync({userId: "user:jesse", location: "Seattle", name: "Jesse Ruder", username: 'jesse' });
 await model.newUserAsync({userId: 'user:quin', name: 'Quinlan Jung', location: 'Palo Alto', username: 'sushipower'});
@@ -34,3 +38,11 @@ await model.updateUserAsync({userId: 'user:ccheever', photoUrl: 'https://d30j33t
 await model.updateUserAsync({userId: 'user:nick', photoUrl: 'https://d30j33t1r58ioz.cloudfront.net/static/images/about/team.nick.png'});
 await model.updateUserAsync({userId: 'user:schazers', photoUrl: 'https://d30j33t1r58ioz.cloudfront.net/static/images/about/team.jason.png'});
 await model.updateUserAsync({userId: 'user:ben', photoUrl: 'https://d30j33t1r58ioz.cloudfront.net/static/images/about/team.ben.png'});
+
+}
+
+if (require.main === module) {
+  mainAsync();
+}
+
+module.exports = mainAsync;
