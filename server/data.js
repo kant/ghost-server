@@ -109,7 +109,7 @@ async function writeNewObjectAsync(obj, table, opts) {
       let fields = keys.map(js).join(', ');
       let verb = 'INSERT';
 
-      let r = _pgReplacer();
+      let r = db.replacer();
 
       let query =
         verb +
@@ -135,7 +135,6 @@ async function writeNewObjectAsync(obj, table, opts) {
       }
 
       query += ';';
-      console.log({ query, values: r.values() });
 
       await db.queryAsync(query, r.values());
 
@@ -161,35 +160,23 @@ async function updateObjectAsync(id, table, update, opts) {
   delete o[column];
   let keys = Object.keys(o);
   let values = [];
-  let r = _pgReplacer();
+  let r = db.replacer();
   let updates = keys.map((k) => js(k) + ' = ' + r(o[k])).join(', ');
   let q = 'UPDATE ' + js(table) + ' SET ' + updates + ' WHERE ' + js(column) + ' = ' + r(id) + ';';
   let result = await db.queryAsync(q, r.values());
   assert.equal(result.rowCount, 1);
 }
 
-function _pgReplacer() {
-  let values = [];
-  let r = (val) => {
-    values.push(val);
-    console.log('$' + values.length, val);
-    return '$' + values.length;
-  };
-  r.values = () => {
-    return values;
-  };
-  return r;
-}
-
 async function _deleteObjectAsync(id, table, opts) {
   let column = opts.column || table + 'Id';
-  let r = _pgReplacer();
+  let r = db.replacer();
   let result = await db.queryAsync(
     'DELETE FROM ' + js(table) + ' WHERE ' + js(column) + ' = ' + r(id) + ';',
     r.values()
   );
   return result.rowCount;
 }
+
 
 module.exports = {
   getObjectAsync,
@@ -200,6 +187,5 @@ module.exports = {
   objectsListFromResults,
   objectExistsAsync,
   oneObjectFromResults,
-  _pgReplacer,
   _deleteObjectAsync,
 };

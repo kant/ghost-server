@@ -2,10 +2,10 @@ let db = require('../db');
 let model = require('../model');
 
 async function updateMediaAsync(media) {
-  if (!media.userId) {
+  if (!media.userId || media.userId.startsWith('user:itch/')) {
     let itchUsername = media.extraData.itch.itchUsername;
     if (itchUsername) {
-      let userId = 'user:itch/' + media.extraData.itch.itchUsername;
+      let userId = 'user:itch+' + media.extraData.itch.itchUsername;
       await model.updateMediaAsync({ mediaId: media.mediaId, userId });
     }
   }

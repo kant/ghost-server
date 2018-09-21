@@ -201,6 +201,31 @@ async function getSessionsForUserAsync(userId) {
   return data.objectsFromResults(results);
 }
 
+async function newTeamAsync(obj) {
+  let teamObj = {
+    ...obj,
+    isTeam: true,
+  };
+  return await data.writeNewObjectAsync(teamObj, 'user', {
+    column: 'userId',
+    autoId: true,
+    autoIdSource: teamObj.name,
+  });
+}
+
+async function getTeamsForUserAsync(userId) {
+  let r = db.replacer();
+  let results = await db.queryAsync(
+    'SELECT * FROM "user" WHERE "roles" @> ' +
+      r(JSON.stringify({ members: [userId] })) +
+      ' OR "roles" @> ' +
+      r(JSON.stringify({ admins: [userId] })) +
+      ';',
+    r.values()
+  );
+  return data.objectsListFromResults(results, 'userId');
+}
+
 module.exports = {
   writeGhostSignupAsync,
   newPlayRecordAsync,
@@ -231,4 +256,6 @@ module.exports = {
   newSessionAsync,
   getSessionAsync,
   getSessionsForUserAsync,
+  newTeamAsync,
+  getTeamsForUserAsync,
 };
