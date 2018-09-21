@@ -19,6 +19,25 @@ async function importGamesAsync(data) {
   // await Promise.all(a);
 }
 
+async function updatePublishedFieldAsync(game) {
+  if (game && game.extraData && game.extraData.itch && game.extraData.itch.ld.published) {
+    return await model.updateMediaAsync({
+      mediaId: game.mediaId,
+      published: game.extraData.itch.ld.published,
+    });
+  } else {
+    console.warn('No published date available');
+  }
+}
+
+async function updateAllPublishedFieldsAsync() {
+  let allMedia = await model.getAllMediaAsync();
+  for (let media of allMedia) {
+    // await updatePublishedFieldAsync(media);
+    updatePublishedFieldAsync(media);
+  }
+}
+
 async function importGameAsync(game) {
   let media = {
     name: game.name,
@@ -58,4 +77,6 @@ if (require.main === module) {
 module.exports = {
   importGamesAsync,
   importGameAsync,
+  updatePublishedFieldAsync,
+  updateAllPublishedFieldsAsync,
 };

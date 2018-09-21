@@ -66,6 +66,7 @@ CREATE TABLE "media" (
   "creators" jsonb,
   "engineId" varchar(255),
   "extraData" jsonb,
+  "published" timestamp,
   "deleted" int,
   "createdTime" timestamp default now(),
   "updatedTime" timestamp default now()

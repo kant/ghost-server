@@ -10,6 +10,21 @@ async function getMediaItemsAsync(playlistId) {
   return mediaItems;
 }
 
+async function createItchPlaceholderUserAsync(username) {
+  return await model.newUserAsync({
+    userId: 'user:itch+' + username,
+    name: username + ' on itch.io',
+    username: username,
+    unclaimed: true,
+    links: JSON.stringify({
+      itch: 'https://' + username + '.itch.io/',
+      itchProfile: 'https://itch.io/profile/' + username,
+      // TODO: LD profile
+    }),
+  });
+
+}
+
 async function createUserForMediaAsync(media) {
   if (media.userId && media.userId.startsWith('user:itch+')) {
     try {
@@ -20,6 +35,7 @@ async function createUserForMediaAsync(media) {
         await model.newUserAsync({
           userId: media.userId,
           name: itchUsername + ' on itch.io',
+          username: itchUsername,
           unclaimed: true,
           links: JSON.stringify({
             itch: 'https://' + itchUsername + '.itch.io/',
@@ -61,4 +77,5 @@ module.exports = {
   getMediaItemsAsync,
   createUserForMediaAsync,
   updateUsernamesAsync,
+  createItchPlaceholderUserAsync,
 };

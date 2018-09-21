@@ -14,7 +14,17 @@ class Api {
     playlistId = playlistId || 'playlist:ludum-dare-42';
     let playlist = await model.getPlaylistAsync(playlistId);
     let mediaItems = await model.multigetMediaAsync(playlist.mediaItems, { asList: true });
-    playlist.mediaItems = mediaItems;
+
+    let _shuffle = (a) => {
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]]; // eslint-disable-line no-param-reassign
+      }
+      return a;
+    };
+
+    playlist.mediaItems = _shuffle(mediaItems);
+
     return playlist;
   }
 
