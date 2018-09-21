@@ -217,9 +217,9 @@ async function getTeamsForUserAsync(userId) {
   let r = db.replacer();
   let results = await db.queryAsync(
     'SELECT * FROM "user" WHERE "roles" @> ' +
-      r(JSON.stringify({ members: [userId] })) +
+      r.json({ members: [userId] }) +
       ' OR "roles" @> ' +
-      r(JSON.stringify({ admins: [userId] })) +
+      r.json({ admins: [userId] }) +
       ';',
     r.values()
   );
