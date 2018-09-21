@@ -29,16 +29,20 @@ async function queryAsync(...args) {
 
 function replacer() {
   let values = [];
+
   let r = (val) => {
     values.push(val);
     return '$' + values.length;
   };
+
   r.json = (val) => {
     return r(JSON.stringify(val));
   };
+
   r.values = () => {
     return values;
   };
+
   return r;
 }
 
