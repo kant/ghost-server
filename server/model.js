@@ -206,6 +206,9 @@ async function newTeamAsync(obj) {
     ...obj,
     isTeam: true,
   };
+  if (!teamObj.roles) {
+    teamObj.roles = JSON.stringify({ admins: [], members: [] });
+  }
   return await data.writeNewObjectAsync(teamObj, 'user', {
     column: 'userId',
     autoId: true,
@@ -213,10 +216,20 @@ async function newTeamAsync(obj) {
   });
 }
 
-async function getTeamsForUserAsync(userId) {
+async function convertUserToTeamAsync(userId) {
+  return await updateUserAsync({
+    userId,
+    isTeam: true,
+    roles: JSON.stringify({
+      admins: [],
+      members: [],
+    }),
+  });
+}
 
+async function getTeamsForUserAsync(userId) {
   // Should this get all admin and member teams or just member teams?
-  
+
   let r = db.replacer();
   let results = await db.queryAsync(
     'SELECT * FROM "user" WHERE "roles" @> ' +
@@ -331,4 +344,5 @@ module.exports = {
   _removeTeamRolesAsync,
   removeTeamAdminsAsync,
   removeTeamMembersAsync,
+  convertUserToTeamAsync,
 };

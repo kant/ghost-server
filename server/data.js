@@ -3,7 +3,6 @@ let assert = require('assert');
 let db = require('./db');
 let idlib = require('./idlib');
 
-
 async function multigetObjectsAsync(idList, table, opts) {
   opts = opts || {};
   let column = opts.column || table + 'Id';
@@ -122,7 +121,9 @@ async function writeNewObjectAsync(obj, table, opts) {
 
       if (opts.upsert) {
         if (opts.autoId) {
-          throw new Error("Can't use `autoId` and `upsert` options together in `writeNewObjectAsync`");
+          throw new Error(
+            "Can't use `autoId` and `upsert` options together in `writeNewObjectAsync`"
+          );
         }
         query += ' ON CONFLICT (' + db.iq(column) + ') DO UPDATE SET ';
         let sets = [];
@@ -161,7 +162,8 @@ async function updateObjectAsync(id, table, update, opts) {
   let values = [];
   let r = db.replacer();
   let updates = keys.map((k) => db.iq(k) + ' = ' + r(o[k])).join(', ');
-  let q = 'UPDATE ' + db.iq(table) + ' SET ' + updates + ' WHERE ' + db.iq(column) + ' = ' + r(id) + ';';
+  let q =
+    'UPDATE ' + db.iq(table) + ' SET ' + updates + ' WHERE ' + db.iq(column) + ' = ' + r(id) + ';';
   let result = await db.queryAsync(q, r.values());
   assert.equal(result.rowCount, 1);
 }
@@ -175,7 +177,6 @@ async function _deleteObjectAsync(id, table, opts) {
   );
   return result.rowCount;
 }
-
 
 module.exports = {
   getObjectAsync,
