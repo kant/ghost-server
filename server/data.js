@@ -3,16 +3,15 @@ let assert = require('assert');
 let db = require('./db');
 let idlib = require('./idlib');
 
-let js = JSON.stringify;
 
 async function multigetObjectsAsync(idList, table, opts) {
   opts = opts || {};
   let column = opts.column || table + 'Id';
   let results = await db.queryAsync(
     'SELECT * FROM ' +
-      js(table) +
+      db.iq(table) +
       ' WHERE ' +
-      js(column) +
+      db.iq(column) +
       ' IN (' +
       idList.map((_, n) => '$' + (n + 1)).join(', ') +
       ');',
@@ -83,7 +82,7 @@ async function objectExistsAsync(id, table, column) {
   table = table || id.replace(/:.*$/, '');
   column = column || table + 'Id';
   let results = await db.queryAsync(
-    'SELECT 1 FROM ' + js(table) + ' WHERE ' + js(column) + ' = $1',
+    'SELECT 1 FROM ' + db.iq(table) + ' WHERE ' + db.iq(column) + ' = $1',
     [id]
   );
   return results.rowCount > 0;
@@ -106,7 +105,7 @@ async function writeNewObjectAsync(obj, table, opts) {
   while (!complete) {
     try {
       let keys = Object.keys(o);
-      let fields = keys.map(js).join(', ');
+      let fields = keys.map(db.iq).join(', ');
       let verb = 'INSERT';
 
       let r = db.replacer();
@@ -114,7 +113,7 @@ async function writeNewObjectAsync(obj, table, opts) {
       let query =
         verb +
         ' INTO ' +
-        js(table) +
+        db.iq(table) +
         ' (' +
         fields +
         ') VALUES (' +
@@ -125,11 +124,11 @@ async function writeNewObjectAsync(obj, table, opts) {
         if (opts.autoId) {
           throw new Error("Can't use `autoId` and `upsert` options together in `writeNewObjectAsync`");
         }
-        query += ' ON CONFLICT (' + js(column) + ') DO UPDATE SET ';
+        query += ' ON CONFLICT (' + db.iq(column) + ') DO UPDATE SET ';
         let sets = [];
         for (let key in o) {
           let val = o[key];
-          sets.push(js(key) + ' = ' + r(val));
+          sets.push(db.iq(key) + ' = ' + r(val));
         }
         query += sets.join(', ');
       }
@@ -161,8 +160,8 @@ async function updateObjectAsync(id, table, update, opts) {
   let keys = Object.keys(o);
   let values = [];
   let r = db.replacer();
-  let updates = keys.map((k) => js(k) + ' = ' + r(o[k])).join(', ');
-  let q = 'UPDATE ' + js(table) + ' SET ' + updates + ' WHERE ' + js(column) + ' = ' + r(id) + ';';
+  let updates = keys.map((k) => db.iq(k) + ' = ' + r(o[k])).join(', ');
+  let q = 'UPDATE ' + db.iq(table) + ' SET ' + updates + ' WHERE ' + db.iq(column) + ' = ' + r(id) + ';';
   let result = await db.queryAsync(q, r.values());
   assert.equal(result.rowCount, 1);
 }
@@ -171,7 +170,7 @@ async function _deleteObjectAsync(id, table, opts) {
   let column = opts.column || table + 'Id';
   let r = db.replacer();
   let result = await db.queryAsync(
-    'DELETE FROM ' + js(table) + ' WHERE ' + js(column) + ' = ' + r(id) + ';',
+    'DELETE FROM ' + db.iq(table) + ' WHERE ' + db.iq(column) + ' = ' + r(id) + ';',
     r.values()
   );
   return result.rowCount;

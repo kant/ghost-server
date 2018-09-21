@@ -214,6 +214,9 @@ async function newTeamAsync(obj) {
 }
 
 async function getTeamsForUserAsync(userId) {
+
+  // Should this get all admin and member teams or just member teams?
+  
   let r = db.replacer();
   let results = await db.queryAsync(
     'SELECT * FROM "user" WHERE "roles" @> ' +
@@ -224,6 +227,70 @@ async function getTeamsForUserAsync(userId) {
     r.values()
   );
   return data.objectsListFromResults(results, 'userId');
+}
+
+async function _addTeamRolesAsync(teamId, userIdList, role) {
+  let r = db.replacer();
+
+  if (typeof userIdList === 'string') {
+    userIdList = [userIdList];
+  }
+
+  // How to append to an array in jsonb on Postgres
+  // https://stackoverflow.com/questions/42233542/appending-pushing-and-removing-from-a-json-array-in-postgresql-9-5
+  let results = await db.queryAsync(
+    'UPDATE "user" SET "roles" = jsonb_set("roles"::jsonb, array[' +
+      r(role) +
+      '], ("roles"->' +
+      r(role) +
+      ')::jsonb || ' +
+      r.json(userIdList) +
+      '::jsonb) WHERE "userId" = ' +
+      r(teamId) +
+      ';',
+    r.values()
+  );
+
+  return results.rowCount;
+}
+
+async function addTeamMembersAsync(teamId, userIdList) {
+  return await _addTeamRolesAsync(teamId, userIdList, 'members');
+}
+
+async function addTeamAdminsAsync(teamId, userIdList) {
+  return await _addTeamRolesAsync(teamId, userIdList, 'admins');
+}
+
+async function _removeTeamRolesAsync(teamId, userIdList, role) {
+  let r = db.replacer();
+
+  // How to remove from a nested array in jsonb on Postgres
+  // https://stackoverflow.com/questions/42233542/appending-pushing-and-removing-from-a-json-array-in-postgresql-9-5
+  // let results = await db.queryAsync(
+  //   'UPDATE "user" SET "roles" = jsonb_set("roles"::jsonb, array[' + r(role) + ']', r.values())
+  // ;
+
+  let q =
+    'UPDATE "user" SET "roles" = jsonb_set("roles"::jsonb, array[' +
+    r(role) +
+    '], ("roles"::jsonb->' +
+    r(role) +
+    ')::jsonb';
+  for (let userId of userIdList) {
+    q += ' - ' + r(userId);
+  }
+  q += ') WHERE "userId" = ' + r(teamId) + ';';
+  let results = await db.queryAsync(q, r.values());
+  return results.rowCount;
+}
+
+async function removeTeamMembersAsync(teamId, userIdList) {
+  return await _removeTeamRolesAsync(teamId, userIdList, 'members');
+}
+
+async function removeTeamAdminsAsync(teamId, userIdList) {
+  return await _removeTeamRolesAsync(teamId, userIdList, 'admins');
 }
 
 module.exports = {
@@ -258,4 +325,10 @@ module.exports = {
   getSessionsForUserAsync,
   newTeamAsync,
   getTeamsForUserAsync,
+  _addTeamRolesAsync,
+  addTeamAdminsAsync,
+  addTeamMembersAsync,
+  _removeTeamRolesAsync,
+  removeTeamAdminsAsync,
+  removeTeamMembersAsync,
 };

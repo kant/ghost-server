@@ -46,9 +46,12 @@ function replacer() {
   return r;
 }
 
+let iq = JSON.stringify;
+
 module.exports = {
   queryAsync,
   replacer,
   pg,
   pool,
+  iq,
 };

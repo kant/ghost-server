@@ -6,6 +6,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+create or replace function array_subtract(array1 anyarray, array2 anyarray)
+returns anyarray language sql as $$
+    select array_agg(elem)
+    from unnest(array1) elem
+    where elem <> all(array2)
+$$;
+
 CREATE TABLE "playRecord" (
   "playRecordId" text PRIMARY KEY,
   "mediaId" text,
