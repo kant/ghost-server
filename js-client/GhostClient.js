@@ -1,111 +1,128 @@
 let apolloFetch = require('apollo-fetch');
 
 let ApiError = require('./ApiError');
-let pkg = require('./package');
 let Storage = require('./Storage');
-let ThinClient = require('./ThinClient');
 
 let PRODUCTION_API_URL = 'https://ghost-server.app.render.com/api';
 
-class GhostClient extends ThinClient {
-  constructor(url, context, opts) {
-    url = url || PRODUCTION_API_URL;
-    super(url, context, opts);
-    this._storage = this.opts.storage || new Storage();
+let fetch = require('cross-fetch');
 
+
+class GhostClient {
+  constructor(url, context, opts) {
+    this.url = url || PRODUCTION_API_URL;
+    this.opts = Object.assign({}, opts);
+    this._storage = this.opts.storage || new Storage();
     this._apolloFetch = apolloFetch.createApolloFetch({
       uri: url + '/graphql',
     });
 
-    this._setContextAsync();
-  }
-
-  async _setContextAsync() {
-    let sessionSecret = await this._storage.getAsync('sessionSecret');
-    this.context = this.context || {};
-    Object.assign(this.context, {
-      sessionSecret,
+    // Add auth header
+    this._apolloFetch.use(async ({ request, options }, next) => {
+      options.headers = options.headers || {};
+      Object.assign(options.headers, await this._getRequestHeadersAsync());
+      next();
     });
   }
 
-  clientSimpleMethods() {
-    return [
-      'add',
-      'getAllEngines',
-      'getAllMedia',
-      'getMedia',
-      'getPlayRecords',
-      'getViewer',
-      'newEngine',
-      'newMedia',
-      'newPlayRecord',
-      'updateEngine',
-      'updateMedia',
-    ];
-  }
-
-  clientDidReceiveCommand(command) {}
-
-  clientDidReceiveData(data) {}
-
-  async loginAsync(username, password) {
-    try {
-      let result = await this.callAsync('login', username, password);
-      if (result && result.sessionSecret) {
-        await this._storage.setAsync('sessionSecret', result.sessionSecret);
-        await this._setContextAsync();
-        return result;
-      } else {
-        throw ApiError('Problem performing login', 'LOGIN_PROBLEM');
-      }
-    } catch (e) {
-      throw e;
+  _makeClientIdentifier() {
+    let alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
+    let t = 'xci:';
+    for (let i = 0; i < 16; i++) {
+      t += alphabet[Math.floor(Math.random() * alphabet.length)];
     }
+    return t;
   }
 
-  async signupAsync(userData) {
-    // You should give username, email, password
-
-    // let userData = {
-    //   connection: 'Username-Password-Authentication',
-    //   email: 'ccheever+test3@gmail.com',
-    //   username: 'ccheevertest3',
-    //   password: 'password',
-    //   given_name: '',
-    //   family_name: '',
-    //   user_metadata: {
-    //     onboarded: true,
-    //     legacy: false,
-    //     bio: 'Building applications with @expo',
-    //     username_github: '',
-    //     username_twitter: '',
-    //     link_personal: '',
-    //     industry: '',
-    //     location: '',
-    //   },
-    // };
-    let userMetadata = Object.assign({}, userData.user_metadata, {
-      onboarded: true,
-      legacy: false,
-      ghostSignup: true,
-    });
-    let outputUserData = Object.assign({}, userData, {
-      connection: 'Username-Password-Authentication',
-      user_metadata: userMetadata,
-    });
-    let result = await this.callAsync('signup', outputUserData);
-    await this.loginAsync(outputUserData.username, outputUserData.password);
-    return result;
+  async _getClientIdentifierAsync() {
+    let token = await this._storage.getAsync('client-identifier');
+    if (!token) {
+      token = this._makeClientIdentifier();
+      await this._storage.setAsync('client-identifier', token);
+    }
+    return token;
   }
 
-  async logoutAsync() {
-    // sessionSecret = sessionSecret || (await this._storage.getAsync('sessionSecret'));
-    let sessionSecret = await this._storage.getAsync('sessionSecret');
+  async _getRequestHeadersAsync() {
+    let headers = {};
+    headers['X-ClientId'] = await this._getClientIdentifierAsync();
+    return headers;
+  }
 
-    let result = await this.callAsync('logout', sessionSecret);
-    await this._storage.deleteAsync('sessionSecret');
-    await this._setContextAsync();
-    return result;
+  async clientDidReceiveDataAsync(data) {}
+
+  async clientDidReceiveCommandAsync(command) {
+  }
+
+  async clientDidReceiveWarningAsync(code, message) {
+    console.warn('API Response Warning: ' + code + ': ' + message);
+  }
+
+  async callAsync(method, ...args) {
+    if (method.startsWith('client') || method.startsWith('_')) {
+      throw new Error('Method name not allowed: ' + method);
+    }
+
+    let headers = {
+      'Content-Type': 'application/json',
+    };
+    Object.assign(headers, await this._getRequestHeadersAsync());
+
+    let response = await fetch(this.url, {
+      method: 'POST',
+      body: JSON.stringify({
+        context: this.context,
+        method,
+        args,
+      }),
+      headers,
+    });
+
+    let r;
+    let responseText;
+    try {
+      responseText = await response.text();
+      r = JSON.parse(responseText);
+    } catch (e) {
+      console.error(responseText);
+      let err = new Error("Didn't understand response from server");
+      err.ServerError = true;
+      err.responseText = responseText;
+      throw err;
+    }
+
+    if (r.error) {
+      let err = new Error(r.error.message);
+      Object.assign(err, r.error);
+      err.ApiError = true;
+      throw err;
+    }
+
+    if (r.clientError) {
+      let err = new Error(r.clientError.message);
+      Object.assign(err, r.clientError);
+      err.ClientError = true;
+      throw err;
+    }
+
+    if (r.data) {
+      await this.clientDidReceiveDataAsync(r.data);
+    }
+
+    // Handle commands
+    if (r.commands) {
+      for (let command of r.commands) {
+        await this.clientDidReceiveCommandAsync(command);
+      }
+    }
+
+    if (r.warnings) {
+      for (let [code, message] of r.warnings) {
+        await this.clientDidReceiveWarningAsync(code, message);
+      }
+    }
+
+    return r.result;
   }
 
   async graphqlAsync(...args) {
@@ -118,5 +135,4 @@ module.exports = GhostClient;
 Object.assign(module.exports, {
   Storage,
   PRODUCTION_API_URL,
-  ThinClient,
 });

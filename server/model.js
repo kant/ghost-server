@@ -349,6 +349,21 @@ async function removeTeamAdminsAsync(teamId, userIdList) {
   return await _removeTeamRolesAsync(teamId, userIdList, 'admins');
 }
 
+async function getUserForLoginAsync(identifier) {
+  // userId is first priority
+  let user;
+  user = await model.getUserAsync(identifier)
+  if (user) {
+    return user;
+  }
+  user = await model.getUserByUsernameAsync(identifier);
+  if (user) {
+    return user;
+  }
+  // TODO: phone, e-mail
+  return null;
+}
+
 module.exports = {
   writeGhostSignupAsync,
   newPlayRecordAsync,
@@ -393,4 +408,5 @@ module.exports = {
   removeTeamAdminsAsync,
   removeTeamMembersAsync,
   convertUserToTeamAsync,
+  getUserForLoginAsync,
 };

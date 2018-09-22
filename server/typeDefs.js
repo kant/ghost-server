@@ -34,6 +34,8 @@ type User {
   about: Json
   photo: Image
   isTeam: Boolean
+  members: [User]
+  admins: [User]
   createdTime: Datetime
   updatedTime: Datetime
 }

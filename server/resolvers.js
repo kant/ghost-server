@@ -1,6 +1,7 @@
 let assert = require('assert');
 
 let model = require('./model');
+let passwordlib = require('./passwordlib');
 
 module.exports = {
   Query: {
@@ -21,13 +22,13 @@ module.exports = {
     media: async (_, { mediaId }, context) => {
       return await context.loaders.media.load(mediaId);
     },
-    user: async (_, { userId }) => {
+    user: async (_, { userId }, context) => {
       return await context.loaders.user.load(userId);
     },
     userByUsername: async (_, { username }) => {
       return await model.getUserByUsernameAsync(username);
     },
-    engine: async (_, { engineId }) => {
+    engine: async (_, { engineId }, context) => {
       return await context.loaders.engine.load(engineId);
     },
     playlist: async (_, { playlistId }, context) => {
@@ -57,6 +58,22 @@ module.exports = {
     },
     engine: async (media, {}, context, info) => {
       return await context.loaders.engine.load(media.engineId);
+    },
+  },
+  User: {
+    members: async (team, {}, context, info) => {
+      if (team.roles && team.roles.members) {
+        return await context.loaders.user.loadMany(team.roles.members);
+      } else {
+        return null;
+      }
+    },
+    admins: async (team, {}, context, info) => {
+      if (team.roles && team.roles.admins) {
+        return await context.loaders.user.loadMany(team.roles.admins);
+      } else {
+        return null;
+      }
     },
   },
   Playlist: {
