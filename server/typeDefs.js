@@ -11,6 +11,7 @@ type Image {
 
 type Media {
   mediaId: ID! @unique
+  mediaUrl: String
   name: String
   description: Json
   userId: ID
