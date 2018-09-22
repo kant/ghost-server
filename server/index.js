@@ -6,14 +6,21 @@ let bodyParser = require('body-parser');
 let cors = require('cors');
 let escapeHtml = require('escape-html');
 let graphqlYoga = require('graphql-yoga');
-let thinServer = require('thin-server');
 let spawnAsync = require('@expo/spawn-async');
 
 let Api = require('./Api');
 let db = require('./db');
+let handler = require('./handler');
 let loaders = require('./loaders');
 let resolvers = require('./resolvers');
 let typeDefs = require('./typeDefs');
+
+let makeGraphqlContext = ({ request }) => {
+  return {
+    request,
+    loaders: loaders.createLoaders(),
+  };
+};
 
 async function serveAsync(port) {
   let endpoints = {
@@ -27,19 +34,28 @@ async function serveAsync(port) {
   let app = new graphqlYoga.GraphQLServer({
     typeDefs,
     resolvers,
-    context: ({ request }) => {
-      return {
-        request,
-        loaders: loaders.createLoaders(),
-      };
-    },
+    context: makeGraphqlContext,
   });
   app.use(cors());
   app.use(bodyParser.json());
   app.get(endpoints.status, async (req, res) => {
     res.json({ status: 'OK' });
   });
-  app.post(endpoints.api, thinServer(Api));
+  app.post(
+    endpoints.api,
+    handler(Api, {
+      serverContext: async (thinContext, { req, res }) => {
+        return {
+          requestContext: thinContext,
+          executableSchema: app.executableSchema,
+          graphqlContext: makeGraphqlContext({ request: req }),
+          req,
+          res,
+        };
+      },
+    })
+  );
+  Api.__executableSchema = app.executableSchema;
 
   // Homepage with some info
   app.get('/', async (req, res) => {
@@ -98,6 +114,8 @@ async function serveAsync(port) {
       console.log('http://localhost:' + port + '/');
     }
   );
+
+  return app;
 }
 
 module.exports = serveAsync;

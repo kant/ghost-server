@@ -1,3 +1,5 @@
+let graphql = require('graphql');
+
 let ClientError = require('./ClientError');
 let model = require('./model');
 
@@ -10,22 +12,60 @@ class Api {
     return sum;
   }
 
-  async getCurrentJamPlaylistAsync(playlistId) {
-    playlistId = playlistId || 'playlist:ludum-dare-42';
-    let playlist = await model.getPlaylistAsync(playlistId);
-    let mediaItems = await model.multigetMediaAsync(playlist.mediaItems, { asList: true });
+  async __graphqlQueryAsync(query, variableValues, operationName, fieldResolver) {
+    // argsOrSchema,
+    // source,
+    // rootValue,
+    // contextValue,
+    // variableValues,
+    // operationName,
+    // fieldResolver,
+    let graphqlContext = this.serverContext.graphqlContext;
+    console.log(graphqlContext.loaders);
 
-    let _shuffle = (a) => {
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]]; // eslint-disable-line no-param-reassign
+    return await graphql.graphql(
+      this.serverContext.executableSchema,
+      query,
+      null,
+      graphqlContext,
+      variableValues,
+      operationName,
+      fieldResolver
+    );
+  }
+
+  async getCurrentJamPlaylistAsync() {
+    let result = await this.__graphqlQueryAsync(/* GraphQL */ `
+      query {
+        currentPlaylist {
+          playlistId
+          name
+          mediaItems {
+            name
+            published
+            instructions
+            description
+            mediaUrl
+            coverImage {
+              url
+              height
+              width
+            }
+            user {
+              userId
+              name
+              username
+              photo {
+                url
+                height
+                width
+              }
+            }
+          }
+        }
       }
-      return a;
-    };
-
-    playlist.mediaItems = _shuffle(mediaItems);
-
-    return playlist;
+    `);
+    return result.data.currentPlaylist;
   }
 
   async newPlayRecordAsync(obj) {

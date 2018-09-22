@@ -4,11 +4,20 @@ let model = require('./model');
 
 module.exports = {
   Query: {
-    hello: (_, { name }, context) =>
-      `Hello ${name || 'World'}` +
-      JSON.stringify(Object.keys(context.request)) +
-      JSON.stringify(Object.keys(context.request.headers)) +
-      JSON.stringify(context.request.connection.remoteAddress),
+    inspect: (obj, args, context, info) => {
+      return JSON.stringify({
+        obj,
+        // args,
+        // context,
+        info,
+      });
+      // JSON.stringify(Object.keys(context.request)) +
+      // JSON.stringify(Object.keys(context.request.headers)) +
+      // JSON.stringify(context.request.connection.remoteAddress),
+    },
+    hello: (_, { name }, context) => {
+      return `Hello ${name || 'World'}`;
+    },
     media: async (_, { mediaId }, context) => {
       return await context.loaders.media.load(mediaId);
     },
@@ -29,7 +38,7 @@ module.exports = {
     },
     currentPlaylist: async (_, {}, context) => {
       let playlist = await context.loaders.playlist.load('playlist:ludum-dare-42');
-      let playlist_ = {...playlist};
+      let playlist_ = { ...playlist };
       playlist_.mediaItems = playlist_.mediaItems.slice(0);
       let shuffle = (a) => {
         for (let i = a.length - 1; i > 0; i--) {

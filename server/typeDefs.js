@@ -59,6 +59,7 @@ type Playlist {
 }
 
 type Query {
+    inspect: String
     hello(name: String): String!
     media(mediaId: ID!): Media
     user(userId: ID!): User
