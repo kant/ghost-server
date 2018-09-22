@@ -42,6 +42,7 @@ class Api {
           playlistId
           name
           mediaItems {
+            mediaId
             name
             published
             instructions
