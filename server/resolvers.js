@@ -28,7 +28,18 @@ module.exports = {
       return await model.getPlaylistsForUser(userId);
     },
     currentPlaylist: async (_, {}, context) => {
-      return await context.loaders.playlist.load('playlist:ludum-dare-42');
+      let playlist = await context.loaders.playlist.load('playlist:ludum-dare-42');
+      let playlist_ = {...playlist};
+      playlist_.mediaItems = playlist_.mediaItems.slice(0);
+      let shuffle = (a) => {
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]]; // eslint-disable-line no-param-reassign
+        }
+        return a;
+      };
+      shuffle(playlist_.mediaItems);
+      return playlist_;
     },
   },
   Media: {
