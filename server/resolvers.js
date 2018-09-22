@@ -1,6 +1,7 @@
 let auth = require('./auth');
 let ClientError = require('./ClientError');
 let model = require('./model');
+let signup = require('./signup');
 
 function assertIsLoggedInAs(context, userId) {
   if (context.userId === userId) {
@@ -19,9 +20,6 @@ module.exports = {
         // context,
         info,
       });
-      // JSON.stringify(Object.keys(context.request)) +
-      // JSON.stringify(Object.keys(context.request.headers)) +
-      // JSON.stringify(context.request.connection.remoteAddress),
     },
     hello: (_, { name }, context) => {
       return `Hello ${name || 'World'}`;
@@ -95,12 +93,13 @@ module.exports = {
         userId,
       };
       for (let k in user) {
-        if ((k === 'about') || (k === 'photo')) {
+        if (k === 'about' || k === 'photo') {
           update[k] = JSON.stringify(user[k]);
         } else {
-          update[k] = k;
+          update[k] = user[k];
         }
       }
+      console.log(update);
       await model.updateUserAsync(update);
       return await context.loaders.user.load(userId);
     },
@@ -113,21 +112,19 @@ module.exports = {
       await auth.logoutAsync(context.clientId);
       return null;
     },
-    signup: async (_, { username, name }, context, info) => {
-      // TODO(ccheever): validate username
-      console.log({ username, name });
+    signup: async (_, { user }, context, info) => {
+      console.log("s1");
+      let createdUser = await signup.signupAsync(user);
+      console.log("s2");
 
-      let user = await model.signupAsync({
-        username,
-        name,
-      });
-      console.log({ user });
+      // Log them in
       await model.startSessionAsync({
         clientId: context.clientId,
-        // userId: user.userId,
+        userId: createdUser.userId,
         createdIp: context.request.ip,
       });
-      return user;
+
+      return createdUser;
     },
   },
 };

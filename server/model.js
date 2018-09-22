@@ -304,20 +304,6 @@ async function removeTeamAdminsAsync(teamId, userIdList) {
   return await _removeTeamRolesAsync(teamId, userIdList, 'admins');
 }
 
-async function getUserForLoginAsync(identifier) {
-  // userId is first priority
-  let user;
-  user = await getUserAsync(identifier);
-  if (user) {
-    return user;
-  }
-  user = await getUserByUsernameAsync(identifier);
-  if (user) {
-    return user;
-  }
-  // TODO: phone, e-mail
-  return null;
-}
 
 async function startSessionAsync({ clientId, userId, createdIp }, opts) {
   let sessionId = idlib.makeOpaqueId('session');
@@ -414,7 +400,6 @@ module.exports = {
   removeTeamAdminsAsync,
   removeTeamMembersAsync,
   convertUserToTeamAsync,
-  getUserForLoginAsync,
   startSessionAsync,
   endSessionAsync,
   getUserIdForSessionAsync,

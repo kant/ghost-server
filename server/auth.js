@@ -2,9 +2,28 @@ let model = require('./model');
 let passwordlib = require('./passwordlib');
 let ClientError = require('./ClientError');
 
+async function getUserForLoginAsync(identifier) {
+  
+  // username is first priority
+  let user;
+  user = await model.getUserByUsernameAsync(identifier);
+  if (user) {
+    return user;
+  }
+
+  // userId next
+  user = await model.getUserAsync(identifier);
+  if (user) {
+    return user;
+  }
+
+  // TODO: phone, e-mail
+  return null;
+}
+
 async function loginAsync(clientId, usernameOrSimilar, password, opts) {
   opts = opts || {};
-  let user = await model.getUserForLoginAsync(usernameOrSimilar);
+  let user = await getUserForLoginAsync(usernameOrSimilar);
   if (!user) {
     throw ClientError('No such user', 'USER_NOT_FOUND');
   }
@@ -25,6 +44,7 @@ async function logoutAsync(clientId) {
 }
 
 module.exports = {
+  getUserForLoginAsync,
   loginAsync,
   logoutAsync,
-}
+};
