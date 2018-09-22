@@ -27,6 +27,9 @@ module.exports = {
     playlistsForUser: async (_, { userId }) => {
       return await model.getPlaylistsForUser(userId);
     },
+    currentPlaylist: async (_, {}, context) => {
+      return await context.loaders.playlist.load('playlist:ludum-dare-42');
+    },
   },
   Media: {
     user: async (media, {}, context, info) => {

@@ -81,7 +81,7 @@ CREATE TABLE "user" (
   "links" jsonb,
   "about" jsonb,
   "location" text,
-  "photoUrl" text,
+  "photo" jsonb,
   "unclaimed" boolean,
   "isTeam" boolean,
   "roles" jsonb,

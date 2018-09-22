@@ -1,7 +1,12 @@
+let requestImageSize = require('request-image-size');
+
+let db = require('../db');
+let data = require('../data');
 let model = require('../model');
 
 async function mainAsync() {
 
+  // prettier-ignore
 await model.newUserAsync({userId: 'user:adam', location: 'Redwood City', name: 'Adam Perry', username: 'anp'});
 await model.newUserAsync({userId: "user:jesse", location: "Seattle", name: "Jesse Ruder", username: 'jesse' });
 await model.newUserAsync({userId: 'user:quin', name: 'Quinlan Jung', location: 'Palo Alto', username: 'sushipower'});
@@ -45,4 +50,29 @@ if (require.main === module) {
   mainAsync();
 }
 
-module.exports = mainAsync;
+async function migratePhotosAsync() {
+  let results = await db.queryAsync('SELECT * FROM "user" WHERE "photoUrl" IS NOT NULL');
+  let users = data.objectsListFromResults(results);
+  let a = [];
+  for (let user of users) {
+    a.push(migratePhotoAsync(user));
+  }
+  return await Promise.all(a);
+}
+
+async function migratePhotoAsync(user) {
+  let d= await requestImageSize(user.photoUrl);
+  let photo = Object.assign({ url: user.photoUrl }, d);
+
+  await model.updateUserAsync({
+    userId: user.userId,
+    photo: JSON.stringify(photo),
+  });
+}
+
+
+module.exports = {
+  mainAsync,
+  migratePhotoAsync,
+  migratePhotosAsync,
+};

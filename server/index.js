@@ -30,7 +30,6 @@ async function serveAsync(port) {
     context: ({ request }) => {
       return {
         request,
-        demo: 'charlie',
         loaders: loaders.createLoaders(),
       };
     },

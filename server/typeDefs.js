@@ -2,12 +2,19 @@ module.exports = `
 scalar Json
 scalar Datetime
 
+type Image {
+  url: String
+  height: Float
+  width: Float
+  donwloaded: Int
+}
+
 type Media {
   mediaId: ID! @unique
   name: String
   description: Json
   userId: ID
-  coverImage: Json
+  coverImage: Image
   instructions: Json
   dimensions: Json
   engineId: ID
@@ -24,11 +31,12 @@ type User {
   location: String
   username: String
   about: Json
-  photoUrl: String
+  photo: Image
   isTeam: Boolean
   createdTime: Datetime
   updatedTime: Datetime
 }
+
 
 type Engine {
   engineId: ID! @unique
@@ -57,6 +65,7 @@ type Query {
     engine(engineId: ID!): Engine
     playlist(playlistId: ID!): Playlist
     playlistsForUser(userId: ID!): [Playlist]
+    currentPlaylist: Playlist
   }
 
 
