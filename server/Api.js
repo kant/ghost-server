@@ -1,5 +1,6 @@
 let graphql = require('graphql');
 
+let auth = require('./auth');
 let ClientError = require('./ClientError');
 let model = require('./model');
 let passwordlib = require('./passwordlib');
@@ -22,7 +23,6 @@ class Api {
     // operationName,
     // fieldResolver,
     let graphqlContext = this.serverContext.graphqlContext;
-    console.log(graphqlContext.loaders);
 
     return await graphql.graphql(
       this.serverContext.executableSchema,
@@ -67,30 +67,6 @@ class Api {
       }
     `);
     return result.data.currentPlaylist;
-  }
-
-  async loginAsync(usernameOrSimilar, password) {
-    let user = await model.getUserForLoginAsync(usernameOrSimilar);
-    if (!user) {
-      throw ClientError(
-        "There doesn't seem to be a user with that username or similar",
-        'USER_NOT_FOUND'
-      );
-    }
-    let ok = await passwordlib.checkUserPasswordAsync(user.userId, password);
-    if (!ok) {
-      throw ClientError(
-        "Incorrect password", 'INCORRECT_PASSWORD'
-      );
-    }
-
-    let session = await model.newSessionAsync(user.userId);
-
-    this.responseAddCommand({
-      command: 'setSession',
-      sessionS
-    })
-    return user;
   }
 
   async newPlayRecordAsync(obj) {
@@ -143,6 +119,37 @@ class Api {
 
   async deletePlaylistAsync(playlistId) {
     return await model.deletePlaylistAsync(playlistId);
+  }
+
+  async loginAsync(usernameOrSimilar, password) {
+    this._logArgs = [usernameOrSimilar, 'XXXXXX'];
+    let result = await this.__graphqlQueryAsync({
+      query: /* GraphQL */ `
+        mutation($usernameOrSimilar: String!, $password: String!) {
+          login(usernameOrSimilar: $usernameOrSimilar, password: $password) {
+            userId
+            name
+            username
+            photo {
+              url
+              width
+              height
+            }
+          }
+        }
+      `,
+      variableValues: {
+        usernameOrSimilar,
+        password,
+      },
+    });
+    return result;
+    // let createdIp = this.serverContext.req.ip;
+    // return await auth.loginAsync(this.clientId, usernameOrSimilar, password, { createdIp });
+  }
+
+  async logoutAsync() {
+    return await auth.logoutAsync(this.clientId);
   }
 }
 

@@ -26,7 +26,7 @@ module.exports = (apiImplementationClass, opts) => {
     let { method, args, context } = req.body;
     let api = new apiImplementationClass();
     if (opts.serverContext) {
-      let cr = await opts.serverContext(context, { req, res });
+      let cr = opts.serverContext(context, { req, res });
       if (isPromise(cr)) {
         cr = await cr;
       }
@@ -35,6 +35,8 @@ module.exports = (apiImplementationClass, opts) => {
       }
     }
     api.serverContext = api.serverContext || {};
+    api.clientId = api.serverContext.graphqlContext.clientId;
+    api.userId = api.serverContext.graphqlContext.userId;
     api.context = context;
     api.responseAddWarning = (code, message) => {
       r.warnings = r.warnings || [];
@@ -76,7 +78,7 @@ module.exports = (apiImplementationClass, opts) => {
           type: e.type,
           code: e.code,
         };
-        if (e.isClientError) {
+        if (e.isClientError || e.type === 'CLIENT_ERROR') {
           r.clientError = err;
         } else {
           r.error = {

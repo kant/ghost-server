@@ -109,8 +109,6 @@ async function writeNewObjectAsync(obj, table, opts) {
   }
   let id = o[column];
 
-  // TODO(ccheever): Add ON CONFLICT stuff to handle UPSERTs
-
   let complete = false;
   while (!complete) {
     try {
@@ -152,7 +150,7 @@ async function writeNewObjectAsync(obj, table, opts) {
       complete = true;
     } catch (e) {
       // If unique_violation (duplicate primary key)
-      if (e.code === '23505') {
+      if ((e.code === '23505') && (e.constraint.endsWith('_pkey'))) {
         if (opts.autoId) {
           o[column] = id + '+' + idlib.makeUuid(12);
         }

@@ -36,17 +36,12 @@ function createId(type, s) {
   return type + ':' + _normalizeInfo(s);
 }
 
-async function createUniqueIdAsync(type, s, existsAsync) {
-  let naturalId = createId(type, s);
-  let id = naturalId;
-  while (await existsAsync(id)) {
-    id = naturalId.substr(0, 48) + '+' + makeUuid(8);
-  }
-  return id;
+function makeOpaqueId(type) {
+  return type + ':' + makeUuid(16);
 }
 
 module.exports = {
   makeUuid,
   createId,
-  createUniqueIdAsync,
+  makeOpaqueId,
 };

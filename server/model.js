@@ -1,3 +1,4 @@
+let ClientError = require('./ClientError');
 let data = require('./data');
 let db = require('./db');
 let idlib = require('./idlib');
@@ -5,23 +6,6 @@ let idlib = require('./idlib');
 async function newPlayRecordAsync(obj) {
   obj.playRecordId = obj.playRecordId || idlib.createId('playRecord');
   return await data.writeNewObjectAsync(obj, 'playRecord');
-}
-
-async function writeGhostSignupAsync(resultData) {
-  let userId = resultData.data.user.id;
-  let signupEmail = resultData.data.user.email;
-  let signupTime = resultData.data.user.created_at;
-  let signupUsername = resultData.data.user.username;
-  await db.queryAsync(
-    `
-    INSERT INTO "ghostSignups" ( 
-      "signupTime",
-      "userId",
-      "signupUsername",
-      "signupEmail"
-    ) VALUES ($1, $2, $3, $4)`,
-    [signupTime, userId, signupUsername, signupEmail]
-  );
 }
 
 async function getPlayRecordsAsync(mediaId, opts) {
@@ -215,35 +199,6 @@ async function loadMediaAsync(mediaIdList) {
   return await data.loadObjectsAsync(mediaIdList, 'media', 'mediaId', { columns: mediaColumns });
 }
 
-async function newSessionAsync(userId, opts) {
-  let sessionId =
-    'session:' +
-    userId +
-    '/' +
-    moment(Date.now()).format('YYYYMMDDhhmmss') +
-    '+' +
-    idlib.makeUuid(16);
-
-  return await data.writeNewObjectAsync(
-    {
-      sessionId,
-      userId,
-      ...opts,
-    },
-    'session',
-    { column: 'sessionId' }
-  );
-}
-
-async function getSessionAsync(sessionId) {
-  return await data.getObjectAsync(sessionId, 'session', { column: 'sessionId' });
-}
-
-async function getSessionsForUserAsync(userId) {
-  let results = await db.queryAsync('SELECT * FROM "session" WHERE "userId" = $1', [userId]);
-  return data.objectsFromResults(results);
-}
-
 async function newTeamAsync(obj) {
   let teamObj = {
     ...obj,
@@ -352,11 +307,11 @@ async function removeTeamAdminsAsync(teamId, userIdList) {
 async function getUserForLoginAsync(identifier) {
   // userId is first priority
   let user;
-  user = await model.getUserAsync(identifier)
+  user = await getUserAsync(identifier);
   if (user) {
     return user;
   }
-  user = await model.getUserByUsernameAsync(identifier);
+  user = await getUserByUsernameAsync(identifier);
   if (user) {
     return user;
   }
@@ -364,8 +319,62 @@ async function getUserForLoginAsync(identifier) {
   return null;
 }
 
+async function startSessionAsync({ clientId, userId, createdIp }, opts) {
+  let sessionId = idlib.makeOpaqueId('session');
+  await data.writeNewObjectAsync(
+    {
+      userId,
+      createdIp,
+      clientId,
+    },
+    'session',
+    {
+      upsert: true,
+      column: 'clientId',
+      ...opts,
+    }
+  );
+}
+
+async function endSessionAsync(clientId, opts) {
+  return await data._deleteObjectAsync(clientId, 'session', { column: 'clientId', ...opts });
+}
+
+async function getUserIdForSessionAsync(clientId) {
+  let result = await db.queryAsync('SELECT "userId" FROM "session" WHERE "clientId" = $1', [
+    clientId,
+  ]);
+  if (result.rowCount > 0) {
+    return result.rows[0].userId;
+  } else {
+    return null;
+  }
+}
+
+async function signupAsync(userInfo) {
+  let { username, name } = userInfo;
+  console.log({userInfo});
+  try {
+    let user = await newUserAsync(
+      {
+        username,
+        name,
+      },
+      {
+        autoId: true,
+        autoIdSource: name,
+      }
+    );
+    return user;
+  } catch (e) {
+    if (e.code === '23505' && e.constraint === 'user_username_key') {
+      throw ClientError("Username '" + username + "' is already taken", 'USERNAME_NOT_AVAILABLE');
+    }
+    throw e;
+  }
+}
+
 module.exports = {
-  writeGhostSignupAsync,
   newPlayRecordAsync,
   getPlayRecordsAsync,
   updatePlayRecordAsync,
@@ -396,9 +405,6 @@ module.exports = {
   newPlaylistAsync,
   multigetMediaAsync,
   loadMediaAsync,
-  newSessionAsync,
-  getSessionAsync,
-  getSessionsForUserAsync,
   newTeamAsync,
   getTeamsForUserAsync,
   _addTeamRolesAsync,
@@ -409,4 +415,8 @@ module.exports = {
   removeTeamMembersAsync,
   convertUserToTeamAsync,
   getUserForLoginAsync,
+  startSessionAsync,
+  endSessionAsync,
+  getUserIdForSessionAsync,
+  signupAsync,
 };

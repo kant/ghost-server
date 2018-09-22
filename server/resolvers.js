@@ -1,7 +1,14 @@
-let assert = require('assert');
-
+let auth = require('./auth');
+let ClientError = require('./ClientError');
 let model = require('./model');
-let passwordlib = require('./passwordlib');
+
+function assertIsLoggedInAs(context, userId) {
+  if (context.userId === userId) {
+    return;
+  } else {
+    throw ClientError("You don't have permission to do that", 'NO_PERMISSION');
+  }
+}
 
 module.exports = {
   Query: {
@@ -82,13 +89,45 @@ module.exports = {
     },
   },
   Mutation: {
-    updateUser: async (_, { userId, update }) => {
-      if (update.userId) {
-        assert.equal(update.userId, userId);
+    updateUser: async (_, { userId, user }, context, info) => {
+      assertIsLoggedInAs(context, userId);
+      let update = {
+        userId,
+      };
+      for (let k in user) {
+        if ((k === 'about') || (k === 'photo')) {
+          update[k] = JSON.stringify(user[k]);
+        } else {
+          update[k] = k;
+        }
       }
-      update.userId = userId;
       await model.updateUserAsync(update);
-      return await model.getUserAsync(userId);
+      return await context.loaders.user.load(userId);
+    },
+    login: async (_, { usernameOrSimilar, password }, context, info) => {
+      return await auth.loginAsync(context.clientId, usernameOrSimilar, password, {
+        createdIp: context.request.ip,
+      });
+    },
+    logout: async (_, {}, context, info) => {
+      await auth.logoutAsync(context.clientId);
+      return null;
+    },
+    signup: async (_, { username, name }, context, info) => {
+      // TODO(ccheever): validate username
+      console.log({ username, name });
+
+      let user = await model.signupAsync({
+        username,
+        name,
+      });
+      console.log({ user });
+      await model.startSessionAsync({
+        clientId: context.clientId,
+        // userId: user.userId,
+        createdIp: context.request.ip,
+      });
+      return user;
     },
   },
 };

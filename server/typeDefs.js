@@ -1,66 +1,66 @@
-module.exports = `
-scalar Json
-scalar Datetime
+module.exports = /* GraphQL */ `
+  scalar Json
+  scalar Datetime
+  scalar Null
 
-type Image {
-  url: String
-  height: Float
-  width: Float
-  donwloaded: Int
-}
+  type Image {
+    url: String
+    height: Float
+    width: Float
+    donwloaded: Int
+  }
 
-type Media {
-  mediaId: ID! @unique
-  mediaUrl: String
-  name: String
-  description: Json
-  userId: ID
-  coverImage: Image
-  instructions: Json
-  dimensions: Json
-  engineId: ID
-  published: Datetime
-  createdTime: Datetime
-  updatedTime: Datetime
-  user: User
-  engine: Engine
-}
+  type Media {
+    mediaId: ID! @unique
+    mediaUrl: String
+    name: String
+    description: Json
+    userId: ID
+    coverImage: Image
+    instructions: Json
+    dimensions: Json
+    engineId: ID
+    published: Datetime
+    createdTime: Datetime
+    updatedTime: Datetime
+    user: User
+    engine: Engine
+  }
 
-type User {
-  userId: ID! @unique
-  name: String
-  location: String
-  username: String
-  about: Json
-  photo: Image
-  isTeam: Boolean
-  members: [User]
-  admins: [User]
-  createdTime: Datetime
-  updatedTime: Datetime
-}
+  type User {
+    userId: ID! @unique
+    name: String
+    location: String
+    username: String
+    about: Json
+    photo: Image
+    isTeam: Boolean
+    members: [User]
+    admins: [User]
+    createdTime: Datetime
+    updatedTime: Datetime
+  }
 
+  type Engine {
+    engineId: ID! @unique
+    name: String
+    url: String
+    createdTime: Datetime
+    updatedTime: Datetime
+  }
 
-type Engine {
-  engineId: ID! @unique
-  name: String
-  url: String
-  createdTime: Datetime
-  updatedTime: Datetime
-}
+  type Playlist {
+    playlistId: ID! @unique
+    userId: ID
+    user: User
+    name: String
+    description: Json
+    mediaItems: [Media]
+    createdTime: Datetime
+    updatedTime: Datetime
+  }
 
-type Playlist {
-  playlistId: ID! @unique
-  userId: ID
-  user: User
-  name: String
-  description: Json
-  mediaItems: [Media]
-  createdTime: Datetime
-  updatedTime: Datetime
-}
-
-type Query {
+  type Query {
     inspect: String
     hello(name: String): String!
     media(mediaId: ID!): Media
@@ -72,8 +72,25 @@ type Query {
     currentPlaylist: Playlist
   }
 
+  input UserInput {
+    name: String
+    location: String
+    username: String
+    about: Json
+    photo: ImageInput
+    isTeam: Boolean
+  }
 
-type Mutation {
-  updateUser(userId: ID!, update: Json): User
-}
+  input ImageInput {
+    url: String
+    height: Float
+    width: Float
+  }
+
+  type Mutation {
+    login(usernameOrSimilar: String!, password: String!): User
+    logout: Null
+    signup(user: UserInput): User
+    updateUser(userId: ID!, user: UserInput): User
+  }
 `;

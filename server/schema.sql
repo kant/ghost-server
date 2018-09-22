@@ -112,14 +112,11 @@ CREATE TABLE "profileView" (
   "viewTime" timestamp
 );
 
-
 CREATE TABLE "session" (
-  "sessionId" text PRIMARY KEY,
+  "clientId" text PRIMARY KEY,
   "userId" text,
   "createdIp" text,
   "createdTime" timestamp default now(),
   "updatedTime" timestamp default now()
 );
-
 CREATE TRIGGER "session_setUpdatedTime" BEFORE UPDATE ON "session" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-

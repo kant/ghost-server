@@ -12,13 +12,18 @@ let Api = require('./Api');
 let db = require('./db');
 let handler = require('./handler');
 let loaders = require('./loaders');
+let model = require('./model');
 let resolvers = require('./resolvers');
 let typeDefs = require('./typeDefs');
 
-let makeGraphqlContext = ({ request }) => {
+let makeGraphqlContextAsync = async ({ request }) => {
+  let clientId = request.get('X-ClientId');
+  let userId = await model.getUserIdForSessionAsync(clientId);
   return {
     request,
     loaders: loaders.createLoaders(),
+    clientId,
+    userId,
   };
 };
 
@@ -34,7 +39,7 @@ async function serveAsync(port) {
   let app = new graphqlYoga.GraphQLServer({
     typeDefs,
     resolvers,
-    context: makeGraphqlContext,
+    context: makeGraphqlContextAsync,
   });
   app.use(cors());
   app.use(bodyParser.json());
@@ -45,10 +50,11 @@ async function serveAsync(port) {
     endpoints.api,
     handler(Api, {
       serverContext: async (thinContext, { req, res }) => {
+        let graphqlContext = await makeGraphqlContextAsync({request: req});
         return {
           requestContext: thinContext,
           executableSchema: app.executableSchema,
-          graphqlContext: makeGraphqlContext({ request: req }),
+          graphqlContext,
           req,
           res,
         };
