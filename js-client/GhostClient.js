@@ -1,9 +1,9 @@
 let apolloFetch = require('apollo-fetch');
-let ThinClient = require('thin-client');
 
 let ApiError = require('./ApiError');
 let pkg = require('./package');
 let Storage = require('./Storage');
+let ThinClient = require('./ThinClient');
 
 let PRODUCTION_API_URL = 'https://ghost-server.app.render.com/api';
 
@@ -13,9 +13,8 @@ class GhostClient extends ThinClient {
     super(url, context, opts);
     this._storage = this.opts.storage || new Storage();
 
-    // A little hacky -- replace api with graphql
     this._apolloFetch = apolloFetch.createApolloFetch({
-      uri: url.substr(0, url.length - 3) + 'graphql',
+      uri: url + '/graphql',
     });
 
     this._setContextAsync();

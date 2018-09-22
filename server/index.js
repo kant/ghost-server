@@ -26,8 +26,8 @@ async function serveAsync(port) {
   let endpoints = {
     status: '/status',
     api: '/api',
-    graphql: '/graphql',
-    playground: '/graphql',
+    graphql: '/api/graphql',
+    playground: '/api/graphql',
     subscriptions: '/subscriptions',
   };
 
