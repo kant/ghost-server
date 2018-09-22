@@ -11,6 +11,7 @@ let spawnAsync = require('@expo/spawn-async');
 
 let Api = require('./Api');
 let db = require('./db');
+let loaders = require('./loaders');
 let resolvers = require('./resolvers');
 let typeDefs = require('./typeDefs');
 
@@ -30,6 +31,7 @@ async function serveAsync(port) {
       return {
         request,
         demo: 'charlie',
+        loaders: loaders.createLoaders(),
       };
     },
   });

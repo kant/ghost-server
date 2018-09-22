@@ -40,6 +40,11 @@ async function multigetObjectsAsync(idList, table, opts) {
   return x;
 }
 
+async function loadObjectsAsync(idList, table, column) {
+  column = column || table + 'Id';
+  return await multigetObjectsAsync(idList, table, {column: column, asList: true});
+}
+
 function objectsFromResults(results, key) {
   let x = {};
   for (let r of results.rows) {
@@ -181,6 +186,7 @@ async function _deleteObjectAsync(id, table, opts) {
 module.exports = {
   getObjectAsync,
   multigetObjectsAsync,
+  loadObjectsAsync,
   writeNewObjectAsync,
   updateObjectAsync,
   objectsFromResults,

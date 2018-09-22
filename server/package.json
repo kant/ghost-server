@@ -24,6 +24,7 @@
     "@expo/time": "^1.0.0",
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
+    "dataloader": "^1.4.0",
     "escape-html": "^1.0.3",
     "graphql-yoga": "^1.16.2",
     "moment": "^2.22.2",

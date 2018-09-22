@@ -20,7 +20,22 @@ async function queryAsync(...args) {
   try {
     let tk = time.start();
     let result = await client.query(...args);
-    time.end(tk, 'db-query', { threshold: 0, message: JSON.stringify(args) });
+
+    // let message = JSON.stringify(args);
+    let [query, values] = args;
+    let logLimit = 256;
+    let message = query.substr(0, logLimit);
+    if (query.length > logLimit) {
+      message += '...';
+    }
+    if (values) {
+      message += ' ' + JSON.stringify(values.slice(0, 4));
+      if (values.length > 4) {
+        message = message.substr(0, message.length - 1) + ', ... ]';
+      }
+    }
+
+    time.end(tk, 'db-query', { threshold: 0, message });
     return result;
   } finally {
     client.release();

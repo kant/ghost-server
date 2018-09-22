@@ -108,6 +108,10 @@ async function getEngineAsync(engineId) {
   return await data.getObjectAsync(engineId, 'engine', { column: 'engineId' });
 }
 
+async function loadEnginesAsync(engineIdList) {
+  return await data.loadObjectsAsync(engineIdList, 'engine', 'engineId');
+}
+
 async function newUserAsync(obj) {
   return await data.writeNewObjectAsync(obj, 'user', {
     column: 'userId',
@@ -118,6 +122,14 @@ async function newUserAsync(obj) {
 
 async function getUserAsync(userId) {
   return await data.getObjectAsync(userId, 'user', { column: 'userId' });
+}
+
+async function multigetUsersAsync(userIdList, opts) {
+  return await data.multigetObjectsAsync(userIdList, 'user', { column: 'userId', ...opts });
+}
+
+async function loadUsersAsync(userIdList) {
+  return await data.loadObjectsAsync(userIdList, 'user', 'userId');
 }
 
 async function updateUserAsync(obj) {
@@ -141,6 +153,10 @@ async function getUserByUsernameAsync(username) {
 
 async function getPlaylistAsync(playlistId) {
   return await data.getObjectAsync(playlistId, 'playlist', { column: 'playlistId' });
+}
+
+async function loadPlaylistsAsync(playlistIdList) {
+  return await data.loadObjectsAsync(playlistIdList, 'playlist');
 }
 
 async function updatePlaylistAsync(obj) {
@@ -170,6 +186,10 @@ async function newPlaylistAsync(obj) {
 
 async function multigetMediaAsync(mediaIdList, opts) {
   return await data.multigetObjectsAsync(mediaIdList, 'media', { column: 'mediaId', ...opts });
+}
+
+async function loadMediaAsync(mediaIdList) {
+  return await data.loadObjectsAsync(mediaIdList, 'media');
 }
 
 async function newSessionAsync(userId, opts) {
@@ -322,17 +342,22 @@ module.exports = {
   getTotalProfileViews,
   getTotalMediaPlays,
   getEngineAsync,
+  loadEnginesAsync,
   newUserAsync,
   updateUserAsync,
   getUserAsync,
+  multigetUsersAsync,
+  loadUsersAsync,
   getUserByUsernameAsync,
   _deleteUserAsync,
   getPlaylistAsync,
   getPlaylistsForUser,
+  loadPlaylistsAsync,
   updatePlaylistAsync,
   deletePlaylistAsync,
   newPlaylistAsync,
   multigetMediaAsync,
+  loadMediaAsync,
   newSessionAsync,
   getSessionAsync,
   getSessionsForUserAsync,
