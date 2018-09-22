@@ -7,9 +7,11 @@ type Media {
   name: String
   description: Json
   userId: ID
+  coverImage: Json
   instructions: Json
   dimensions: Json
   engineId: ID
+  published: Datetime
   createdTime: Datetime
   updatedTime: Datetime
   user: User
@@ -23,6 +25,7 @@ type User {
   username: String
   about: Json
   photoUrl: String
+  isTeam: Boolean
   createdTime: Datetime
   updatedTime: Datetime
 }
