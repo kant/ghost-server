@@ -184,12 +184,35 @@ async function newPlaylistAsync(obj) {
   return await data.writeNewObjectAsync(obj, 'playlist', { column: 'playlistId', autoId: true });
 }
 
+let mediaColumns = [
+  'mediaId',
+  'name',
+  'mediaUrl',
+  'homepageUrl',
+  'coverImage',
+  'description',
+  'dimensions',
+  'instructions',
+  'userId',
+  'engineId',
+  // 'extraData',
+  // 'deleted',
+  // 'creators',
+  'published',
+  'createdTime',
+  'updatedTime',
+];
+
 async function multigetMediaAsync(mediaIdList, opts) {
-  return await data.multigetObjectsAsync(mediaIdList, 'media', { column: 'mediaId', ...opts });
+  return await data.multigetObjectsAsync(mediaIdList, 'media', {
+    column: 'mediaId',
+    columns: mediaColumns,
+    ...opts,
+  });
 }
 
 async function loadMediaAsync(mediaIdList) {
-  return await data.loadObjectsAsync(mediaIdList, 'media');
+  return await data.loadObjectsAsync(mediaIdList, 'media', 'mediaId', { columns: mediaColumns });
 }
 
 async function newSessionAsync(userId, opts) {

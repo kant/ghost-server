@@ -6,8 +6,14 @@ let idlib = require('./idlib');
 async function multigetObjectsAsync(idList, table, opts) {
   opts = opts || {};
   let column = opts.column || table + 'Id';
+  let selectColumns = '*';
+  if (opts.columns) {
+    selectColumns = quoteColumnIdentifiers(opts.columns);
+  }
   let results = await db.queryAsync(
-    'SELECT * FROM ' +
+    'SELECT ' +
+      selectColumns +
+      ' FROM ' +
       db.iq(table) +
       ' WHERE ' +
       db.iq(column) +
@@ -40,9 +46,9 @@ async function multigetObjectsAsync(idList, table, opts) {
   return x;
 }
 
-async function loadObjectsAsync(idList, table, column) {
+async function loadObjectsAsync(idList, table, column, opts) {
   column = column || table + 'Id';
-  return await multigetObjectsAsync(idList, table, {column: column, asList: true});
+  return await multigetObjectsAsync(idList, table, { column: column, ...opts, asList: true });
 }
 
 function objectsFromResults(results, key) {
@@ -183,6 +189,10 @@ async function _deleteObjectAsync(id, table, opts) {
   return result.rowCount;
 }
 
+function quoteColumnIdentifiers(columns) {
+  return columns.map(db.iq).join(', ');
+}
+
 module.exports = {
   getObjectAsync,
   multigetObjectsAsync,
@@ -194,4 +204,5 @@ module.exports = {
   objectExistsAsync,
   oneObjectFromResults,
   _deleteObjectAsync,
+  quoteColumnIdentifiers,
 };

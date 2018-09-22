@@ -31,17 +31,14 @@ module.exports = {
   Media: {
     user: async (media, {}, context, info) => {
       return await context.loaders.user.load(media.userId);
-      // return await model.getUserAsync(media.userId);
     },
     engine: async (media, {}, context, info) => {
       return await context.loaders.engine.load(media.engineId);
-      // return await model.getEngineAsync(media.engineId);
     },
   },
   Playlist: {
     mediaItems: async (playlist, {}, context, info) => {
       return await context.loaders.media.loadMany(playlist.mediaItems);
-      // return await model.multigetMediaAsync(playlist.mediaItems, { asList: true });
     },
   },
   Mutation: {
