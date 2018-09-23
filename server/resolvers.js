@@ -1,15 +1,9 @@
 let auth = require('./auth');
 let ClientError = require('./ClientError');
+let data = require('./data');
 let model = require('./model');
+let permissions = require('./permissions');
 let signup = require('./signup');
-
-function assertIsLoggedInAs(context, userId) {
-  if (context.userId === userId) {
-    return;
-  } else {
-    throw ClientError("You don't have permission to do that", 'NO_PERMISSION');
-  }
-}
 
 module.exports = {
   Query: {
@@ -88,7 +82,7 @@ module.exports = {
   },
   Mutation: {
     updateUser: async (_, { userId, user }, context, info) => {
-      assertIsLoggedInAs(context, userId);
+      await permissions.canUpdateUserAsync(context, userId);
       let update = {
         userId,
       };
@@ -113,9 +107,9 @@ module.exports = {
       return null;
     },
     signup: async (_, { user }, context, info) => {
-      console.log("s1");
+      console.log('s1');
       let createdUser = await signup.signupAsync(user);
-      console.log("s2");
+      console.log('s2');
 
       // Log them in
       await model.startSessionAsync({
@@ -124,7 +118,42 @@ module.exports = {
         createdIp: context.request.ip,
       });
 
-      return createdUser;
+      return await context.loaders.user.load(createdUser.userId);
+    },
+    addEngine: async (_, { engine }, context, info) => {
+      await permissions.canAddEngineAsync(context);
+      let engine_ = data.stringifyJsonFields(engine, ['about', 'image']);
+      let newEngine = model.newEngineAsync(engine_);
+      return await context.loaders.engine.load(newEngine.engineId);
+    },
+    updateEngine: async (_, { engineId, engine }, context, info) => {
+      await permissions.canUpdateEngineAsync(context, engineId);
+      let engine_ = data.stringifyJsonFields(engine, ['about', 'image']);
+      engine_.engineId = engineId;
+      await model.updateEngineAsync(engine_);
+      return await context.loaders.engine.load(engine_.engineId);
+    },
+    addMedia: async (_, { media }, context, info) => {
+      await permissions.canAddMediaAsync(context);
+      let media_ = data.stringifyJsonFields(media, [
+        'description',
+        'coverImage',
+        'instructions',
+        'dimensions',
+      ]);
+      let newMedia = await model.newMediaAsync(media_);
+      return await context.loaders.media.load(newMedia.mediaId);
+    },
+    updateMedia: async (_, { mediaId, media }, context, info) => {
+      await permissions.canUpdateMediaAsync(context);
+      let media_ = data.stringifyJsonFields(media, [
+        'description',
+        'coverImage',
+        'instructions',
+        'dimensions',
+      ]);
+      let newMedia = await model.updateMediaAsync(media_);
+      return await context.loaders.media.load(newMedia.mediaId);
     },
   },
 };

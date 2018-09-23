@@ -3,7 +3,6 @@ let passwordlib = require('./passwordlib');
 let ClientError = require('./ClientError');
 
 async function getUserForLoginAsync(identifier) {
-  
   // username is first priority
   let user;
   user = await model.getUserByUsernameAsync(identifier);

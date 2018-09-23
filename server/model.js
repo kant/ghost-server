@@ -54,7 +54,7 @@ async function newEngineAsync(obj) {
 }
 
 async function updateEngineAsync(obj) {
-  return await data.updateObjectAsync(obj, 'engine', { column: 'engineId' });
+  return await data.updateObjectAsync(obj.engineId, 'engine', obj, { column: 'engineId' });
 }
 
 async function getAllEnginesAsync() {
@@ -166,6 +166,29 @@ async function getPlaylistsForUser(userId) {
 
 async function newPlaylistAsync(obj) {
   return await data.writeNewObjectAsync(obj, 'playlist', { column: 'playlistId', autoId: true });
+}
+
+async function isRoleOfTeamAsync(userId, teamId, role) {
+  let r = db.replacer();
+  let results = await db.queryAsync(
+    `
+    SELECT ("roles"->${r(role)})::jsonb ? ${r(userId)} AS "onTeam"
+    FROM "user" WHERE "userId" = ${r(teamId)};
+  `,
+    r.values()
+  );
+  if (results.rowCount > 0) {
+    return results.rows[0].onTeam;
+  }
+  return false;
+}
+
+async function isMemberOfTeamAsync(userId, teamId) {
+  return await isRoleOfTeamAsync(userId, teamId, 'members');
+}
+
+async function isAdminOfTeamAsync(userId, teamId) {
+  return await isRoleOfTeamAsync(userId, teamId, 'admins');
 }
 
 let mediaColumns = [
@@ -304,7 +327,6 @@ async function removeTeamAdminsAsync(teamId, userIdList) {
   return await _removeTeamRolesAsync(teamId, userIdList, 'admins');
 }
 
-
 async function startSessionAsync({ clientId, userId, createdIp }, opts) {
   let sessionId = idlib.makeOpaqueId('session');
   await data.writeNewObjectAsync(
@@ -339,7 +361,7 @@ async function getUserIdForSessionAsync(clientId) {
 
 async function signupAsync(userInfo) {
   let { username, name } = userInfo;
-  console.log({userInfo});
+  console.log({ userInfo });
   try {
     let user = await newUserAsync(
       {
@@ -360,6 +382,10 @@ async function signupAsync(userInfo) {
   }
 }
 
+async function deleteMediaAsync(mediaId) {
+  return await data._deleteObjectAsync(mediaId, 'media', { column: 'mediaId' });
+}
+
 module.exports = {
   newPlayRecordAsync,
   getPlayRecordsAsync,
@@ -368,6 +394,7 @@ module.exports = {
   getAllMediaAsync,
   newMediaAsync,
   updateMediaAsync,
+  deleteMediaAsync,
   newEngineAsync,
   updateEngineAsync,
   getAllEnginesAsync,
@@ -404,4 +431,7 @@ module.exports = {
   endSessionAsync,
   getUserIdForSessionAsync,
   signupAsync,
+  isRoleOfTeamAsync,
+  isMemberOfTeamAsync,
+  isAdminOfTeamAsync,
 };

@@ -168,7 +168,6 @@ async function updateObjectAsync(id, table, update, opts) {
   let column = opts.column || table + 'Id';
   delete o[column];
   let keys = Object.keys(o);
-  let values = [];
   let r = db.replacer();
   let updates = keys.map((k) => db.iq(k) + ' = ' + r(o[k])).join(', ');
   let q =
@@ -191,6 +190,16 @@ function quoteColumnIdentifiers(columns) {
   return columns.map(db.iq).join(', ');
 }
 
+function stringifyJsonFields(obj, jsonFields) {
+  let obj_ = {...obj};
+  for (let field of jsonFields) {
+    if (obj_.hasOwnProperty(field)) {
+      obj_[field] = JSON.stringify(obj_[field]);
+    }
+  }
+  return obj_;
+}
+
 module.exports = {
   getObjectAsync,
   multigetObjectsAsync,
@@ -203,4 +212,5 @@ module.exports = {
   oneObjectFromResults,
   _deleteObjectAsync,
   quoteColumnIdentifiers,
+  stringifyJsonFields,
 };

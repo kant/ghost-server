@@ -45,6 +45,8 @@ module.exports = /* GraphQL */ `
     engineId: ID! @unique
     name: String
     url: String
+    about: Json
+    image: Image
     createdTime: Datetime
     updatedTime: Datetime
   }
@@ -87,10 +89,36 @@ module.exports = /* GraphQL */ `
     width: Float
   }
 
+  input EngineInput {
+    engineId: ID
+    name: String
+    url: String
+    about: Json
+    image: ImageInput
+  }
+
+  input MediaInput {
+    mediaId: ID
+    mediaUrl: String
+    name: String
+    description: Json
+    userId: ID
+    coverImage: ImageInput
+    instructions: Json
+    dimensions: Json
+    engineId: ID
+    published: Datetime
+  }
+
+
   type Mutation {
     login(usernameOrSimilar: String!, password: String!): User
     logout: Null
     signup(user: UserInput): User
     updateUser(userId: ID!, user: UserInput): User
+    addEngine(engine: EngineInput): Engine
+    updateEngine(engineId: ID!, engine: EngineInput): Engine
+    addMedia(media: MediaInput): Media
+    updateMedia(mediaId: ID!, media: MediaInput): Media
   }
 `;

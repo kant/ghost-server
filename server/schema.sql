@@ -29,10 +29,11 @@ CREATE TRIGGER "playRecord_setUpdatedTime" BEFORE UPDATE ON "playRecord" FOR EAC
 
 
 CREATE TABLE "engine" (
-  "engineId" varchar(255) PRIMARY KEY,
-  "name" varchar(255),
-  "url" varchar(255),
-  "deleted" int,
+  "engineId" text PRIMARY KEY,
+  "name" text,
+  "url" text,
+  "about" jsonb,
+  "image" jsonb,
   "createdTime" timestamp default now(),   
   "updatedTime" timestamp default now()
 );
