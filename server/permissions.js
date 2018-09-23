@@ -29,7 +29,7 @@ async function canUpdateUserAsync({ userId }, updateUserId) {
   if (userId === updateUserId) {
     return;
   }
-  if (await model.isAdminOfTeamAsync({ userId }, updateUserId)) {
+  if (await model.isAdminOfTeamAsync(userId, updateUserId)) {
     return;
   }
   throw PermissionError("You don't have permission to update that user");

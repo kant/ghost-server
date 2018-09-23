@@ -72,6 +72,7 @@ module.exports = /* GraphQL */ `
     playlist(playlistId: ID!): Playlist
     playlistsForUser(userId: ID!): [Playlist]
     currentPlaylist: Playlist
+    whoAmI: User
   }
 
   input UserInput {
@@ -121,5 +122,13 @@ module.exports = /* GraphQL */ `
     addMedia(media: MediaInput): Media
     updateMedia(mediaId: ID!, media: MediaInput): Media
     deleteMedia(mediaId: ID!): Boolean
+    addTeamMember(teamId: ID!, userId: ID!): User
+    addTeamMembers(teamId: ID!, userIdList: [ID]): User
+    removeTeamMember(teamId: ID!, userId: ID!): User
+    removeTeamMembers(teamId: ID!, userIdList: [ID]): User
+    addTeamAdmin(teamId: ID!, userId: ID!): User
+    addTeamAdmins(teamId: ID!, userIdList: [ID]): User
+    removeTeamAdmin(teamId: ID!, userId: ID!): User
+    removeTeamAdmins(teamId: ID!, userIdList: [ID]): User
   }
 `;

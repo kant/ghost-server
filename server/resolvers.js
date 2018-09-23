@@ -15,6 +15,11 @@ module.exports = {
         info,
       });
     },
+    whoAmI: async (_, {}, context) => {
+      if (context.userId) {
+        return await context.loaders.user.load(context.userId);
+      }
+    },
     hello: (_, { name }, context) => {
       return `Hello ${name || 'World'}`;
     },
@@ -153,5 +158,29 @@ module.exports = {
       await permissions.canUpdateMediaAsync(context, mediaId);
       return await model.deleteMediaAsync(mediaId);
     },
+    addTeamMember: async (_, { teamId, userId }, context) => {
+      await permissions.canUpdateUserAsync(context, teamId);
+      await model.addTeamMembersAsync(teamId, [userId]);
+      return await context.loaders.user.load(teamId);
+    },
+    addTeamMembers: async (_, { teamId, userIdList }, context) => {
+      await permissions.canUpdateUserAsync(context, teamId);
+      await model.addTeamMembersAsync(teamId, userIdList);
+      return await context.loaders.user.load(teamId);
+    },
+    removeTeamMember: async (_, { teamId, userId }, context) => {
+      await permissions.canUpdateUserAsync(context, teamId);
+      await model.removeTeamMembersAsync(teamId, [userId]);
+      return await context.loaders.user.load(teamId);
+    },
+    removeTeamMembers: async (_, { teamId, userIdList }, context) => {
+      await permissions.canUpdateUserAsync(context, teamId);
+      await model.removeTeamMembersAsync(teamId, userIdList);
+      return await context.loaders.user.load(teamId);
+    },
+    addTeamAdmin: async (_, { teamId, userId }, context) => {},
+    addTeamAdmins: async (_, { teamId, userIdList }, context) => {},
+    removeTeamAdmin: async (_, { teamId, userId }, context) => {},
+    removeTeamAdmins: async (_, { teamId, userIdList }, context) => {},
   },
 };
