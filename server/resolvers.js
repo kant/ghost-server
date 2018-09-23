@@ -112,9 +112,7 @@ module.exports = {
       return null;
     },
     signup: async (_, { user }, context, info) => {
-      console.log('s1');
       let createdUser = await signup.signupAsync(user);
-      console.log('s2');
 
       // Log them in
       await model.startSessionAsync({

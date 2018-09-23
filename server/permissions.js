@@ -1,6 +1,4 @@
 let ClientError = require('./ClientError');
-let data = require('./data');
-let db = require('./db');
 let model = require('./model');
 
 function PermissionError(message) {
