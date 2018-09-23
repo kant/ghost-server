@@ -8,13 +8,13 @@ function PermissionError(message) {
 }
 
 async function canAddEngineAsync({ userId }) {
-  if (!(await model.isMemberOfTeamAsync(context.userId, 'user:expo'))) {
+  if (!(await model.isMemberOfTeamAsync(userId, 'user:expo'))) {
     throw PermissionError("You don't have permission to add engines");
   }
 }
 
 async function canUpdateEngineAsync({ userId }, engineId) {
-  if (!(await model.isMemberOfTeamAsync({ userId }, 'user:expo'))) {
+  if (!(await model.isMemberOfTeamAsync(userId, 'user:expo'))) {
     throw PermissionError("You don't have permission to update that engine");
   }
 }
@@ -45,12 +45,19 @@ async function canUpdateMediaAsync(context, mediaId) {
   if (media.userId === userId) {
     return;
   }
+
+  // If no one owns this media, then let's let anyone edit it, I guess?
+  if (!media.userId) {
+    return;
+  }
+
   let team = await context.loaders.user.load(media.userId);
   if (team && team.roles && team.roles.members) {
     if (team.roles.members.includes(userId)) {
       return;
     }
   }
+
   throw PermissionError("You don't have permission to update that media");
 }
 

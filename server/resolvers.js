@@ -122,38 +122,36 @@ module.exports = {
     },
     addEngine: async (_, { engine }, context, info) => {
       await permissions.canAddEngineAsync(context);
-      let engine_ = data.stringifyJsonFields(engine, ['about', 'image']);
-      let newEngine = model.newEngineAsync(engine_);
+      let engine_ = data.stringifyJsonFields(engine, model.jsonFields.engine);
+      let newEngine = await model.newEngineAsync(engine_);
       return await context.loaders.engine.load(newEngine.engineId);
     },
     updateEngine: async (_, { engineId, engine }, context, info) => {
       await permissions.canUpdateEngineAsync(context, engineId);
-      let engine_ = data.stringifyJsonFields(engine, ['about', 'image']);
+      let engine_ = data.stringifyJsonFields(engine, model.jsonFields.engine);
       engine_.engineId = engineId;
       await model.updateEngineAsync(engine_);
       return await context.loaders.engine.load(engine_.engineId);
     },
+    deleteEngine: async (_, { engineId }, context) => {
+      await permissions.canUpdateEngineAsync(context, engineId);
+      return await model.deleteEngineAsync(engineId);
+    },
     addMedia: async (_, { media }, context, info) => {
       await permissions.canAddMediaAsync(context);
-      let media_ = data.stringifyJsonFields(media, [
-        'description',
-        'coverImage',
-        'instructions',
-        'dimensions',
-      ]);
+      let media_ = data.stringifyJsonFields(media, model.jsonFields.media);
       let newMedia = await model.newMediaAsync(media_);
       return await context.loaders.media.load(newMedia.mediaId);
     },
     updateMedia: async (_, { mediaId, media }, context, info) => {
-      await permissions.canUpdateMediaAsync(context);
-      let media_ = data.stringifyJsonFields(media, [
-        'description',
-        'coverImage',
-        'instructions',
-        'dimensions',
-      ]);
+      await permissions.canUpdateMediaAsync(context, mediaId);
+      let media_ = data.stringifyJsonFields(media, model.jsonFields.media);
       let newMedia = await model.updateMediaAsync(media_);
       return await context.loaders.media.load(newMedia.mediaId);
+    },
+    deleteMedia: async (_, { mediaId }, context) => {
+      await permissions.canUpdateMediaAsync(context, mediaId);
+      return await model.deleteMediaAsync(mediaId);
     },
   },
 };

@@ -57,6 +57,10 @@ async function updateEngineAsync(obj) {
   return await data.updateObjectAsync(obj.engineId, 'engine', obj, { column: 'engineId' });
 }
 
+async function deleteEngineAsync(engineId) {
+  return await data._deleteObjectAsync(engineId, 'engine', { column: 'engineId' });
+}
+
 async function getAllEnginesAsync() {
   let q = 'SELECT * FROM "engine"';
   let results = await db.queryAsync(q);
@@ -386,6 +390,12 @@ async function deleteMediaAsync(mediaId) {
   return await data._deleteObjectAsync(mediaId, 'media', { column: 'mediaId' });
 }
 
+let jsonFields = {
+  media: ['description', 'coverImage', 'instructions', 'dimensions'],
+  engine: ['about', 'image'],
+  user: ['about'],
+};
+
 module.exports = {
   newPlayRecordAsync,
   getPlayRecordsAsync,
@@ -397,6 +407,7 @@ module.exports = {
   deleteMediaAsync,
   newEngineAsync,
   updateEngineAsync,
+  deleteEngineAsync,
   getAllEnginesAsync,
   recordProfileView,
   getTotalProfileViews,
@@ -434,4 +445,5 @@ module.exports = {
   isRoleOfTeamAsync,
   isMemberOfTeamAsync,
   isAdminOfTeamAsync,
+  jsonFields,
 };

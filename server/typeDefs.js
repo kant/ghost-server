@@ -110,7 +110,6 @@ module.exports = /* GraphQL */ `
     published: Datetime
   }
 
-
   type Mutation {
     login(usernameOrSimilar: String!, password: String!): User
     logout: Null
@@ -118,7 +117,9 @@ module.exports = /* GraphQL */ `
     updateUser(userId: ID!, user: UserInput): User
     addEngine(engine: EngineInput): Engine
     updateEngine(engineId: ID!, engine: EngineInput): Engine
+    deleteEngine(engineId: ID!): Boolean
     addMedia(media: MediaInput): Media
     updateMedia(mediaId: ID!, media: MediaInput): Media
+    deleteMedia(mediaId: ID!): Boolean
   }
 `;
