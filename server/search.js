@@ -121,6 +121,10 @@ async function getMediaResultsAsync(sq) {
   let nameClause = nameParts.map(wrapParens).join(' AND ');
   clauses.push(nameClause);
 
+  for (let t of tokens) {
+    clauses.push(`"tags"::jsonb ? ${r(t)}`);
+  }
+
   q += clauses.map(wrapParens).join(' OR ');
 
   let databaseResult = await db.queryAsync(q, r.values());

@@ -35,6 +35,8 @@ module.exports = /* GraphQL */ `
     location: String
     username: String
     about: Json
+    otherUsernames: Json
+    Links: Json
     photo: Image
     isTeam: Boolean
     members: [User]

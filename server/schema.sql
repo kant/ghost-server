@@ -84,6 +84,7 @@ CREATE TABLE "user" (
   "name" text,
   "username" varchar(255),
   "links" jsonb,
+  "otherUsernames" jsonb,
   "about" jsonb,
   "location" text,
   "photo" jsonb,

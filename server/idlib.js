@@ -20,7 +20,7 @@ function makeUuid(length = 27) {
   return body;
 }
 
-function _normalizeInfo(s, maxLength) {
+function normalizeInfo(s, maxLength) {
   maxLength = maxLength || 48;
   let n = s
     .toLowerCase()
@@ -33,7 +33,7 @@ function _normalizeInfo(s, maxLength) {
 }
 
 function createId(type, s) {
-  return type + ':' + _normalizeInfo(s);
+  return type + ':' + normalizeInfo(s);
 }
 
 function makeOpaqueId(type) {
@@ -44,4 +44,5 @@ module.exports = {
   makeUuid,
   createId,
   makeOpaqueId,
+  normalizeInfo,
 };
