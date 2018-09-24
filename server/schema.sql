@@ -69,6 +69,7 @@ CREATE TABLE "media" (
   "extraData" jsonb,
   "published" timestamp,
   "deleted" int,
+  "tags" jsonb,
   "createdTime" timestamp default now(),
   "updatedTime" timestamp default now()
 );
@@ -85,7 +86,8 @@ CREATE TABLE "user" (
   "photo" jsonb,
   "unclaimed" boolean,
   "isTeam" boolean,
-  "roles" jsonb,
+  "members" jsonb,
+  "admins" jsonb,
   "createdTime" timestamp default now(),
   "updatedTime" timestamp default now()
 );

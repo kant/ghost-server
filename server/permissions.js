@@ -33,6 +33,16 @@ async function canUpdateUserAsync({ userId }, updateUserId) {
   throw PermissionError("You don't have permission to update that user");
 }
 
+async function canUpdateTeamAdminsAsync({ userId }, teamId) {
+  if (userId === teamId) {
+    return;
+  }
+  if (await model.isAdminOfTeamAsync(userId, teamId)) {
+    return;
+  }
+  throw PermissionError('You must be an admin of a team to add or remove admins');
+}
+
 async function canAddMediaAsync({ userId }) {
   return;
 }
@@ -66,4 +76,5 @@ module.exports = {
   isLoggedInAsAsync,
   canAddMediaAsync,
   canUpdateMediaAsync,
+  canUpdateTeamAdminsAsync,
 };

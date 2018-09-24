@@ -174,13 +174,11 @@ async function newPlaylistAsync(obj) {
 
 async function isRoleOfTeamAsync(userId, teamId, role) {
   let r = db.replacer();
-  let results = await db.queryAsync(
-    `
-    SELECT ("roles"->${r(role)})::jsonb ? ${r(userId)} AS "onTeam"
-    FROM "user" WHERE "userId" = ${r(teamId)};
-  `,
-    r.values()
-  );
+  let q = `
+  SELECT (${db.iq(role)})::jsonb ? ${r(userId)} AS "onTeam"
+  FROM "user" WHERE "userId" = ${r(teamId)} AND "isTeam" IS True;
+  `;
+  let results = await db.queryAsync(q, r.values());
   if (results.rowCount > 0) {
     return results.rows[0].onTeam;
   }
@@ -207,8 +205,6 @@ let mediaColumns = [
   'userId',
   'engineId',
   // 'extraData',
-  // 'deleted',
-  // 'creators',
   'published',
   'createdTime',
   'updatedTime',
@@ -226,70 +222,27 @@ async function loadMediaAsync(mediaIdList) {
   return await data.loadObjectsAsync(mediaIdList, 'media', 'mediaId', { columns: mediaColumns });
 }
 
-async function newTeamAsync(obj) {
-  let teamObj = {
-    ...obj,
-    isTeam: true,
-  };
-  if (!teamObj.roles) {
-    teamObj.roles = JSON.stringify({ admins: [], members: [] });
-  }
-  return await data.writeNewObjectAsync(teamObj, 'user', {
-    column: 'userId',
-    autoId: true,
-    autoIdSource: teamObj.name,
-  });
-}
-
-async function convertUserToTeamAsync(userId) {
-  return await updateUserAsync({
-    userId,
-    isTeam: true,
-    roles: JSON.stringify({
-      admins: [],
-      members: [],
-    }),
-  });
-}
-
 async function getTeamsForUserAsync(userId) {
   // Should this get all admin and member teams or just member teams?
 
   let r = db.replacer();
   let results = await db.queryAsync(
     'SELECT * FROM "user" WHERE "roles" @> ' +
-      r.json({ members: [userId] }) +
+      r.json({ members: { [userId]: 1 } }) +
       ' OR "roles" @> ' +
-      r.json({ admins: [userId] }) +
+      r.json({ admins: { [userId]: 1 } }) +
       ';',
     r.values()
   );
   return data.objectsListFromResults(results, 'userId');
 }
 
-async function _addTeamRolesAsync(teamId, userIdList, role) {
-  let r = db.replacer();
-
+async function _addTeamRolesAsync(teamId, userIdList, roles) {
   if (typeof userIdList === 'string') {
     userIdList = [userIdList];
   }
 
-  // How to append to an array in jsonb on Postgres
-  // https://stackoverflow.com/questions/42233542/appending-pushing-and-removing-from-a-json-array-in-postgresql-9-5
-  let results = await db.queryAsync(
-    'UPDATE "user" SET "roles" = jsonb_set("roles"::jsonb, array[' +
-      r(role) +
-      '], ("roles"->' +
-      r(role) +
-      ')::jsonb || ' +
-      r.json(userIdList) +
-      '::jsonb) WHERE "userId" = ' +
-      r(teamId) +
-      ';',
-    r.values()
-  );
-
-  return results.rowCount;
+  return await data.addJsonbSetItemsAsync(teamId, 'user', roles, data.listToSet(userIdList));
 }
 
 async function addTeamMembersAsync(teamId, userIdList) {
@@ -297,34 +250,20 @@ async function addTeamMembersAsync(teamId, userIdList) {
 }
 
 async function addTeamAdminsAsync(teamId, userIdList) {
-  return await _addTeamRolesAsync(teamId, userIdList, 'admins');
+  // If you are added as an admin, you have to be a member too
+  return await _addTeamRolesAsync(teamId, userIdList, ['admins', 'members']);
 }
 
-async function _removeTeamRolesAsync(teamId, userIdList, role) {
-  let r = db.replacer();
-
-  // How to remove from a nested array in jsonb on Postgres
-  // https://stackoverflow.com/questions/42233542/appending-pushing-and-removing-from-a-json-array-in-postgresql-9-5
-  // let results = await db.queryAsync(
-  //   'UPDATE "user" SET "roles" = jsonb_set("roles"::jsonb, array[' + r(role) + ']', r.values())
-  // ;
-
-  let q =
-    'UPDATE "user" SET "roles" = jsonb_set("roles"::jsonb, array[' +
-    r(role) +
-    '], ("roles"::jsonb->' +
-    r(role) +
-    ')::jsonb';
-  for (let userId of userIdList) {
-    q += ' - ' + r(userId);
+async function _removeTeamRolesAsync(teamId, userIdList, roles) {
+  if (typeof userIdList == 'string') {
+    userIdList = [userIdList];
   }
-  q += ') WHERE "userId" = ' + r(teamId) + ';';
-  let results = await db.queryAsync(q, r.values());
-  return results.rowCount;
+  return await data.removeJsonbSetItemsAsync(teamId, 'user', roles, data.listToSet(userIdList));
 }
 
 async function removeTeamMembersAsync(teamId, userIdList) {
-  return await _removeTeamRolesAsync(teamId, userIdList, 'members');
+  // If you are removed as a member, you should be removed as an admin too
+  return await _removeTeamRolesAsync(teamId, userIdList, ['members', 'admins']);
 }
 
 async function removeTeamAdminsAsync(teamId, userIdList) {
@@ -348,6 +287,31 @@ async function startSessionAsync({ clientId, userId, createdIp }, opts) {
   );
 }
 
+async function convertUserToTeamAsync(teamId, adminIdList) {
+  if (typeof adminIdList === 'string') {
+    adminIdList = [adminIdList];
+  }
+  if (!adminIdList) {
+    console.warn('You probably want to add at least one admin if you are making a team!');
+    adminIdList = [];
+  }
+  return await updateUserAsync({
+    userId: teamId,
+    isTeam: true,
+    members: JSON.stringify(data.listToSet(adminIdList)),
+    admins: JSON.stringify(data.listToSet(adminIdList)),
+  });
+}
+
+async function convertTeamToUserAsync(teamId) {
+  return await updateUserAsync({
+    userId: teamId,
+    isTeam: false,
+    members: JSON.stringify({}),
+    admins: JSON.stringify({}),
+  });
+}
+
 async function endSessionAsync(clientId, opts) {
   return await data._deleteObjectAsync(clientId, 'session', { column: 'clientId', ...opts });
 }
@@ -365,7 +329,6 @@ async function getUserIdForSessionAsync(clientId) {
 
 async function signupAsync(userInfo) {
   let { username, name } = userInfo;
-  console.log({ userInfo });
   try {
     let user = await newUserAsync(
       {
@@ -388,6 +351,14 @@ async function signupAsync(userInfo) {
 
 async function deleteMediaAsync(mediaId) {
   return await data._deleteObjectAsync(mediaId, 'media', { column: 'mediaId' });
+}
+
+async function addMediaTagsAsync(mediaId, tagList) {
+  return await data.addJsonbSetItemsAsync(mediaId, 'media', 'tags', data.listToSet(tagList));
+}
+
+async function removeMediaTagsAsync(mediaId, tagList) {
+  return await data.removeJsonbSetItemsAsync(mediaId, 'media', 'tags', data.listToSet(tagList));
 }
 
 let jsonFields = {
@@ -429,7 +400,6 @@ module.exports = {
   newPlaylistAsync,
   multigetMediaAsync,
   loadMediaAsync,
-  newTeamAsync,
   getTeamsForUserAsync,
   _addTeamRolesAsync,
   addTeamAdminsAsync,
@@ -437,7 +407,6 @@ module.exports = {
   _removeTeamRolesAsync,
   removeTeamAdminsAsync,
   removeTeamMembersAsync,
-  convertUserToTeamAsync,
   startSessionAsync,
   endSessionAsync,
   getUserIdForSessionAsync,
@@ -446,4 +415,8 @@ module.exports = {
   isMemberOfTeamAsync,
   isAdminOfTeamAsync,
   jsonFields,
+  addMediaTagsAsync,
+  removeMediaTagsAsync,
+  convertUserToTeamAsync,
+  convertTeamToUserAsync,
 };

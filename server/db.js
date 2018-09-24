@@ -13,39 +13,38 @@ pool.on('error', (err, client) => {
 });
 
 async function queryAsync(...args) {
-  console.log(...args);
-  // console.log(args);
   let tk = time.start();
   let client = await pool.connect();
   time.end(tk, 'db-connect', { threshold: 10 });
+
+  // Construct message for logging this
+  let [query, values] = args;
+  let logLimit = 256;
+  let message = query.substr(0, logLimit);
+  if (query.length > logLimit) {
+    message += '...';
+  }
+  if (values) {
+    message += ' ' + JSON.stringify(values.slice(0, 4));
+    if (values.length > 4) {
+      message = message.substr(0, message.length - 1) + ', ... ]';
+    }
+  }
+
+  let tkq = time.start();
+  let queryOk = false;
   try {
-    let tk = time.start();
     let result = await client.query(...args);
-
-    // let message = JSON.stringify(args);
-    let [query, values] = args;
-    let logLimit = 256;
-    let message = query.substr(0, logLimit);
-    if (query.length > logLimit) {
-      message += '...';
-    }
-    if (values) {
-      message += ' ' + JSON.stringify(values.slice(0, 4));
-      if (values.length > 4) {
-        message = message.substr(0, message.length - 1) + ', ... ]';
-      }
-    }
-
-    time.end(tk, 'db-query', { threshold: 0, message });
+    queryOk = true;
     return result;
   } finally {
+    time.end(tkq, 'db-query' + (queryOk ? '' : '-error'), { threshold: 0, message });
     client.release();
   }
 }
 
 function replacer() {
   let values = [];
-
   let r = (val) => {
     values.push(val);
     return '$' + values.length;

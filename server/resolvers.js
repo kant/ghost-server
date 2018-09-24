@@ -63,20 +63,29 @@ module.exports = {
     engine: async (media, {}, context, info) => {
       return await context.loaders.engine.load(media.engineId);
     },
+    tags: async (media, {}, context, info) => {
+      if (media.tags) {
+        return Object.keys(tags);
+      } else {
+        return [];
+      }
+    },
   },
   User: {
     members: async (team, {}, context, info) => {
-      if (team.roles && team.roles.members) {
-        return await context.loaders.user.loadMany(team.roles.members);
-      } else {
-        return null;
+      if (team.isTeam && team.members) {
+        return await context.loaders.user.loadMany(Object.keys(team.members));
+      }
+      if (team.isTeam) {
+        return [];
       }
     },
     admins: async (team, {}, context, info) => {
-      if (team.roles && team.roles.admins) {
-        return await context.loaders.user.loadMany(team.roles.admins);
-      } else {
-        return null;
+      if (team.isTeam && team.admins) {
+        return await context.loaders.user.loadMany(Object.keys(team.admins));
+      }
+      if (team.isTeam) {
+        return [];
       }
     },
   },
@@ -176,9 +185,35 @@ module.exports = {
       await model.removeTeamMembersAsync(teamId, userIdList);
       return await context.loaders.user.load(teamId);
     },
-    addTeamAdmin: async (_, { teamId, userId }, context) => {},
-    addTeamAdmins: async (_, { teamId, userIdList }, context) => {},
-    removeTeamAdmin: async (_, { teamId, userId }, context) => {},
-    removeTeamAdmins: async (_, { teamId, userIdList }, context) => {},
+    addTeamAdmin: async (_, { teamId, userId }, context) => {
+      await permissions.canUpdateTeamAdminsAsync(context, teamId);
+      await model.addTeamAdminsAsync(teamId, [userId]);
+      return await context.loaders.user.load(teamId);
+    },
+    addTeamAdmins: async (_, { teamId, userIdList }, context) => {
+      await permissions.canUpdateTeamAdminsAsync(context, teamId);
+      await model.addTeamAdminsAsync(teamId, userIdList);
+      return await context.loaders.user.load(teamId);
+    },
+    removeTeamAdmin: async (_, { teamId, userId }, context) => {
+      await permissions.canUpdateTeamAdminsAsync(context, teamId);
+      await model.removeTeamAdminsAsync(teamId, [userId]);
+      return await context.loaders.user.load(teamId);
+    },
+    removeTeamAdmins: async (_, { teamId, userIdList }, context) => {
+      await permissions.canUpdateTeamAdminsAsync(context, teamId);
+      await model.removeTeamAdminsAsync(teamId, userIdList);
+      return await context.loaders.user.load(teamId);
+    },
+    convertUserToTeam: async (_, { userId, adminUserIdList }, context) => {
+      await permissions.canUpdateUserAsync(context, userId);
+      await model.convertUserToTeamAsync(userId, adminUserIdList);
+      return await context.loaders.user.load(userId); // (now a teamId)
+    },
+    convertTeamToUser: async (_, { teamId }, context) => {
+      await permissions.canUpdateTeamAdminsAsync(context, teamId);
+      await model.convertTeamToUserAsync(teamId);
+      return await context.loaders.user.load(teamId); // (now a userId)
+    },
   },
 };

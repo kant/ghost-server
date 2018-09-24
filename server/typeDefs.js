@@ -23,6 +23,7 @@ module.exports = /* GraphQL */ `
     published: Datetime
     createdTime: Datetime
     updatedTime: Datetime
+    tags: [String]
     user: User
     engine: Engine
   }
@@ -130,5 +131,7 @@ module.exports = /* GraphQL */ `
     addTeamAdmins(teamId: ID!, userIdList: [ID]): User
     removeTeamAdmin(teamId: ID!, userId: ID!): User
     removeTeamAdmins(teamId: ID!, userIdList: [ID]): User
+    convertUserToTeam(userId: ID!, adminUserIdList: [ID]!): User
+    convertTeamToUser(teamId: ID!): User
   }
 `;

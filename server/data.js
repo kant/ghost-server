@@ -61,18 +61,6 @@ function objectsFromResults(results, key) {
   return x;
 }
 
-function oneObjectFromResults(results, opts) {
-  if (opts.assertExactlyOne) {
-    assert.equal(results.rowCount, 1);
-  } else {
-    if (!results.rowCount) {
-      return null;
-    }
-  }
-  let obj = Object.assign({}, results.rows[0]);
-  return obj;
-}
-
 function objectsListFromResults(results) {
   let x = [];
   for (let r of results.rows) {
@@ -86,16 +74,6 @@ async function getObjectAsync(id, table, opts) {
   table = table || id.replace(/:.*$/, '');
   let x = await multigetObjectsAsync([id], table, opts);
   return x[id];
-}
-
-async function objectExistsAsync(id, table, column) {
-  table = table || id.replace(/:.*$/, '');
-  column = column || table + 'Id';
-  let results = await db.queryAsync(
-    'SELECT 1 FROM ' + db.iq(table) + ' WHERE ' + db.iq(column) + ' = $1',
-    [id]
-  );
-  return results.rowCount > 0;
 }
 
 async function writeNewObjectAsync(obj, table, opts) {
@@ -150,7 +128,7 @@ async function writeNewObjectAsync(obj, table, opts) {
       complete = true;
     } catch (e) {
       // If unique_violation (duplicate primary key)
-      if ((e.code === '23505') && (e.constraint.endsWith('_pkey'))) {
+      if (e.code === '23505' && e.constraint.endsWith('_pkey')) {
         if (opts.autoId) {
           o[column] = id + '+' + idlib.makeUuid(12);
         }
@@ -186,18 +164,76 @@ async function _deleteObjectAsync(id, table, opts) {
   return result.rowCount;
 }
 
+async function addJsonbSetItemsAsync(id, table, fields, setToAdd, opts) {
+  opts = opts || {};
+  let column = opts.column || table + 'Id';
+  if (typeof fields === 'string') {
+    fields = [fields];
+  }
+
+  let r = db.replacer();
+
+  let q = `
+  UPDATE ${db.iq(table)} SET `;
+  q += fields
+    .map(
+      (field) => `${db.iq(field)} = (
+    CASE
+        WHEN ${db.iq(field)} IS null THEN '{}'::jsonb
+        ELSE ${db.iq(field)}
+    END
+) || ${r(JSON.stringify(setToAdd))}::jsonb `
+    )
+    .join(', ');
+
+  q += ` WHERE ${db.iq(column)} = ${r(id)};`;
+
+  let result = await db.queryAsync(q, r.values());
+  return result.rowCount;
+}
+
+async function removeJsonbSetItemsAsync(id, table, fields, setToRemove, opts) {
+  opts = opts || {};
+  let column = opts.column || table + 'Id';
+  if (typeof fields === 'string') {
+    fields = [fields];
+  }
+  let r = db.replacer();
+  let q = 'UPDATE ' + db.iq(table) + ' SET ';
+  let commaBefore = '';
+  for (let field of fields) {
+    q += commaBefore;
+    q += db.iq(field) + ' = ' + db.iq(field);
+    for (let value in setToRemove) {
+      q += ' - ' + r(value);
+    }
+    commaBefore = ', ';
+  }
+  q += ' WHERE ' + db.iq(column) + ' = ' + r(id) + ';';
+  let result = await db.queryAsync(q, r.values());
+  return result.rowCount;
+}
+
 function quoteColumnIdentifiers(columns) {
   return columns.map(db.iq).join(', ');
 }
 
 function stringifyJsonFields(obj, jsonFields) {
-  let obj_ = {...obj};
+  let obj_ = { ...obj };
   for (let field of jsonFields) {
     if (obj_.hasOwnProperty(field)) {
       obj_[field] = JSON.stringify(obj_[field]);
     }
   }
   return obj_;
+}
+
+function listToSet(list) {
+  let s = {};
+  for (let item of list) {
+    s[item] = 1;
+  }
+  return s;
 }
 
 module.exports = {
@@ -208,9 +244,10 @@ module.exports = {
   updateObjectAsync,
   objectsFromResults,
   objectsListFromResults,
-  objectExistsAsync,
-  oneObjectFromResults,
   _deleteObjectAsync,
   quoteColumnIdentifiers,
   stringifyJsonFields,
+  listToSet,
+  addJsonbSetItemsAsync,
+  removeJsonbSetItemsAsync,
 };
