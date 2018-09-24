@@ -133,5 +133,7 @@ module.exports = /* GraphQL */ `
     removeTeamAdmins(teamId: ID!, userIdList: [ID]): User
     convertUserToTeam(userId: ID!, adminUserIdList: [ID]!): User
     convertTeamToUser(teamId: ID!): User
+    addMediaTags(mediaId: ID!, tags: [String], tag: String): Media
+    removeMediaTags(mediaId: ID!, tags: [String], tag: String): Media
   }
 `;

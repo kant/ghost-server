@@ -1,9 +1,26 @@
 let auth = require('./auth');
-let ClientError = require('./ClientError');
 let data = require('./data');
 let model = require('./model');
 let permissions = require('./permissions');
 let signup = require('./signup');
+
+/**
+ * Combines a list of things and a single item that are both optional
+ *
+ * @param {*} list A list of things
+ * @param {*} item A single thing
+ *
+ */
+function _combinePluralAndSingular(list, item) {
+  let x = [];
+  if (list) {
+    x = list.slice(0);
+  }
+  if (item) {
+    x.push(item);
+  }
+  return x;
+}
 
 module.exports = {
   Query: {
@@ -214,6 +231,18 @@ module.exports = {
       await permissions.canUpdateTeamAdminsAsync(context, teamId);
       await model.convertTeamToUserAsync(teamId);
       return await context.loaders.user.load(teamId); // (now a userId)
+    },
+    addMediaTags: async (_, { mediaId, tags, tag }, context) => {
+      await permissions.canUpdateMediaAsync(context, mediaId);
+      let tagList = _combinePluralAndSingular(tags, tag);
+      await model.addMediaTagsAsync(mediaId, tagList);
+      return await context.loaders.media.load(mediaId);
+    },
+    removeMediaTags: async (_, { mediaId, tags, tag }, context) => {
+      await permissions.canUpdateMediaAsync(context, medaiId);
+      let tagList = _combinePluralAndSingular(tags, tag);
+      await model.removeMediaTagsAsync(mediaId, tagList);
+      return await context.loaders.media.load(mediaId);
     },
   },
 };
