@@ -21,14 +21,14 @@ module.exports = /* GraphQL */ `
     coverImage: Image
     instructions: Json
     dimensions: Json
-    engineId: ID
     links: Json
     published: Datetime
     createdTime: Datetime
     updatedTime: Datetime
     tags: Json
     user: User
-    engine: Engine
+    tools: [Tool]
+    toolIds: [ID]
   }
 
   type User {
@@ -47,12 +47,15 @@ module.exports = /* GraphQL */ `
     updatedTime: Datetime
   }
 
-  type Engine {
-    engineId: ID! @unique
+  type Tool {
+    toolId: ID! @unique
     name: String
     url: String
     about: Json
     image: Image
+    tags: Json
+    creatorId: ID
+    creator: User
     createdTime: Datetime
     updatedTime: Datetime
   }
@@ -87,7 +90,7 @@ module.exports = /* GraphQL */ `
     media(mediaId: ID!): Media
     user(userId: ID!): User
     userByUsername(username: String!): User
-    engine(engineId: ID!): Engine
+    tool(toolId: ID!): Tool
     playlist(playlistId: ID!): Playlist
     playlistsForUser(userId: ID!): [Playlist]
     currentPlaylist: Playlist
@@ -112,11 +115,13 @@ module.exports = /* GraphQL */ `
     isTeam: Boolean
   }
 
-  input EngineInput {
-    engineId: ID
+  input ToolInput {
+    toolId: ID
     name: String
     url: String
     about: Json
+    creatorId: ID
+    tags: [String]
     image: ImageInput
   }
 
@@ -131,7 +136,7 @@ module.exports = /* GraphQL */ `
     coverImage: ImageInput
     instructions: Json
     dimensions: Json
-    engineId: ID
+    toolIds: [ID]
     tags: [String]
     published: Datetime
   }
@@ -141,9 +146,10 @@ module.exports = /* GraphQL */ `
     logout: Null
     signup(user: UserInput): User
     updateUser(userId: ID!, user: UserInput): User
-    addEngine(engine: EngineInput): Engine
-    updateEngine(engineId: ID!, engine: EngineInput): Engine
-    deleteEngine(engineId: ID!): Boolean
+
+    addTool(tool: ToolInput): Tool
+    updateTool(toolId: ID!, tool: ToolInput): Tool
+    deleteTool(toolId: ID!): Boolean
     addMedia(media: MediaInput): Media
     updateMedia(mediaId: ID!, media: MediaInput): Media
     deleteMedia(mediaId: ID!): Boolean

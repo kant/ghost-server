@@ -49,22 +49,22 @@ async function updateMediaAsync(obj) {
   return await data.updateObjectAsync(obj.mediaId, 'media', obj, { column: 'mediaId' });
 }
 
-async function newEngineAsync(obj) {
-  return await data.writeNewObjectAsync(obj, 'engine', { autoId: true });
+async function newToolAsync(obj) {
+  return await data.writeNewObjectAsync(obj, 'tool', { autoId: true });
 }
 
-async function updateEngineAsync(obj) {
-  return await data.updateObjectAsync(obj.engineId, 'engine', obj, { column: 'engineId' });
+async function updateToolAsync(obj) {
+  return await data.updateObjectAsync(obj.toolId, 'tool', obj, { column: 'toolId' });
 }
 
-async function deleteEngineAsync(engineId) {
-  return await data._deleteObjectAsync(engineId, 'engine', { column: 'engineId' });
+async function deleteToolAsync(toolId) {
+  return await data._deleteObjectAsync(toolId, 'tool', { column: 'toolId' });
 }
 
-async function getAllEnginesAsync() {
-  let q = 'SELECT * FROM "engine"';
+async function getAllToolsAsync() {
+  let q = 'SELECT * FROM "tool"';
   let results = await db.queryAsync(q);
-  return data.objectsFromResults(results, 'engineId');
+  return data.objectsFromResults(results, 'toolId');
 }
 
 async function recordProfileView(viewingUserId, viewedUserId, when) {
@@ -92,12 +92,12 @@ async function getTotalMediaPlays(mediaId) {
   return result.rows[0].views;
 }
 
-async function getEngineAsync(engineId) {
-  return await data.getObjectAsync(engineId, 'engine', { column: 'engineId' });
+async function getToolAsync(toolId) {
+  return await data.getObjectAsync(toolId, 'tool', { column: 'toolId' });
 }
 
-async function loadEnginesAsync(engineIdList) {
-  return await data.loadObjectsAsync(engineIdList, 'engine', 'engineId');
+async function loadToolsAsync(toolIdList) {
+  return await data.loadObjectsAsync(toolIdList, 'tool', 'toolId');
 }
 
 async function newUserAsync(obj) {
@@ -203,7 +203,7 @@ let mediaColumns = [
   'dimensions',
   'instructions',
   'userId',
-  'engineId',
+  'toolId',
   // 'extraData',
   'tags',
   'slug',
@@ -376,8 +376,8 @@ async function removeMediaTagsAsync(mediaId, tagList) {
 
 let jsonFields = {
   media: ['description', 'coverImage', 'instructions', 'dimensions', 'links'],
-  engine: ['about', 'image'],
-  user: ['about'],
+  tool: ['about', 'image'],
+  user: ['about', 'photo'],
 };
 
 module.exports = {
@@ -389,15 +389,15 @@ module.exports = {
   newMediaAsync,
   updateMediaAsync,
   deleteMediaAsync,
-  newEngineAsync,
-  updateEngineAsync,
-  deleteEngineAsync,
-  getAllEnginesAsync,
+  newToolAsync,
+  updateToolAsync,
+  deleteToolAsync,
+  getAllToolsAsync,
   recordProfileView,
   getTotalProfileViews,
   getTotalMediaPlays,
-  getEngineAsync,
-  loadEnginesAsync,
+  getToolAsync,
+  loadToolsAsync,
   newUserAsync,
   updateUserAsync,
   getUserAsync,

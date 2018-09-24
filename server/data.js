@@ -236,6 +236,18 @@ function listToSet(list) {
   return s;
 }
 
+function combinePluralAndSingular(list, item) {
+  let x = [];
+  if (list) {
+    x = list.slice(0);
+  }
+  if (item) {
+    x.push(item);
+  }
+  return x;
+}
+
+
 module.exports = {
   getObjectAsync,
   multigetObjectsAsync,
@@ -250,4 +262,5 @@ module.exports = {
   listToSet,
   addJsonbSetItemsAsync,
   removeJsonbSetItemsAsync,
+  combinePluralAndSingular,
 };

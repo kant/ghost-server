@@ -5,24 +5,6 @@ let permissions = require('./permissions');
 let search = require('./search');
 let signup = require('./signup');
 
-/**
- * Combines a list of things and a single item that are both optional
- *
- * @param {*} list A list of things
- * @param {*} item A single thing
- *
- */
-function _combinePluralAndSingular(list, item) {
-  let x = [];
-  if (list) {
-    x = list.slice(0);
-  }
-  if (item) {
-    x.push(item);
-  }
-  return x;
-}
-
 module.exports = {
   Query: {
     inspect: (obj, args, context, info) => {
@@ -50,8 +32,8 @@ module.exports = {
     userByUsername: async (_, { username }) => {
       return await model.getUserByUsernameAsync(username);
     },
-    engine: async (_, { engineId }, context) => {
-      return await context.loaders.engine.load(engineId);
+    tool: async (_, { toolId }, context) => {
+      return await context.loaders.tool.load(toolId);
     },
     playlist: async (_, { playlistId }, context) => {
       return await context.loaders.playlist.load(playlistId);
@@ -81,8 +63,15 @@ module.exports = {
     user: async (media, {}, context, info) => {
       return await context.loaders.user.load(media.userId);
     },
-    engine: async (media, {}, context, info) => {
-      return await context.loaders.engine.load(media.engineId);
+    tools: async (media, {}, context, info) => {
+      return await context.loaders.tool.load(media.toolIds);
+    },
+  },
+  Tool: {
+    tags: async (tool, {}, context, info) => {
+      if (tool.tagSet) {
+        return Object.keys(tool.tagSet);
+      }
     },
   },
   User: {
@@ -111,17 +100,8 @@ module.exports = {
   Mutation: {
     updateUser: async (_, { userId, user }, context, info) => {
       await permissions.canUpdateUserAsync(context, userId);
-      let update = {
-        userId,
-      };
-      for (let k in user) {
-        if (k === 'about' || k === 'photo') {
-          update[k] = JSON.stringify(user[k]);
-        } else {
-          update[k] = user[k];
-        }
-      }
-      console.log(update);
+      let user_ = data.stringifyJsonFields(user, model.jsonFields.user);
+      user_.userId = userId;
       await model.updateUserAsync(update);
       return await context.loaders.user.load(userId);
     },
@@ -146,34 +126,47 @@ module.exports = {
 
       return await context.loaders.user.load(createdUser.userId);
     },
-    addEngine: async (_, { engine }, context, info) => {
-      await permissions.canAddEngineAsync(context);
-      let engine_ = data.stringifyJsonFields(engine, model.jsonFields.engine);
-      let newEngine = await model.newEngineAsync(engine_);
-      return await context.loaders.engine.load(newEngine.engineId);
+    addTool: async (_, { tool }, context, info) => {
+      await permissions.canAddToolAsync(context);
+      let tool_ = data.stringifyJsonFields(tool, model.jsonFields.tool);
+      if (tool.tags) {
+        tool_.tagSet = JSON.stringify(data.listToSet(tool.tags));
+        delete tool_.tags;
+      }
+      let newTool = await model.newToolAsync(tool_);
+      return await context.loaders.tool.load(newTool.toolId);
     },
-    updateEngine: async (_, { engineId, engine }, context, info) => {
-      await permissions.canUpdateEngineAsync(context, engineId);
-      let engine_ = data.stringifyJsonFields(engine, model.jsonFields.engine);
-      engine_.engineId = engineId;
-      await model.updateEngineAsync(engine_);
-      return await context.loaders.engine.load(engine_.engineId);
+    updateTool: async (_, { toolId, tool }, context, info) => {
+      await permissions.canUpdateToolAsync(context, toolId);
+      let tool_ = data.stringifyJsonFields(tool, model.jsonFields.tool);
+      if (tool_.tags) {
+        tool_.tagSet = JSON.stringify(data.listToSet(tool_.tags));
+        delete tool_.tags;
+      }
+      tool_.toolId = toolId;
+      await model.updateToolAsync(tool_);
+      return await context.loaders.tool.load(tool_.toolId);
     },
-    deleteEngine: async (_, { engineId }, context) => {
-      await permissions.canUpdateEngineAsync(context, engineId);
-      return await model.deleteEngineAsync(engineId);
+    deleteTool: async (_, { toolId }, context) => {
+      await permissions.canDeleteToolAsync(context, toolId);
+      return await model.deleteToolAsync(toolId);
     },
     addMedia: async (_, { media }, context, info) => {
       await permissions.canAddMediaAsync(context);
       let media_ = data.stringifyJsonFields(media, model.jsonFields.media);
-      media_.tags = JSON.stringify(data.listToSet(media_.tags));
+      if (media_.tags) {
+        media_.tags = JSON.stringify(data.listToSet(media_.tags));
+      }
       let newMedia = await model.newMediaAsync(media_);
       return await context.loaders.media.load(newMedia.mediaId);
     },
     updateMedia: async (_, { mediaId, media }, context, info) => {
       await permissions.canUpdateMediaAsync(context, mediaId);
       let media_ = data.stringifyJsonFields(media, model.jsonFields.media);
-      media_.tags = JSON.stringify(data.listToSet(media_.tags));
+      if (media_.tags) {
+        media_.tags = JSON.stringify(data.listToSet(media_.tags));
+      }
+      media_.mediaId = mediaId;
       let newMedia = await model.updateMediaAsync(media_);
       return await context.loaders.media.load(newMedia.mediaId);
     },
@@ -233,13 +226,13 @@ module.exports = {
     },
     addMediaTags: async (_, { mediaId, tags, tag }, context) => {
       await permissions.canUpdateMediaAsync(context, mediaId);
-      let tagList = _combinePluralAndSingular(tags, tag);
+      let tagList = data.combinePluralAndSingular(tags, tag);
       await model.addMediaTagsAsync(mediaId, tagList);
       return await context.loaders.media.load(mediaId);
     },
     removeMediaTags: async (_, { mediaId, tags, tag }, context) => {
       await permissions.canUpdateMediaAsync(context, medaiId);
-      let tagList = _combinePluralAndSingular(tags, tag);
+      let tagList = data.combinePluralAndSingular(tags, tag);
       await model.removeMediaTagsAsync(mediaId, tagList);
       return await context.loaders.media.load(mediaId);
     },

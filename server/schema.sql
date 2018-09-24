@@ -40,6 +40,20 @@ CREATE TABLE "engine" (
 
 CREATE TRIGGER "engine_setUpdatedTime" BEFORE UPDATE ON "engine" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
+CREATE TABLE "tool" (
+  "toolId" text PRIMARY KEY,
+  "name" text,
+  "url" text,
+  "about" jsonb,
+  "image" jsonb,
+  "creatorId" text,
+  "tagSet" jsonb,
+  "createdTime" timestamp default now(),   
+  "updatedTime" timestamp default now()
+);
+
+CREATE TRIGGER "tool_setUpdatedTime" BEFORE UPDATE ON "tool" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
 
 CREATE TABLE "playlist" (
   "playlistId" varchar(255) PRIMARY KEY,
@@ -68,11 +82,11 @@ CREATE TABLE "media" (
   "instructions" jsonb,
   "userId" varchar(255),
   "creators" jsonb,
-  "engineId" varchar(255),
   "extraData" jsonb,
   "published" timestamp,
   "deleted" int,
   "tags" jsonb,
+  "toolSet" jsonb,
   "createdTime" timestamp default now(),
   "updatedTime" timestamp default now()
 );

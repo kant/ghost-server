@@ -37,7 +37,7 @@ async function queryAsync(query, cursorPosition, opts) {
   let listOfResultLists = await Promise.all([
     getUserResultsAsync(sq),
     getMediaResultsAsync(sq),
-    getEngineResultsAsync(sq),
+    getToolResultsAsync(sq),
     getPlaylistResultsAsync(sq),
     getTagResultsAsync(sq),
   ]);
@@ -157,17 +157,17 @@ async function getMediaResultsAsync(sq) {
   return results;
 }
 
-async function getEngineResultsAsync(sq) {
+async function getToolResultsAsync(sq) {
   let { tokens, fullTokens, partialTokens } = sq;
   let r = db.replacer();
 
   let q = `
-    SELECT * FROM "engine" WHERE `;
+    SELECT * FROM "tool" WHERE `;
 
   let clauses = [];
   if (tokens.length === 1) {
-    clauses.push(`"engineId" ILIKE ${r('engine:' + tokens[0] + '%')}`);
-    clauses.push(`"engineId" ILIKE ${r(tokens[0] + '%')}`);
+    clauses.push(`"toolId" ILIKE ${r('tool:' + tokens[0] + '%')}`);
+    clauses.push(`"toolId" ILIKE ${r(tokens[0] + '%')}`);
   }
 
   let nameParts = [];
@@ -187,20 +187,20 @@ async function getEngineResultsAsync(sq) {
   let results = [];
   for (let row of databaseResult.rows) {
     // For now, let's fake the url
-    let fakeSlug = row.engineId.substr('engine:'.length);
+    let fakeSlug = row.toolId.substr('tool:'.length);
 
-    let type = 'engine';
+    let type = 'tool';
     results.push({
       type,
       score: 5,
       title: row.name,
       slug: fakeSlug,
       snippet: JSON.stringify(row.about),
-      id: row.engineId,
+      id: row.toolId,
       metadata: {},
       description: row.about,
       image: row.image,
-      url: '/engine/' + fakeSlug,
+      url: '/tool/' + fakeSlug,
     });
   }
   if (results.length > 0) {
@@ -329,6 +329,6 @@ module.exports = {
   getMediaResultsAsync,
   getPlaylistResultsAsync,
   getTagResultsAsync,
-  getEngineResultsAsync,
+  getToolResultsAsync,
   queryAsync,
 };

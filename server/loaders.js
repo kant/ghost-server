@@ -16,15 +16,15 @@ function createLoaders() {
     return await model.loadPlaylistsAsync(keys);
   });
 
-  let engine = new DataLoader(async (keys) => {
-    return await model.loadEnginesAsync(keys);
+  let tool = new DataLoader(async (keys) => {
+    return await model.loadToolsAsync(keys);
   });
 
   return {
     user,
     media,
     playlist,
-    engine,
+    tool,
   };
 }
 

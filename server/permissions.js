@@ -5,15 +5,35 @@ function PermissionError(message) {
   return ClientError(message, 'PERMISSION_ERROR');
 }
 
-async function canAddEngineAsync({ userId }) {
-  if (!(await model.isMemberOfTeamAsync(userId, 'user:expo'))) {
-    throw PermissionError("You don't have permission to add engines");
-  }
+async function canAddToolAsync({ userId }) {
+  // For now, let's let anyone make and update tools...
+  return;
+
+  // if (!(await model.isMemberOfTeamAsync(userId, 'user:expo'))) {
+  //   throw PermissionError("You don't have permission to add tools");
+  // }
 }
 
-async function canUpdateEngineAsync({ userId }, engineId) {
+async function canUpdateToolAsync({ userId }, toolId) {
+  // For now, let's let anyone make and update tools...
+  return;
+
+  // if (!(await model.isMemberOfTeamAsync(userId, 'user:expo'))) {
+  //   throw PermissionError("You don't have permission to update that tool");
+  // }
+}
+
+async function canDeleteToolAsync({ userId }, toolId) {
+  let tool = await model.getToolAsync(toolId);
+
+  // You can delete this tool if you made the entry (at least for now)
+  if (tool.creatorId === userId) {
+    return;
+  }
+
+  // You can also delete the tool if you are a member of the expo team
   if (!(await model.isMemberOfTeamAsync(userId, 'user:expo'))) {
-    throw PermissionError("You don't have permission to update that engine");
+    throw PermissionError("You don't have permission to update that tool");
   }
 }
 
@@ -70,8 +90,8 @@ async function canUpdateMediaAsync(context, mediaId) {
 }
 
 module.exports = {
-  canAddEngineAsync,
-  canUpdateEngineAsync,
+  canAddToolAsync,
+  canUpdateToolAsync,
   canUpdateUserAsync,
   isLoggedInAsAsync,
   canAddMediaAsync,
