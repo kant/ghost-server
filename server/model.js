@@ -222,7 +222,9 @@ async function multigetMediaAsync(mediaIdList, opts) {
 
 async function loadMediaAsync(mediaIdList) {
   // This is a little hacky :/
-  let mediaList = await data.loadObjectsAsync(mediaIdList, 'media', 'mediaId', { columns: mediaColumns });
+  let mediaList = await data.loadObjectsAsync(mediaIdList, 'media', 'mediaId', {
+    columns: mediaColumns,
+  });
   for (let media of mediaList) {
     if (media.tags) {
       media.tags = Object.keys(media.tags);
