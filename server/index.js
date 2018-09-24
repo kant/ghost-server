@@ -33,7 +33,7 @@ async function serveAsync(port) {
     api: '/api',
     graphql: '/api/graphql',
     playground: '/api/graphql',
-    subscriptions: '/subscriptions',
+    subscriptions: '/api/subscriptions',
   };
 
   let app = new graphqlYoga.GraphQLServer({
