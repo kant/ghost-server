@@ -47,6 +47,7 @@ CREATE TABLE "playlist" (
   "name" varchar(255),
   "description" jsonb,
   "mediaItems" jsonb,
+  "image" jsonb,
   "createdTime" timestamp default now(),
   "updatedTime" timestamp defualt now(),
   "deleted" int
@@ -58,6 +59,7 @@ CREATE TABLE "media" (
   "mediaId" varchar(255) PRIMARY KEY,
   "name" text,
   "mediaUrl" text,
+  "slug" text,
   "homepageUrl" text,
   "coverImage" jsonb,
   "description" jsonb,
@@ -74,6 +76,7 @@ CREATE TABLE "media" (
   "updatedTime" timestamp default now()
 );
 
+ALTER TABLE "media" ADD CONSTRAINT "media_slug_key" UNIQUE ("slug");
 CREATE TRIGGER "media_setUpdatedTime" BEFORE UPDATE ON "media" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 CREATE TABLE "user" (
@@ -92,6 +95,7 @@ CREATE TABLE "user" (
   "updatedTime" timestamp default now()
 );
 
+ALTER TABLE "user" ADD CONSTRAINT "user_username_key" UNIQUE ("username");
 CREATE TRIGGER "user_setUpdatedTime" BEFORE UPDATE ON "user" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 

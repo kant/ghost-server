@@ -2,6 +2,7 @@ let auth = require('./auth');
 let data = require('./data');
 let model = require('./model');
 let permissions = require('./permissions');
+let search = require('./search');
 let signup = require('./signup');
 
 /**
@@ -71,6 +72,9 @@ module.exports = {
       };
       shuffle(playlist_.mediaItems);
       return playlist_;
+    },
+    search: async (_, { query, cursorPosition, limit }, context) => {
+      return await search.queryAsync(query, cursorPosition, { limit });
     },
   },
   Media: {

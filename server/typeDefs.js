@@ -13,6 +13,7 @@ module.exports = /* GraphQL */ `
   type Media {
     mediaId: ID! @unique
     mediaUrl: String
+    slug: String,
     name: String
     description: Json
     userId: ID
@@ -58,9 +59,22 @@ module.exports = /* GraphQL */ `
     user: User
     name: String
     description: Json
+    image: Image
     mediaItems: [Media]
     createdTime: Datetime
     updatedTime: Datetime
+  }
+
+  type SearchResult {
+    type: String
+    title: String
+    url: String
+    slug: String,
+    id: String,
+    snippet: String
+    metadata: Json
+    image: Image
+    score: Float
   }
 
   type Query {
@@ -73,6 +87,7 @@ module.exports = /* GraphQL */ `
     playlist(playlistId: ID!): Playlist
     playlistsForUser(userId: ID!): [Playlist]
     currentPlaylist: Playlist
+    search(query: String, cursorPosition: Int, limit: Int): [SearchResult]
     whoAmI: User
   }
 
