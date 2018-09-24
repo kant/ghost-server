@@ -6,7 +6,7 @@ let wrapParens = (x) => {
   return '(' + x + ')';
 };
 
-async function queryAsync(query, cursorPosition, opts) {
+function makeSearchQuery(query, cursorPosition, opts) {
   opts = opts || {};
   limit = opts.limit || 30;
   cursorPosition = cursorPosition || 0;
@@ -33,7 +33,24 @@ async function queryAsync(query, cursorPosition, opts) {
     fullTokens,
     partialTokens,
   };
+  return sq;
+}
 
+async function queryJustMediaAndPlaylistsAsync(query, cursorPosition, opts) {
+  let sq = makeSearchQuery(query, cursorPosition, opts);
+  let [mediaResults, playlistResults] = await Promise.all([
+    getMediaResultsAsync(sq),
+    getPlaylistResultsAsync(sq),
+  ]);
+  return {
+    mediaResults,
+    playlistResults,
+    recommendedResults: [],
+  };
+}
+
+async function queryAsync(query, cursorPosition, opts) {
+  let sq = makeSearchQuery(query, cursorPosition, opts);
   let listOfResultLists = await Promise.all([
     getUserResultsAsync(sq),
     getMediaResultsAsync(sq),
@@ -331,4 +348,6 @@ module.exports = {
   getTagResultsAsync,
   getToolResultsAsync,
   queryAsync,
+  makeSearchQuery,
+  queryJustMediaAndPlaylistsAsync,
 };

@@ -85,6 +85,12 @@ module.exports = /* GraphQL */ `
     score: Float
   }
 
+  type MediaAndPlaylistSearchResults {
+    mediaItems: [Media]
+    playlistItems: [Playlist]
+    recommendedItems: [Media]
+  }
+
   type Query {
     inspect: String
     hello(name: String): String!
@@ -96,6 +102,7 @@ module.exports = /* GraphQL */ `
     playlistsForUser(userId: ID!): [Playlist]
     currentPlaylist: Playlist
     search(query: String, cursorPosition: Int, limit: Int): [SearchResult]
+    searchMediaAndPlaylists(query: String, cursorPosition: Int, limit: Int): MediaAndPlaylistSearchResults
     whoAmI: User
   }
 

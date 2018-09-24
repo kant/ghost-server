@@ -60,6 +60,20 @@ module.exports = {
     search: async (_, { query, cursorPosition, limit }, context) => {
       return await search.queryAsync(query, cursorPosition, { limit });
     },
+    searchMediaAndPlaylists: async (_, { query, cursorPosition, limit }, context) => {
+      return await search.queryJustMediaAndPlaylistsAsync(query, cursorPosition, { limit });
+    },
+  },
+  MediaAndPlaylistSearchResults: {
+    mediaItems: async (results, {}, context) => {
+      return await context.loaders.media.loadMany(results.mediaResults.map((x) => x.id));
+    },
+    playlistItems: async (results, {}, context) => {
+      return await context.loaders.playlist.loadMany(results.playlistResults.map((x) => x.id));
+    },
+    recommendedItems: async (results, {}, context) => {
+      return await context.loaders.media.loadMany(results.recommendedResults.map((x) => x.id));
+    },
   },
   Media: {
     user: async (media, {}, context, info) => {
