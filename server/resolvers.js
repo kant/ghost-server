@@ -44,7 +44,7 @@ module.exports = {
       return await model.getPlaylistsForUser(userId);
     },
     currentPlaylist: async (_, {}, context) => {
-      let playlist = await context.loaders.playlist.load('playlist:ludum-dare-42');
+      let playlist = await context.loaders.playlist.load('playlist:badboxart2018');
       let playlist_ = { ...playlist };
       playlist_.mediaItems = playlist_.mediaItems.slice(0);
       let shuffle = (a) => {
@@ -170,7 +170,7 @@ module.exports = {
       }
       media_.mediaId = mediaId;
       let newMedia = await model.updateMediaAsync(media_);
-      return await context.loaders.media.load(newMedia.mediaId);
+      return await context.loaders.media.load(mediaId);
     },
     deleteMedia: async (_, { mediaId }, context) => {
       await permissions.canUpdateMediaAsync(context, mediaId);
