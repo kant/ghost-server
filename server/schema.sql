@@ -57,8 +57,9 @@ CREATE TRIGGER "tool_setUpdatedTime" BEFORE UPDATE ON "tool" FOR EACH ROW EXECUT
 
 CREATE TABLE "playlist" (
   "playlistId" varchar(255) PRIMARY KEY,
-  "userId" varchar(255),
-  "name" varchar(255),
+  "userId" text,
+  "name" text,
+  "website" text,
   "description" jsonb,
   "mediaItems" jsonb,
   "image" jsonb,

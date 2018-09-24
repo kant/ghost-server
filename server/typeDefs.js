@@ -65,6 +65,7 @@ module.exports = /* GraphQL */ `
     userId: ID
     user: User
     name: String
+    website: String
     description: Json
     image: Image
     mediaItems: [Media]
@@ -126,6 +127,7 @@ module.exports = /* GraphQL */ `
   }
 
   input MediaInput {
+    name: String
     mediaId: ID
     mediaUrl: String
     name: String

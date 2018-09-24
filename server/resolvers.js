@@ -1,3 +1,5 @@
+let assert = require('assert');
+
 let auth = require('./auth');
 let data = require('./data');
 let model = require('./model');

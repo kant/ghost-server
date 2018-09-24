@@ -22,6 +22,7 @@ function makeUuid(length = 27) {
 
 function normalizeInfo(s, maxLength) {
   maxLength = maxLength || 48;
+  s = s || '';
   let n = s
     .toLowerCase()
     .replace(/[ \.]/g, '-')

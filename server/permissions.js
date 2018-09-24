@@ -69,7 +69,9 @@ async function canAddMediaAsync({ userId }) {
 
 async function canUpdateMediaAsync(context, mediaId) {
   let { userId } = context;
-  let media = await context.loaders.media.load(mediaId);
+
+  // Don't use a loader here since we don't want to cache the media we're about to change
+  let media = await model.getMediaAsync(mediaId);
   if (media.userId === userId) {
     return;
   }
@@ -79,11 +81,12 @@ async function canUpdateMediaAsync(context, mediaId) {
     return;
   }
 
-  let team = await context.loaders.user.load(media.userId);
-  if (team && team.roles && team.roles.members) {
-    if (team.roles.members.includes(userId)) {
-      return;
-    }
+  if (await model.isMemberOfTeamAsync(context.userId, media.userId)) {
+    return;
+  }
+
+  if (await model.isMemberOfTeamAsync(context.userId, 'user:expo')) {
+    return;
   }
 
   throw PermissionError("You don't have permission to update that media");
@@ -97,4 +100,5 @@ module.exports = {
   canAddMediaAsync,
   canUpdateMediaAsync,
   canUpdateTeamAdminsAsync,
+  canDeleteToolAsync,
 };
