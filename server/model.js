@@ -205,6 +205,8 @@ let mediaColumns = [
   'userId',
   'engineId',
   // 'extraData',
+  'tags',
+  'slug',
   'published',
   'createdTime',
   'updatedTime',
@@ -219,7 +221,16 @@ async function multigetMediaAsync(mediaIdList, opts) {
 }
 
 async function loadMediaAsync(mediaIdList) {
-  return await data.loadObjectsAsync(mediaIdList, 'media', 'mediaId', { columns: mediaColumns });
+  // This is a little hacky :/
+  let mediaList = await data.loadObjectsAsync(mediaIdList, 'media', 'mediaId', { columns: mediaColumns });
+  for (let media of mediaList) {
+    if (media.tags) {
+      media.tags = Object.keys(media.tags);
+    } else {
+      media.tags = [];
+    }
+  }
+  return mediaList;
 }
 
 async function getTeamsForUserAsync(userId) {
@@ -362,7 +373,7 @@ async function removeMediaTagsAsync(mediaId, tagList) {
 }
 
 let jsonFields = {
-  media: ['description', 'coverImage', 'instructions', 'dimensions'],
+  media: ['description', 'coverImage', 'instructions', 'dimensions', 'links'],
   engine: ['about', 'image'],
   user: ['about'],
 };

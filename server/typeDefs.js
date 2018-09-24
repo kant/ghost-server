@@ -8,12 +8,13 @@ module.exports = /* GraphQL */ `
     height: Float
     width: Float
     donwloaded: Int
+    type: String
   }
 
   type Media {
     mediaId: ID! @unique
     mediaUrl: String
-    slug: String,
+    slug: String
     name: String
     description: Json
     userId: ID
@@ -21,10 +22,11 @@ module.exports = /* GraphQL */ `
     instructions: Json
     dimensions: Json
     engineId: ID
+    links: Json
     published: Datetime
     createdTime: Datetime
     updatedTime: Datetime
-    tags: [String]
+    tags: Json
     user: User
     engine: Engine
   }
@@ -71,8 +73,8 @@ module.exports = /* GraphQL */ `
     type: String
     title: String
     url: String
-    slug: String,
-    id: String,
+    slug: String
+    id: String
     snippet: String
     metadata: Json
     image: Image
@@ -93,6 +95,14 @@ module.exports = /* GraphQL */ `
     whoAmI: User
   }
 
+  input ImageInput {
+    url: String
+    height: Float
+    width: Float
+    type: String
+    downloaded: Int
+  }
+
   input UserInput {
     name: String
     location: String
@@ -100,12 +110,6 @@ module.exports = /* GraphQL */ `
     about: Json
     photo: ImageInput
     isTeam: Boolean
-  }
-
-  input ImageInput {
-    url: String
-    height: Float
-    width: Float
   }
 
   input EngineInput {
@@ -120,12 +124,15 @@ module.exports = /* GraphQL */ `
     mediaId: ID
     mediaUrl: String
     name: String
+    slug: String
     description: Json
+    links: Json
     userId: ID
     coverImage: ImageInput
     instructions: Json
     dimensions: Json
     engineId: ID
+    tags: [String]
     published: Datetime
   }
 

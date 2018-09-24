@@ -84,13 +84,6 @@ module.exports = {
     engine: async (media, {}, context, info) => {
       return await context.loaders.engine.load(media.engineId);
     },
-    tags: async (media, {}, context, info) => {
-      if (media.tags) {
-        return Object.keys(tags);
-      } else {
-        return [];
-      }
-    },
   },
   User: {
     members: async (team, {}, context, info) => {
@@ -173,12 +166,14 @@ module.exports = {
     addMedia: async (_, { media }, context, info) => {
       await permissions.canAddMediaAsync(context);
       let media_ = data.stringifyJsonFields(media, model.jsonFields.media);
+      media_.tags = JSON.stringify(data.listToSet(media_.tags));
       let newMedia = await model.newMediaAsync(media_);
       return await context.loaders.media.load(newMedia.mediaId);
     },
     updateMedia: async (_, { mediaId, media }, context, info) => {
       await permissions.canUpdateMediaAsync(context, mediaId);
       let media_ = data.stringifyJsonFields(media, model.jsonFields.media);
+      media_.tags = JSON.stringify(data.listToSet(media_.tags));
       let newMedia = await model.updateMediaAsync(media_);
       return await context.loaders.media.load(newMedia.mediaId);
     },

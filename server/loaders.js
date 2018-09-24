@@ -1,5 +1,6 @@
 let DataLoader = require('dataloader');
 
+let data = require('./data');
 let model = require('./model');
 
 function createLoaders() {

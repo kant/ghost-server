@@ -63,6 +63,7 @@ CREATE TABLE "media" (
   "homepageUrl" text,
   "coverImage" jsonb,
   "description" jsonb,
+  "links" jsonb,
   "dimensions" jsonb,
   "instructions" jsonb,
   "userId" varchar(255),
