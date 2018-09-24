@@ -83,7 +83,14 @@ module.exports = /* GraphQL */ `
     metadata: Json
     image: Image
     score: Float
+    object: SearchResultObject
   }
+
+  type Tag {
+    tag: String
+  }
+
+  union SearchResultObject = User | Media | Playlist | Tool | Tag
 
   type MediaAndPlaylistSearchResults {
     mediaItems: [Media]

@@ -247,7 +247,6 @@ function combinePluralAndSingular(list, item) {
   return x;
 }
 
-
 module.exports = {
   getObjectAsync,
   multigetObjectsAsync,
@@ -258,9 +257,9 @@ module.exports = {
   objectsListFromResults,
   _deleteObjectAsync,
   quoteColumnIdentifiers,
-  stringifyJsonFields,
-  listToSet,
   addJsonbSetItemsAsync,
   removeJsonbSetItemsAsync,
+  stringifyJsonFields,
   combinePluralAndSingular,
+  listToSet,
 };

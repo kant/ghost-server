@@ -7,6 +7,13 @@ let permissions = require('./permissions');
 let search = require('./search');
 let signup = require('./signup');
 
+function addType(type, obj) {
+  return {
+    ...obj,
+    __graphqlType: type,
+  };
+}
+
 module.exports = {
   Query: {
     inspect: (obj, args, context, info) => {
@@ -81,6 +88,39 @@ module.exports = {
     },
     tools: async (media, {}, context, info) => {
       return await context.loaders.tool.load(media.toolIds);
+    },
+  },
+  SearchResult: {
+    object: async (result, {}, context) => {
+      switch (result.type) {
+        case 'user':
+          return addType('User', await context.loaders.user.load(result.id));
+          break;
+        case 'media':
+          return addType('Media', await context.loaders.media.load(result.id));
+          break;
+        case 'playlist':
+          return addType('Playlist', await context.loaders.playlist.load(result.id));
+          break;
+        case 'tool':
+          return addType('Tool', await context.loaders.tool.load(result.id));
+          break;
+        case 'tag':
+          return {
+            __graphqlType: 'Tag',
+            tag: result.id,
+          };
+          break;
+        default:
+          console.warn('Not sure how to resolve type `' + result.type + '`');
+          return null;
+          break;
+      }
+    },
+  },
+  SearchResultObject: {
+    __resolveType: (obj) => {
+      return obj.__graphqlType;
     },
   },
   Tool: {
