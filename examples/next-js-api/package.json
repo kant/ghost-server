@@ -4,9 +4,10 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "next": "^6.1.2",
-    "react": "^16.5.0",
-    "react-dom": "^16.5.0"
+    "next": "^7.0.0",
+    "react": "^16.5.2",
+    "react-autosuggest": "^9.4.2",
+    "react-dom": "^16.5.2"
   },
   "scripts": {
     "dev": "next",
