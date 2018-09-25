@@ -17,7 +17,7 @@ function end(key, label, opts) {
   let t = endTime - startTime;
   let threshold = opts.threshold || -1;
   let message = opts.message || '';
-  if (t > threshold) {
+  if (t > threshold && !opts.quiet) {
     console.log(label + ': ' + t + 'ms ' + message);
   }
   delete _START_TIMES[key];
