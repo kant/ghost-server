@@ -193,6 +193,26 @@ async function isAdminOfTeamAsync(userId, teamId) {
   return await isRoleOfTeamAsync(userId, teamId, 'admins');
 }
 
+async function getSessionsForUserAsync(userId) {
+  let r = db.replacer();
+  let results = await db.queryAsync(
+    `SELECT "clientId", "createdIp", "updatedTime" 
+    FROM "session" WHERE "userId" = ${r(userId)}
+    ORDER BY "updatedTime" DESC;`,
+    r.values()
+  );
+  return results.rows;
+}
+
+async function clearAllUserSessionsAsync(userId) {
+  let r = db.replacer();
+  let results = await db.queryAsync(
+    `DELETE FROM "session" WHERE "userId" = ${r(userId)};`,
+    r.values()
+  );
+  return results.rowCount;
+}
+
 let mediaColumns = [
   'mediaId',
   'name',
@@ -432,4 +452,6 @@ module.exports = {
   removeMediaTagsAsync,
   convertUserToTeamAsync,
   convertTeamToUserAsync,
+  getSessionsForUserAsync,
+  clearAllUserSessionsAsync,
 };

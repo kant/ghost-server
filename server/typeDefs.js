@@ -160,7 +160,7 @@ module.exports = /* GraphQL */ `
   type Mutation {
     login(usernameOrSimilar: String!, password: String!): User
     logout: Null
-    signup(user: UserInput): User
+    signup(user: UserInput!, password: String!): User
     updateUser(userId: ID!, user: UserInput): User
 
     addTool(tool: ToolInput): Tool

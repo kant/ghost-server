@@ -1,15 +1,21 @@
-let validation = require('./validation');
+let data = require('./data');
 let model = require('./model');
+let passwordlib = require('./passwordlib');
+let validation = require('./validation');
 
-async function signupAsync(user) {
-  let username = await validation.validateUsernameAsync(user.username);
-  let user_ = { ...user };
-  for (let jsonField of ['about', 'photo']) {
-    if (user_.hasOwnProperty(jsonField)) {
-      user_[jsonField] = JSON.stringify(user_[jsonField]);
-    }
-  }
-  return await model.signupAsync(user_);
+async function signupAsync(userInput, password) {
+  
+  let username = await validation.validateUsernameAsync(userInput.username);
+  await validation.validatePasswordAsync(password);
+
+  let user_ = { ...userInput };
+  user_.username = username;
+  data.stringifyJsonFields(user_, model.jsonFields.user);
+  let createdUser = await model.signupAsync(user_, password);
+
+  await passwordlib.setUserPasswordAsync(createdUser.userId, password);
+
+  return createdUser;
 }
 
 module.exports = {

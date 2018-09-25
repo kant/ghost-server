@@ -56,7 +56,19 @@ async function validateTagAsync(tag) {
   }
 }
 
+function InvalidPasswordError(message) {
+  return ClientError(message, 'INVALID_PASSWORD');
+}
+
+async function validatePasswordAsync(password) {
+  if (typeof password === 'string' && password.length > 0 && password.length < 256) {
+    return;
+  }
+  throw InvalidPasswordError('Passwords must be strings between 1 and 255 characters long');
+}
+
 module.exports = {
   validateUsernameAsync,
   validateTagAsync,
+  validatePasswordAsync,
 };

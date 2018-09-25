@@ -170,17 +170,17 @@ module.exports = {
       await auth.logoutAsync(context.clientId);
       return null;
     },
-    signup: async (_, { user }, context, info) => {
-      let createdUser = await signup.signupAsync(user);
+    signup: async (_, { user, password }, context, info) => {
+      let createdUserInfo = await signup.signupAsync(user, password);
 
       // Log them in
       await model.startSessionAsync({
         clientId: context.clientId,
-        userId: createdUser.userId,
+        userId: createdUserInfo.userId,
         createdIp: context.request.ip,
       });
 
-      return await context.loaders.user.load(createdUser.userId);
+      return await context.loaders.user.load(createdUserInfo.userId);
     },
     addTool: async (_, { tool }, context, info) => {
       await permissions.canAddToolAsync(context);
