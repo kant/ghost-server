@@ -27,7 +27,6 @@
     "dataloader": "^1.4.0",
     "escape-html": "^1.0.3",
     "graphql-yoga": "^1.16.2",
-    "is-promise": "^2.1.0",
     "moment": "^2.22.2",
     "node-fetch": "^2.2.0",
     "password-hash-and-salt": "^0.1.4",

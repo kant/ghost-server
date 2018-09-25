@@ -16,7 +16,10 @@ let typeDefs = require('./typeDefs');
 
 let makeGraphqlContextAsync = async ({ request }) => {
   let clientId = request.get('X-ClientId');
-  let userId = await model.getUserIdForSessionAsync(clientId);
+  let userId = null;
+  if (clientId) {
+    userId = await model.getUserIdForSessionAsync(clientId);
+  }
   return {
     request,
     loaders: loaders.createLoaders(),
@@ -33,10 +36,41 @@ async function serveAsync(port) {
     subscriptions: '/subscriptions',
   };
 
+  let graphqlMiddleware = async (resolve, parent, args, context, info) => {
+    if (!parent) {
+      let tk = time.start();
+      let result;
+      try {
+        result = await Promise.resolve(resolve());
+      } catch (e) {
+
+        // A dev/prod difference. In general, I think these are very bad
+        // but here, the risk/reward tradeoff is probably worth it since we 
+        // don't want to expose stack traces, etc. to end users, but we do
+        // want to see errors if they happen while we're developing stuff
+        if (process.env.NODE_ENV === 'production') {
+          if (e.type === 'CLIENT_ERROR') {
+            throw e;
+          } else {
+            throw new Error('Internal Server Error');
+          }
+        } else {
+          throw e;
+        }
+      } finally {
+        time.end(tk, 'graphql', {message: info.path.key});
+      }
+      return result;
+    } else {
+      return resolve();
+    }
+  };
+
   let app = new graphqlYoga.GraphQLServer({
     typeDefs,
     resolvers,
     context: makeGraphqlContextAsync,
+    middlewares: [graphqlMiddleware],
   });
   app.use(cors());
   app.use(bodyParser.json());
