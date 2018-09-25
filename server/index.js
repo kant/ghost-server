@@ -69,7 +69,11 @@ async function serveAsync(port) {
   let requestTimingMiddleware = (req, res, next) => {
     let tk = time.start();
     res.once('finish', () => {
-      time.end(tk, 'request', { message: req.url + ' ' + (req.__logMessage || '') });
+      time.end(tk, 'request', {
+        // Only log '__dontLog' messages if they take a second or longer
+        threshold: -1 + 1000 * req.__dontLog,
+        message: req.url + ' ' + (req.__logMessage || ''),
+      });
     });
     next();
   };
@@ -84,6 +88,7 @@ async function serveAsync(port) {
   app.use(cors());
   app.use(bodyParser.json());
   app.get(endpoints.status, async (req, res) => {
+    req.__dontLog = true;
     res.json({ status: 'OK' });
   });
 
