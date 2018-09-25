@@ -36,16 +36,19 @@ async function serveAsync(port) {
     subscriptions: '/subscriptions',
   };
 
-  let graphqlMiddleware = async (resolve, parent, args, context, info) => {
+  let graphqlTimingMiddleware = async (resolve, parent, args, context, info) => {
     if (!parent) {
+      let message = info.path.key + ' ' + JSON.stringify(info.variableValues);
+      // ["fieldName","fieldNodes","returnType","parentType","path","schema","fragments","rootValue","operation","variableValues"]
+      JSON.stringify(Object.keys(info));
+      context.request.__logMessage = message;
       let tk = time.start();
       let result;
       try {
         result = await Promise.resolve(resolve());
       } catch (e) {
-
         // A dev/prod difference. In general, I think these are very bad
-        // but here, the risk/reward tradeoff is probably worth it since we 
+        // but here, the risk/reward tradeoff is probably worth it since we
         // don't want to expose stack traces, etc. to end users, but we do
         // want to see errors if they happen while we're developing stuff
         if (process.env.NODE_ENV === 'production') {
@@ -58,7 +61,7 @@ async function serveAsync(port) {
           throw e;
         }
       } finally {
-        time.end(tk, 'graphql', {message: info.path.key});
+        time.end(tk, 'graphql', { message });
       }
       return result;
     } else {
@@ -66,12 +69,21 @@ async function serveAsync(port) {
     }
   };
 
+  let requestTimingMiddleware = (req, res, next) => {
+    let tk = time.start();
+    res.once('finish', () => {
+      time.end(tk, 'request', { message: req.__logMessage });
+    });
+    next();
+  };
+
   let app = new graphqlYoga.GraphQLServer({
     typeDefs,
     resolvers,
     context: makeGraphqlContextAsync,
-    middlewares: [graphqlMiddleware],
+    middlewares: [graphqlTimingMiddleware],
   });
+  app.use(requestTimingMiddleware);
   app.use(cors());
   app.use(bodyParser.json());
   app.get(endpoints.status, async (req, res) => {
