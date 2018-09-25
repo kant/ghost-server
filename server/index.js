@@ -72,7 +72,7 @@ async function serveAsync(port) {
   let requestTimingMiddleware = (req, res, next) => {
     let tk = time.start();
     res.once('finish', () => {
-      time.end(tk, 'request', { message: req.__logMessage });
+      time.end(tk, 'request', { message: req.url + ' ' + req.__logMessage });
     });
     next();
   };
