@@ -157,6 +157,15 @@ module.exports = /* GraphQL */ `
     published: Datetime
   }
 
+  input PlaylistInput {
+    name: String
+    userId: ID
+    website: String
+    description: Json
+    image: ImageInput
+    mediaItems: [ID]
+  }
+
   type Mutation {
     login(usernameOrSimilar: String!, password: String!): User
     logout: Null
@@ -181,5 +190,10 @@ module.exports = /* GraphQL */ `
     convertTeamToUser(teamId: ID!): User
     addMediaTags(mediaId: ID!, tags: [String], tag: String): Media
     removeMediaTags(mediaId: ID!, tags: [String], tag: String): Media
+    addPlaylist(playlist: PlaylistInput): Playlist
+    updatePlaylist(playlistId: ID!, playlist: PlaylistInput): Playlist
+    deletePlaylist(playlistId: ID!): Boolean
+    
+
   }
 `;

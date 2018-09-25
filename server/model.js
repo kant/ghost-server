@@ -149,16 +149,12 @@ async function loadPlaylistsAsync(playlistIdList) {
 }
 
 async function updatePlaylistAsync(obj) {
-  return await data.updateObjectAsync(obj.playlistId, 'playlist', obj, { column: 'playlistId' });
+  let obj_ = data.stringifyJsonFields(obj, jsonFields.playlist);
+  return await data.updateObjectAsync(obj_.playlistId, 'playlist', obj_, { column: 'playlistId' });
 }
 
 async function deletePlaylistAsync(playlistId) {
-  return await data.updateObjectAsync(
-    playlistId,
-    'playlist',
-    { deleted: true },
-    { column: 'playlistId' }
-  );
+  return await data._deleteObjectAsync(playlistId, 'playlist', { column: 'playlistId' });
 }
 
 async function getPlaylistsForUser(userId) {
@@ -170,7 +166,8 @@ async function getPlaylistsForUser(userId) {
 }
 
 async function newPlaylistAsync(obj) {
-  return await data.writeNewObjectAsync(obj, 'playlist', { column: 'playlistId', autoId: true });
+  let obj_ = data.stringifyJsonFields(obj, jsonFields.playlist);
+  return await data.writeNewObjectAsync(obj_, 'playlist', { column: 'playlistId', autoId: true });
 }
 
 async function isRoleOfTeamAsync(userId, teamId, role) {
@@ -370,7 +367,10 @@ async function signupAsync(userInput) {
     return user;
   } catch (e) {
     if (e.code === '23505' && e.constraint === 'user_username_key') {
-      throw ClientError("Username '" + userInput.username + "' is already taken", 'USERNAME_NOT_AVAILABLE');
+      throw ClientError(
+        "Username '" + userInput.username + "' is already taken",
+        'USERNAME_NOT_AVAILABLE'
+      );
     }
     throw e;
   }
@@ -392,6 +392,7 @@ let jsonFields = {
   media: ['description', 'coverImage', 'instructions', 'dimensions', 'links'],
   tool: ['about', 'image'],
   user: ['about', 'photo'],
+  playlist: ['description', 'mediaItems', 'image'],
 };
 
 module.exports = {

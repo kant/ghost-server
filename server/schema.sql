@@ -65,7 +65,6 @@ CREATE TABLE "playlist" (
   "image" jsonb,
   "createdTime" timestamp default now(),
   "updatedTime" timestamp defualt now(),
-  "deleted" int
 );
 
 CREATE TRIGGER "playlist_setUpdatedTime" BEFORE UPDATE ON "playlist" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

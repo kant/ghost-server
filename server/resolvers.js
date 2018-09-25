@@ -152,6 +152,9 @@ module.exports = {
     mediaItems: async (playlist, {}, context, info) => {
       return await context.loaders.media.loadMany(playlist.mediaItems);
     },
+    user: async (playlist, {}, context) => {
+      return context.loaders.user.load(playlist.userId);
+    },
   },
   Mutation: {
     updateUser: async (_, { userId, user }, context, info) => {
@@ -291,6 +294,24 @@ module.exports = {
       let tagList = data.combinePluralAndSingular(tags, tag);
       await model.removeMediaTagsAsync(mediaId, tagList);
       return await context.loaders.media.load(mediaId);
+    },
+    addPlaylist: async (_, { playlist }, context) => {
+      await permissions.canAddPlaylistAsync(context);
+      let playlist_ = await model.newPlaylistAsync({
+        ...playlist,
+        userId: context.userId,
+      });
+      return await context.loaders.playlist.load(playlist_.playlistId);
+    },
+    updatePlaylist: async (_, { playlistId, playlist }, context) => {
+      await permissions.canUpdatePlaylistAsync(context, playlistId);
+      let playlist_ = { ...playlist, playlistId };
+      await model.updatePlaylistAsync(playlist_);
+      return await context.loaders.playlist.load(playlistId);
+    },
+    deletePlaylist: async (_, { playlistId }, context) => {
+      await permissions.canDeletePlaylistAsync(context, playlistId);
+      return await model.deletePlaylistAsync(playlistId);
     },
   },
 };
