@@ -4,13 +4,12 @@ let passwordlib = require('./passwordlib');
 let validation = require('./validation');
 
 async function signupAsync(userInput, password) {
-  
+
   let username = await validation.validateUsernameAsync(userInput.username);
   await validation.validatePasswordAsync(password);
 
   let user_ = { ...userInput };
   user_.username = username;
-  data.stringifyJsonFields(user_, model.jsonFields.user);
   let createdUser = await model.signupAsync(user_, password);
 
   await passwordlib.setUserPasswordAsync(createdUser.userId, password);

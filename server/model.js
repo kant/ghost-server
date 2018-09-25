@@ -100,11 +100,12 @@ async function loadToolsAsync(toolIdList) {
   return await data.loadObjectsAsync(toolIdList, 'tool', 'toolId');
 }
 
-async function newUserAsync(obj) {
-  return await data.writeNewObjectAsync(obj, 'user', {
+async function newUserAsync(userInput) {
+  let userInput_ = data.stringifyJsonFields(userInput, jsonFields.user);
+  return await data.writeNewObjectAsync(userInput_, 'user', {
     column: 'userId',
     autoId: true,
-    autoIdSource: obj.username,
+    autoIdSource: userInput_.username,
   });
 }
 
@@ -360,23 +361,16 @@ async function getUserIdForSessionAsync(clientId) {
   }
 }
 
-async function signupAsync(userInfo) {
-  let { username, name } = userInfo;
+async function signupAsync(userInput) {
   try {
-    let user = await newUserAsync(
-      {
-        username,
-        name,
-      },
-      {
-        autoId: true,
-        autoIdSource: name,
-      }
-    );
+    let user = await newUserAsync(userInput, {
+      autoId: true,
+      autoIdSource: userInput.name,
+    });
     return user;
   } catch (e) {
     if (e.code === '23505' && e.constraint === 'user_username_key') {
-      throw ClientError("Username '" + username + "' is already taken", 'USERNAME_NOT_AVAILABLE');
+      throw ClientError("Username '" + userInput.username + "' is already taken", 'USERNAME_NOT_AVAILABLE');
     }
     throw e;
   }
