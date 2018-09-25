@@ -2373,10 +2373,6 @@ fragment-cache@^0.2.1:
   dependencies:
     map-cache "^0.2.2"
 
-freeport-async@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/freeport-async/-/freeport-async-1.1.1.tgz#5c8cf4fc1aba812578317bd4d7a1e5597baf958e"
-
 fresh@0.5.2:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/fresh/-/fresh-0.5.2.tgz#3d8cadd90d976569fa835ab1f8e4b23a105605a7"
@@ -4121,7 +4117,7 @@ process@^0.11.10:
   version "0.11.10"
   resolved "https://registry.yarnpkg.com/process/-/process-0.11.10.tgz#7332300e840161bda3e69a1d1d91a7d4bc16f182"
 
-project-repl@^1.4.3:
+project-repl@^1.4.3, project-repl@^1.5.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/project-repl/-/project-repl-1.5.0.tgz#695d945235594eebe32d80c7ebea2318cb81487f"
   dependencies:

@@ -1,20 +1,16 @@
 let apolloFetch = require('apollo-fetch');
 
-let ApiError = require('./ApiError');
 let Storage = require('./Storage');
 
-let PRODUCTION_API_URL = 'https://ghost-server.app.render.com/api';
-
-let fetch = require('cross-fetch');
-
+let PRODUCTION_API_URL = 'https://ghost-server.app.render.com';
 
 class GhostClient {
-  constructor(url, context, opts) {
-    this.url = url || PRODUCTION_API_URL;
+  constructor(baseUrl, opts) {
+    this.url = baseUrl || PRODUCTION_API_URL;
     this.opts = Object.assign({}, opts);
     this._storage = this.opts.storage || new Storage();
     this._apolloFetch = apolloFetch.createApolloFetch({
-      uri: url + '/graphql',
+      uri: this.url + '/graphql',
     });
 
     // Add auth header
@@ -49,80 +45,43 @@ class GhostClient {
     return headers;
   }
 
-  async clientDidReceiveDataAsync(data) {}
-
-  async clientDidReceiveCommandAsync(command) {
-  }
-
-  async clientDidReceiveWarningAsync(code, message) {
-    console.warn('API Response Warning: ' + code + ': ' + message);
-  }
-
   async callAsync(method, ...args) {
-    if (method.startsWith('client') || method.startsWith('_')) {
-      throw new Error('Method name not allowed: ' + method);
+    if (method === 'getCurrentJamPlaylist') {
+      let response = await this.graphqlAsync({
+        query: /* GraphQL */ `
+          query {
+            currentPlaylist {
+              playlistId
+              name
+              mediaItems {
+                mediaId
+                name
+                published
+                instructions
+                description
+                mediaUrl
+                coverImage {
+                  url
+                  height
+                  width
+                }
+                user {
+                  userId
+                  name
+                  username
+                  photo {
+                    url
+                    height
+                    width
+                  }
+                }
+              }
+            }
+          }
+        `,
+      });
+      return response.data.currentPlaylist;
     }
-
-    let headers = {
-      'Content-Type': 'application/json',
-    };
-    Object.assign(headers, await this._getRequestHeadersAsync());
-
-    let response = await fetch(this.url, {
-      method: 'POST',
-      body: JSON.stringify({
-        context: this.context,
-        method,
-        args,
-      }),
-      headers,
-    });
-
-    let r;
-    let responseText;
-    try {
-      responseText = await response.text();
-      r = JSON.parse(responseText);
-    } catch (e) {
-      console.error(responseText);
-      let err = new Error("Didn't understand response from server");
-      err.ServerError = true;
-      err.responseText = responseText;
-      throw err;
-    }
-
-    if (r.error) {
-      let err = new Error(r.error.message);
-      Object.assign(err, r.error);
-      err.ApiError = true;
-      throw err;
-    }
-
-    if (r.clientError) {
-      let err = new Error(r.clientError.message);
-      Object.assign(err, r.clientError);
-      err.ClientError = true;
-      throw err;
-    }
-
-    if (r.data) {
-      await this.clientDidReceiveDataAsync(r.data);
-    }
-
-    // Handle commands
-    if (r.commands) {
-      for (let command of r.commands) {
-        await this.clientDidReceiveCommandAsync(command);
-      }
-    }
-
-    if (r.warnings) {
-      for (let [code, message] of r.warnings) {
-        await this.clientDidReceiveWarningAsync(code, message);
-      }
-    }
-
-    return r.result;
   }
 
   async graphqlAsync(...args) {
@@ -130,9 +89,30 @@ class GhostClient {
   }
 }
 
-module.exports = GhostClient;
+module.exports = (...args) => {
+  let client = new GhostClient(...args);
+  let f = async (...graphqlArgs) => {
+    // Let the caller use positional arguments
+    if (typeof graphqlArgs[0] === 'string') {
+      let [query, variables, operationName] = graphqlArgs;
+      graphqlArgs = [
+        {
+          query,
+          variables,
+          operationName,
+        },
+      ];
+    }
+
+    return await client.graphqlAsync(...graphqlArgs);
+  };
+  f.graphqlAsync = f;
+  f._client = client;
+  return f;
+};
 
 Object.assign(module.exports, {
+  GhostClient,
   Storage,
   PRODUCTION_API_URL,
 });

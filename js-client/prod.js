@@ -1,4 +1,4 @@
 let GhostClient = require('./GhostClient');
 
-module.exports = new GhostClient();
+module.exports = GhostClient();
 

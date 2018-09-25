@@ -1,14 +1,13 @@
 {
   "name": "ghost-api-client",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Ghost server API client",
   "main": "GhostClient.js",
   "repository": "https://github.com/expo/ghost-api-client-js.git",
   "author": "Charlie Cheever <ccheever@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "freeport-async": "^1.1.1",
-    "project-repl": "^1.4.3"
+    "project-repl": "^1.5.0"
   },
   "dependencies": {
     "apollo-fetch": "^0.7.0"

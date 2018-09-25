@@ -8,9 +8,7 @@ let escapeHtml = require('escape-html');
 let graphqlYoga = require('graphql-yoga');
 let spawnAsync = require('@expo/spawn-async');
 
-let Api = require('./Api');
 let db = require('./db');
-let handler = require('./handler');
 let loaders = require('./loaders');
 let model = require('./model');
 let resolvers = require('./resolvers');
@@ -30,10 +28,9 @@ let makeGraphqlContextAsync = async ({ request }) => {
 async function serveAsync(port) {
   let endpoints = {
     status: '/status',
-    api: '/api',
-    graphql: '/api/graphql',
-    playground: '/api/graphql',
-    subscriptions: '/api/subscriptions',
+    graphql: '/graphql',
+    playground: '/graphql',
+    subscriptions: '/subscriptions',
   };
 
   let app = new graphqlYoga.GraphQLServer({
@@ -46,22 +43,6 @@ async function serveAsync(port) {
   app.get(endpoints.status, async (req, res) => {
     res.json({ status: 'OK' });
   });
-  app.post(
-    endpoints.api,
-    handler(Api, {
-      serverContext: async (thinContext, { req, res }) => {
-        let graphqlContext = await makeGraphqlContextAsync({request: req});
-        return {
-          requestContext: thinContext,
-          executableSchema: app.executableSchema,
-          graphqlContext,
-          req,
-          res,
-        };
-      },
-    })
-  );
-  Api.__executableSchema = app.executableSchema;
 
   // Homepage with some info
   app.get('/', async (req, res) => {
