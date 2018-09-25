@@ -36,11 +36,11 @@ async function serveAsync(port) {
     subscriptions: '/subscriptions',
   };
 
-  let graphqlTimingMiddleware = async (resolve, parent, args, context, info) => {
+  let graphqlMiddleware = async (resolve, parent, args, context, info) => {
     if (!parent) {
-      let message = info.path.key + ' ' + JSON.stringify(args) + ' ' + JSON.stringify(info.variableValues);
+      let message =
+        info.path.key + ' ' + JSON.stringify(args) + ' ' + JSON.stringify(info.variableValues);
       context.request.__logMessage = message;
-      let tk = time.start();
       let result;
       try {
         result = await Promise.resolve(resolve());
@@ -59,7 +59,6 @@ async function serveAsync(port) {
           throw e;
         }
       } finally {
-        time.end(tk, 'graphql', { message });
       }
       return result;
     } else {
@@ -70,7 +69,7 @@ async function serveAsync(port) {
   let requestTimingMiddleware = (req, res, next) => {
     let tk = time.start();
     res.once('finish', () => {
-      time.end(tk, 'request', { message: req.url + ' ' + req.__logMessage });
+      time.end(tk, 'request', { message: req.url + ' ' + (req.__logMessage || '') });
     });
     next();
   };
@@ -79,7 +78,7 @@ async function serveAsync(port) {
     typeDefs,
     resolvers,
     context: makeGraphqlContextAsync,
-    middlewares: [graphqlTimingMiddleware],
+    middlewares: [graphqlMiddleware],
   });
   app.use(requestTimingMiddleware);
   app.use(cors());
