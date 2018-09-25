@@ -38,9 +38,7 @@ async function serveAsync(port) {
 
   let graphqlTimingMiddleware = async (resolve, parent, args, context, info) => {
     if (!parent) {
-      let message = info.path.key + ' ' + JSON.stringify(info.variableValues);
-      // ["fieldName","fieldNodes","returnType","parentType","path","schema","fragments","rootValue","operation","variableValues"]
-      JSON.stringify(Object.keys(info));
+      let message = info.path.key + ' ' + JSON.stringify(args) + ' ' + JSON.stringify(info.variableValues);
       context.request.__logMessage = message;
       let tk = time.start();
       let result;
