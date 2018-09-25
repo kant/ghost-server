@@ -1,6 +1,6 @@
 {
   "name": "ghost-api-client",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Ghost server API client",
   "main": "GhostClient.js",
   "repository": "https://github.com/expo/ghost-api-client-js.git",

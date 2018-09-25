@@ -45,45 +45,6 @@ class GhostClient {
     return headers;
   }
 
-  async callAsync(method, ...args) {
-    if (method === 'getCurrentJamPlaylist') {
-      let response = await this.graphqlAsync({
-        query: /* GraphQL */ `
-          query {
-            currentPlaylist {
-              playlistId
-              name
-              mediaItems {
-                mediaId
-                name
-                published
-                instructions
-                description
-                mediaUrl
-                coverImage {
-                  url
-                  height
-                  width
-                }
-                user {
-                  userId
-                  name
-                  username
-                  photo {
-                    url
-                    height
-                    width
-                  }
-                }
-              }
-            }
-          }
-        `,
-      });
-      return response.data.currentPlaylist;
-    }
-  }
-
   async graphqlAsync(...args) {
     return await this._apolloFetch(...args);
   }
