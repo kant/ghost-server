@@ -158,7 +158,7 @@ module.exports = {
       await permissions.canUpdateUserAsync(context, userId);
       let user_ = data.stringifyJsonFields(user, model.jsonFields.user);
       user_.userId = userId;
-      await model.updateUserAsync(update);
+      await model.updateUserAsync(user_);
       return await context.loaders.user.load(userId);
     },
     login: async (_, { usernameOrSimilar, password }, context, info) => {
