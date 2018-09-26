@@ -13,6 +13,10 @@ returns anyarray language sql as $$
     where elem <> all(array2)
 $$;
 
+CREATE TABLE "env" (
+  "env" text
+);
+
 CREATE TABLE "playRecord" (
   "playRecordId" text PRIMARY KEY,
   "mediaId" text,

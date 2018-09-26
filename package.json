@@ -4,6 +4,7 @@
     "server",
     "js-client",
     "libraries/time",
+    "libraries/psql",
     "examples/api-example",
     "examples/next-js-api"
   ]
