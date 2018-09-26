@@ -1,3 +1,6 @@
+let assert = require('assert');
+
+let graphql = require('graphql'); // Not in package.json dependencies but will be installed by graphql-yoga
 let graphqlYoga = require('graphql-yoga');
 let time = require('@expo/time');
 
@@ -6,12 +9,18 @@ let model = require('./model');
 let resolvers = require('./resolvers');
 let typeDefs = require('./typeDefs');
 
-async function makeGraphqlContextAsync({ request }) {
-  let clientId = request.get('X-ClientId');
-  let userId = null;
-  if (clientId) {
-    userId = await model.getUserIdForSessionAsync(clientId);
+async function makeGraphqlContextAsync({ request, userId }) {
+  let clientId = null;
+  if (request) {
+    if (userId) {
+      throw Error('Provide only one of `userId` and `request` to `makeGraphqlContextAsync`');
+    }
+    clientId = request.get('X-ClientId');
+    if (clientId) {
+      userId = await model.getUserIdForSessionAsync(clientId);
+    }
   }
+  request = request || {};
   return {
     request,
     loaders: loaders.createLoaders(),
@@ -20,7 +29,7 @@ async function makeGraphqlContextAsync({ request }) {
   };
 }
 
-async function graphqlAppAsync() {
+async function makeGraphqlAppAsync() {
   let graphqlMiddleware = async (resolve, parent, args, context, info) => {
     if (!parent) {
       let message =
@@ -73,7 +82,43 @@ async function graphqlAppAsync() {
   return app;
 }
 
+let _app = null;
+async function graphqlAppAsync() {
+  if (_app === null) {
+    _app = await makeGraphqlAppAsync();
+  }
+  return _app;
+}
+
+async function graphqlQueryAsync({
+  query,
+  variableValues,
+  operationName,
+  fieldResolver,
+  userId,
+  opts,
+}) {
+  opts = opts || {};
+
+  let app = await graphqlAppAsync();
+  let graphqlContext = await makeGraphqlContextAsync({
+    userId,
+  });
+
+  return await graphql.graphql(
+    app.executableSchema,
+    query,
+    null,
+    graphqlContext,
+    variableValues,
+    operationName,
+    fieldResolver
+  );
+}
+
 module.exports = {
   makeGraphqlContextAsync,
+  makeGraphqlAppAsync,
   graphqlAppAsync,
+  graphqlQueryAsync,
 };
