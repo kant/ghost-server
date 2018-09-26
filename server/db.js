@@ -13,7 +13,11 @@ let _config = {
 // If we are in a test environment, make a copy of the schema
 // of production environment and a new database and then give
 // it the same schema and then use it
-let dbReady$ = Promise.resolve(process.env.NODE_ENV);
+let _dbReady$ = Promise.resolve(process.env.NODE_ENV);
+async function databasePreparedAsync() {
+  return _dbReady$;
+}
+
 if (process.env.NODE_ENV === 'test') {
   console.warn("// Using test environment because `process.env.NODE_ENV` is 'test'");
 
@@ -34,7 +38,7 @@ if (process.env.NODE_ENV === 'test') {
 
     // Use it
     _config.database = testDatabaseName;
-    console.warn("// Using database " + _config.database);
+    console.warn('// Using database ' + _config.database);
 
     // Copy over the schema
     let schemaSql = await testutils.getProductionDatabaseSchemaAsync();
@@ -43,24 +47,17 @@ if (process.env.NODE_ENV === 'test') {
     await client.query(schemaSql);
     await client.end();
 
-    // Clean up after ourselves at the end of this process
-    process.on('exit', () => {
-      if (_config.database.endsWith('__test__')) {
-        db.queryAsync('DROP DATABASE ' + JSON.stringify(_config.database) + ';');
-      }
-    });
-
     // Now we're ready
     return process.env.NODE_ENV;
   }
 
-  dbReady$ = _prepareTestDatabaseAsync();
+  _dbReady$ = _prepareTestDatabaseAsync();
 }
 
 let _pool = null;
 async function poolAsync() {
   if (_pool === null) {
-    await dbReady$;
+    await databasePreparedAsync();
     _pool = new pg.Pool(_config);
 
     // the pool with emit an error on behalf of any idle clients
@@ -125,22 +122,28 @@ function replacer() {
 
 let iq = JSON.stringify;
 
-async function sanityCheckEnvironmentIsntProductionAsync() {
-  let result;
-  try {
-    result = await queryAsync(`SELECT "env" FROM "env";`);
-  } catch (e) {
-    if (e.code === '42P01') {
-      // "env" isn't a table so that means we're OK
-      return;
-    } else {
-      throw e;
-    }
-  }
-  if (result.rowCount > 0) {
-    if (result.rows[0].env === 'production') {
-      // Maybe even `process.exit` here?
-      throw new Error('Refusing to proceed in production environment');
+
+async function cleanupTestDatabaseAsync() {
+  if (process.env.NODE_ENV === 'test') {
+    let dbName = _config.database;
+    if (dbName.endsWith('__test__')) {
+      console.log('Cleaning up test database ' + dbName);
+
+      // First we need to drain this pool and disconnect so we can drop the database
+      console.log('Draining pool and closing connections');
+      let pool = await poolAsync();
+      await pool.end();
+      console.log('Connections complete');
+
+      // Now we need to use a connection to the production database to
+      // drop the test database
+      let { Client } = pg;
+      let client = new Client(secret.postgres);
+      await client.connect();
+      console.log('Dropping test database ' + dbName);
+      let result = await client.query(`DROP DATABASE ${iq(dbName)};`);
+      await client.end();
+      assert.strictEqual(result.command, 'DROP');
     }
   }
 }
@@ -149,10 +152,11 @@ module.exports = {
   queryAsync,
   replacer,
   pg,
+  iq,
   poolAsync,
+  databasePreparedAsync,
+  cleanupTestDatabaseAsync,
   _config,
   _pool,
-  dbReady$,
-  iq,
-  sanityCheckEnvironmentIsntProductionAsync,
+  _dbReady$,
 };
