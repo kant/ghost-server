@@ -15,7 +15,11 @@ async function cleanupTestDatabasesAsync() {
   let databaseNames = await getTestDatabasesToCleanUpAsync();
   for (let dbName of databaseNames) {
     if (dbName.endsWith('__test__')) {
-      await db.queryAsync(`DROP DATABASE ${db.iq(dbName)};`);
+      try {
+        await db.queryAsync(`DROP DATABASE ${db.iq(dbName)};`);
+      } catch (e) {
+        console.error('Error dropping database ' + dbName + ': ' + e.message);
+      }
     }
   }
 }
