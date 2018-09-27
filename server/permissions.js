@@ -97,6 +97,10 @@ async function canUpdateMediaAsync(context, mediaId) {
 
   // Don't use a loader here since we don't want to cache the media we're about to change
   let media = await model.getMediaAsync(mediaId);
+  if (!media) {
+    throw ClientError('No media with the id ' + mediaId + ' exists', 'NO_SUCH_MEDIA');
+  }
+  
   if (media.userId === userId) {
     return;
   }
@@ -113,6 +117,10 @@ async function canUpdateMediaAsync(context, mediaId) {
   if (await model.isMemberOfTeamAsync(context.userId, 'user:expo')) {
     return;
   }
+
+  // TODO(ccheever): We may want to restrict whether you can
+  // transfer ownership of media to someone else and how that
+  // should happen, but we won't worry about it for now
 
   throw PermissionError("You don't have permission to update that media");
 }

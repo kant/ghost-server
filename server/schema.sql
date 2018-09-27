@@ -90,7 +90,7 @@ CREATE TABLE "media" (
   "extraData" jsonb,
   "published" timestamptz,
   "deleted" int,
-  "tags" jsonb,
+  "tagsSet" jsonb,
   "toolSet" jsonb,
   "createdTime" timestamp default now(),
   "updatedTime" timestamp default now()

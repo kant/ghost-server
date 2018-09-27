@@ -160,14 +160,6 @@ test('Test making a media item', async () => {
     }
   `)).data.login;
 
-  // let whoAmI = (await gqAsync(/* GraphQL */ `
-  // query {
-  //   whoAmI {
-  //     userId
-  //   }
-  // }
-  // `)).data.whoAmI;
-
   let addMedia = (await gqAsync(
     /* GraphQL */ `
       mutation($toolIds: [ID]) {
@@ -285,6 +277,93 @@ test('Test making a media item', async () => {
   expect(media.tags).toContain('rts');
   expect(media.tags).toContain('strategy');
   expect(media.published).toEqual(new Date('2018-09-27T09:14:17.611Z'));
+
+  // Test editing the media
+  let { updateMedia } = (await gqAsync(
+    /* GraphQL */ `
+      mutation($mediaId: ID!, $engineId: ID!) {
+        updateMedia(
+          mediaId: $mediaId
+          media: {
+            name: "Starcraft 2 - Legacy of the Void"
+            slug: "sc2-lotv"
+            description: "The best RTS"
+            instructions: "Use lots of APMs"
+            mediaUrl: "http://us.battle.net/sc2/en/legacy-of-the-void/"
+            links: { website: "https://starcraft2.com/" }
+            published: "2018-09-27T08:14:17.611Z"
+            toolIds: [$engineId]
+            tags: ["rts", "blizzard"]
+          }
+        ) {
+          mediaId
+          mediaUrl
+          slug
+          name
+          description
+          userId
+          coverImage {
+            width
+            height
+            url
+          }
+          instructions
+          dimensions
+          links
+          published
+          createdTime
+          updatedTime
+          tags
+          user {
+            userId
+            name
+            username
+          }
+          tools {
+            name
+            toolId
+          }
+          toolIds
+        }
+      }
+    `,
+    { mediaId, engineId: SharedIds.sc2Engine }
+  )).data;
+
+  expect(updateMedia.slug).toBe('sc2-lotv');
+  expect(updateMedia.mediaId).toBe(mediaId);
+  expect(updateMedia.mediaUrl).toBe('http://us.battle.net/sc2/en/legacy-of-the-void/');
+  expect(updateMedia.name).toBe('Starcraft 2 - Legacy of the Void');
+  expect(updateMedia.toolIds).toContain(SharedIds.sc2Engine);
+  expect(updateMedia.toolIds).toHaveLength(1);
+  expect(updateMedia.instructions).toBe('Use lots of APMs');
+  expect(updateMedia.description).toBe('The best RTS');
+  expect(updateMedia.published).toEqual(new Date('2018-09-27T08:14:17.611Z'));
+  expect(Object.keys(updateMedia.links).length).toBe(1);
+  expect(updateMedia.links.website).toBe('https://starcraft2.com/');
+  expect(updateMedia.tags).toContain('rts');
+  expect(updateMedia.tags).toContain('blizzard');
+
+  // Test delete
+  let { deleteMedia } = (await gqAsync(
+    /* GraphQL */ `
+      mutation($mediaId: ID!) {
+        deleteMedia(mediaId: $mediaId)
+      }
+    `,
+    { mediaId }
+  )).data;
+  expect(deleteMedia).toBe(true);
+
+  let mediaNull_ = (await gqAsync(
+    /* GraphQL */ `
+      query {
+        media(mediaId: "media:starcraft-2") {
+          mediaId
+        }
+      }
+    `,
+    { mediaId }
+  )).data.media;
+  expect(mediaNull_).toBeNull();
 });
-
-

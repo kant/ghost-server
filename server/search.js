@@ -139,7 +139,7 @@ async function getMediaResultsAsync(sq) {
   clauses.push(nameClause);
 
   for (let t of tokens) {
-    clauses.push(`"tags"::jsonb ? ${r(t)}`);
+    clauses.push(`"tagSet"::jsonb ? ${r(t)}`);
   }
 
   q += clauses.map(wrapParens).join(' OR ');

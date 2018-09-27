@@ -43,14 +43,13 @@ async function getAllMediaAsync() {
 }
 
 async function ingestMediaAsync(mediaInput) {
-
   let media = data.stringifyJsonFields(mediaInput, jsonFields.media);
   if (media.tags) {
-    media.tags = JSON.stringify(data.listToSet(media.tags));
+    media.tagSet = JSON.stringify(data.listToSet(media.tags));
+    delete media.tags;
   }
   if (media.toolIds) {
     media.toolSet = JSON.stringify(data.listToSet(media.toolIds));
-    console.log({media});
     delete media.toolIds;
   }
   if (media.slug) {
@@ -66,6 +65,8 @@ async function newMediaAsync(obj) {
 }
 
 async function updateMediaAsync(obj) {
+  // TODO(ccheever): We may want some way to update links
+  // individually instead of only the whole set at once
   return await data.updateObjectAsync(obj.mediaId, 'media', obj, { column: 'mediaId' });
 }
 
@@ -244,7 +245,7 @@ let mediaColumns = [
   // 'extraData',
   'links',
   'toolSet',
-  'tags',
+  'tagSet',
   'slug',
   'published',
   'createdTime',
@@ -261,17 +262,9 @@ async function multigetMediaAsync(mediaIdList, opts) {
 
 async function loadMediaAsync(mediaIdList) {
   // This is a little hacky :/
-  let mediaList = await data.loadObjectsAsync(mediaIdList, 'media', 'mediaId', {
+  return await data.loadObjectsAsync(mediaIdList, 'media', 'mediaId', {
     columns: mediaColumns,
   });
-  for (let media of mediaList) {
-    if (media.tags) {
-      media.tags = Object.keys(media.tags);
-    } else {
-      media.tags = [];
-    }
-  }
-  return mediaList;
 }
 
 async function getTeamsForUserAsync(userId) {
@@ -402,11 +395,11 @@ async function deleteMediaAsync(mediaId) {
 }
 
 async function addMediaTagsAsync(mediaId, tagList) {
-  return await data.addJsonbSetItemsAsync(mediaId, 'media', 'tags', data.listToSet(tagList));
+  return await data.addJsonbSetItemsAsync(mediaId, 'media', 'tagSet', data.listToSet(tagList));
 }
 
 async function removeMediaTagsAsync(mediaId, tagList) {
-  return await data.removeJsonbSetItemsAsync(mediaId, 'media', 'tags', data.listToSet(tagList));
+  return await data.removeJsonbSetItemsAsync(mediaId, 'media', 'tagSet', data.listToSet(tagList));
 }
 
 let jsonFields = {

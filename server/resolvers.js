@@ -91,21 +91,15 @@ module.exports = {
     user: async (media, {}, context, info) => {
       return media.userId && (await context.loaders.user.load(media.userId));
     },
+    tags: async (media, {}, context) => {
+      return data.setToList(media.tagSet);
+    },
     tools: async (media, {}, context, info) => {
-      if (media.toolSet) {
-        let toolIds = Object.keys(media.toolSet);
-        return await context.loaders.tool.loadMany(toolIds);
-      } else {
-        return [];
-      }
+      let toolIds = data.setToList(media.toolSet);
+      return await context.loaders.tool.loadMany(toolIds);
     },
     toolIds: async (media, {}, context) => {
-      if (media.toolSet) {
-        let toolIds = Object.keys(media.toolSet);
-        return toolIds;
-      } else {
-        return [];
-      }
+      return data.setToList(media.toolSet);
     },
   },
   SearchResult: {

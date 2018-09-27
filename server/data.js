@@ -230,10 +230,20 @@ function stringifyJsonFields(obj, jsonFields) {
 
 function listToSet(list) {
   let s = {};
-  for (let item of list) {
-    s[item] = 1;
+  if (list) {
+    for (let item of list) {
+      s[item] = 1;
+    }
   }
   return s;
+}
+
+function setToList(set) {
+  if (set) {
+    return Object.keys(set);
+  } else {
+    return [];
+  }
 }
 
 function combinePluralAndSingular(list, item) {
@@ -262,4 +272,5 @@ module.exports = {
   stringifyJsonFields,
   combinePluralAndSingular,
   listToSet,
+  setToList,
 };

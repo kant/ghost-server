@@ -11,7 +11,7 @@ function withClientId(clientId) {
       variableValues,
       opts: opts_,
     });
-    if (result.errors && !opts.allowErrors) {
+    if (result.errors && !opts_.allowErrors) {
       throw new Error('GraphQL Error: ' + JSON.stringify(result.errors));
     }
     return result;
