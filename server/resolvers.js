@@ -67,7 +67,7 @@ module.exports = {
         }
         return a;
       };
-      shuffle(playlist_.mediaItems);
+      // shuffle(playlist_.mediaItems);
       return playlist_;
     },
     search: async (_, { query, cursorPosition, limit }, context) => {
