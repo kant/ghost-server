@@ -45,6 +45,7 @@ async function getAllMediaAsync() {
 async function ingestMediaAsync(mediaInput) {
   let media = data.stringifyJsonFields(mediaInput, jsonFields.media);
   if (media.tags) {
+    await validation.validateTagListAsync(media.tags);
     media.tagSet = JSON.stringify(data.listToSet(media.tags));
     delete media.tags;
   }

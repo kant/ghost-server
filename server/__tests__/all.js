@@ -344,6 +344,37 @@ test('Test making a media item', async () => {
   expect(updateMedia.tags).toContain('rts');
   expect(updateMedia.tags).toContain('blizzard');
 
+  // Test adding tags and removing tags
+  let { addMediaTags } = (await gqAsync(
+    /*GraphQL*/
+    `
+    mutation($mediaId:ID!) {
+      addMediaTags(mediaId: $mediaId, tag:"test-tag", tags: ["tag-two", "tag-three"]) {
+        tags
+      }
+    }`,
+    { mediaId }
+  )).data;
+  expect(addMediaTags.tags).toHaveLength(5);
+  expect(addMediaTags.tags).toContain('tag-two');
+  expect(addMediaTags.tags).toContain('tag-three');
+  expect(addMediaTags.tags).toContain('test-tag');
+
+  let { removeMediaTags } = (await gqAsync(
+    /*GraphQL*/
+    `
+    mutation($mediaId:ID!) {
+      removeMediaTags(mediaId: $mediaId, tag:"tag-three", tags: ["rts", "not-on-here"]) {
+        tags
+      }
+    }
+    `,
+    { mediaId }
+  )).data;
+
+  expect(removeMediaTags.tags).toHaveLength(3);
+  expect(removeMediaTags.tags).toContain('blizzard');
+
   // Test delete
   let { deleteMedia } = (await gqAsync(
     /* GraphQL */ `

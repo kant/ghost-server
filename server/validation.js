@@ -1,58 +1,53 @@
 let ClientError = require('./ClientError');
 
-function InvalidUsernameError(message) {
-  return ClientError(message, 'INVALID_USERNAME');
-}
-async function validateUsernameAsync(username) {
+async function _validateSubdomainString(str, type) {
   // Let's just use the rules for subdomains
   // a-z and 0-9 and - allowed
   // Can't start with a - or end with a -
   // Max of 63 characters
   //
 
-  if (typeof username !== 'string') {
-    throw InvalidUsernameError('Username must be a string');
+  let firstCap = type.charAt(0).toUpperCase() + type.substr(1).toLowerCase();
+  let errorCode = 'INVALID_' + type.toUpperCase();
+
+  if (typeof str !== 'string') {
+    throw ClientError(firstCap + ' must be a string', errorCode);
   }
 
-  if (username.length < 1) {
-    throw InvalidUsernameError('Username must be at least 1 character');
+  if (str.length < 1) {
+    throw ClientError(firstCap + ' must be at least 1 character', errorCode);
   }
 
-  if (username.length > 63) {
-    throw InvalidUsernameError('Username must but 63 characters or fewer');
+  if (str.length > 63) {
+    throw ClientError(firstCap + ' must but 63 characters or fewer', errorCode);
   }
 
   let rv = /^[a-z0-9\-]+$/;
-  if (!rv.test(username)) {
-    throw InvalidUsernameError('Invalid character for username. a-z 0-9 and dash (`-`) are valid');
+  if (!rv.test(str)) {
+    throw ClientError(
+      'Invalid character for ' + type.toLowerCase() + '. a-z 0-9 and dash (`-`) are valid',
+      errorCode
+    );
   }
 
-  if (username.startsWith('-') || username.endsWith('-')) {
-    throw InvalidUsernameError("Usernames can't start or end with a dash (`-`)");
+  if (str.startsWith('-') || str.endsWith('-')) {
+    throw ClientError(firstCap + "s can't start or end with a dash (`-`)", errorCode);
   }
 
-  return username;
+  return str;
 }
 
-function InvalidTagError(message) {
-  return ClientError(message, 'INVALID_TAG');
+async function validateUsernameAsync(username) {
+  return await _validateSubdomainString(username, 'username');
 }
 
 async function validateTagAsync(tag) {
-  if (typeof tag !== 'string') {
-    throw InvalidTagError('Tags must be strings');
-  }
-  if (tag !== tag.toLowerCase()) {
-    throw InvalidTagError('Tags must be all lowercase');
-  }
+  return await _validateSubdomainString(tag, 'tag');
+}
 
-  let rv = /^[a-z0-9\-]+$/;
-  if (!rv.test(tag)) {
-    throw InvalidTagError('Invalid character for tag. a-z 0-9 and dash (`-`) are valid');
-  }
-
-  if (tag.startsWith('-' || tag.endsWith('-'))) {
-    throw InvalidTagError("Tags can't start or end with -");
+async function validateTagListAsync(tagList) {
+  for (let tag of tagList) {
+    await validateTagAsync(tag);
   }
 }
 
@@ -67,39 +62,8 @@ async function validatePasswordAsync(password) {
   throw InvalidPasswordError('Passwords must be strings between 1 and 255 characters long');
 }
 
-function InvalidSlugError(message) {
-  return ClientError(message, 'INVALID_SLUG');
-}
-
 async function validateSlugAsync(slug) {
-  // Let's just use the rules for subdomains
-  // a-z and 0-9 and - allowed
-  // Can't start with a - or end with a -
-  // Max of 63 characters
-  //
-
-  if (typeof slug !== 'string') {
-    throw InvalidSlugError('Slug must be a string');
-  }
-
-  if (slug.length < 1) {
-    throw InvalidSlugError('Slug must be at least 1 character');
-  }
-
-  if (slug.length > 63) {
-    throw InvalidSlugError('Slug must but 63 characters or fewer');
-  }
-
-  let rv = /^[a-z0-9\-]+$/;
-  if (!rv.test(slug)) {
-    throw InvalidSlugError('Invalid character for slug. a-z 0-9 and dash (`-`) are valid');
-  }
-
-  if (slug.startsWith('-') || slug.endsWith('-')) {
-    throw InvalidSlugError("Slugs can't start or end with a dash (`-`)");
-  }
-
-  return slug;
+  return await _validateSubdomainString(slug, 'slug');
 }
 
 module.exports = {
@@ -107,4 +71,5 @@ module.exports = {
   validateSlugAsync,
   validateTagAsync,
   validatePasswordAsync,
+  validateTagListAsync,
 };

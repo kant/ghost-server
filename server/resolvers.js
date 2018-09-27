@@ -5,6 +5,7 @@ let model = require('./model');
 let permissions = require('./permissions');
 let search = require('./search');
 let signup = require('./signup');
+let validation = require('./validation');
 
 function addType(type, obj) {
   return {
@@ -297,12 +298,14 @@ module.exports = {
     addMediaTags: async (_, { mediaId, tags, tag }, context) => {
       await permissions.canUpdateMediaAsync(context, mediaId);
       let tagList = data.combinePluralAndSingular(tags, tag);
+      await validation.validateTagListAsync(tagList);
       await model.addMediaTagsAsync(mediaId, tagList);
       return await context.loaders.media.load(mediaId);
     },
     removeMediaTags: async (_, { mediaId, tags, tag }, context) => {
-      await permissions.canUpdateMediaAsync(context, medaiId);
+      await permissions.canUpdateMediaAsync(context, mediaId);
       let tagList = data.combinePluralAndSingular(tags, tag);
+      await validation.validateTagListAsync(tagList);
       await model.removeMediaTagsAsync(mediaId, tagList);
       return await context.loaders.media.load(mediaId);
     },
