@@ -1,4 +1,4 @@
-let graphqlApp = require('./graphqlApp');
+let graphqlApp = require('../graphqlApp');
 
 function withClientId(clientId) {
   return async (query, variableValues, opts) => {
