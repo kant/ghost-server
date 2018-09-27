@@ -99,6 +99,7 @@ module.exports = /* GraphQL */ `
   }
 
   type Query {
+    env: String
     inspect: String
     hello(name: String): String!
     media(mediaId: ID!): Media

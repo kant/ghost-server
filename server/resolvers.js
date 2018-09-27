@@ -1,6 +1,5 @@
-let assert = require('assert');
-
 let auth = require('./auth');
+let db = require('./db');
 let data = require('./data');
 let model = require('./model');
 let permissions = require('./permissions');
@@ -23,6 +22,12 @@ module.exports = {
         // context,
         info,
       });
+    },
+    env: async (_, {}, context) => {
+      let result = await db.queryAsync(`SELECT "value" FROM "env" WHERE "var" = 'env';`);
+      if (result.rowCount > 0) {
+        return result.rows[0].value;
+      }
     },
     whoAmI: async (_, {}, context) => {
       if (context.userId) {

@@ -70,6 +70,10 @@ if (process.env.NODE_ENV === 'test') {
     await client.connect();
     try {
       await client.query(schemaSql);
+      // await client.query(`INSERT INTO "env" ("var", "value") VALUES ('env', 'test') ON CONFLICT ("var") DO UPDATE SET "value" = 'test';`);
+    } catch (e) {
+      console.error("Error setting up schema for test database " + testDatabaseName);
+      throw e;
     } finally {
       await client.end();
     }
@@ -127,7 +131,7 @@ async function queryAsync(...args) {
   } catch (e) {
     queryError = e.message;
     message = queryError + '. ' + message;
-    throw(e);
+    throw e;
   } finally {
     time.end(tkq, 'db-query' + (queryOk ? '' : '-error'), { threshold: 0, message });
     client.release();

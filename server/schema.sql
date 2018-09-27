@@ -14,7 +14,8 @@ returns anyarray language sql as $$
 $$;
 
 CREATE TABLE "env" (
-  "env" text
+  "var" text PRIMARY KEY,
+  "value" text
 );
 
 CREATE TABLE "playRecord" (

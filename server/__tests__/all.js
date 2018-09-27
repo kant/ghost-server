@@ -286,3 +286,5 @@ test('Test making a media item', async () => {
   expect(media.tags).toContain('strategy');
   expect(media.published).toEqual(new Date('2018-09-27T09:14:17.611Z'));
 });
+
+
