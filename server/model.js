@@ -2,6 +2,7 @@ let ClientError = require('./ClientError');
 let data = require('./data');
 let db = require('./db');
 let idlib = require('./idlib');
+let validation = require('./validation');
 
 async function newPlayRecordAsync(obj) {
   obj.playRecordId = obj.playRecordId || idlib.createId('playRecord');
@@ -41,7 +42,26 @@ async function getAllMediaAsync() {
   return data.objectsListFromResults(results);
 }
 
+async function ingestMediaAsync(mediaInput) {
+
+  let media = data.stringifyJsonFields(mediaInput, jsonFields.media);
+  if (media.tags) {
+    media.tags = JSON.stringify(data.listToSet(media.tags));
+  }
+  if (media.toolIds) {
+    media.toolSet = JSON.stringify(data.listToSet(media.toolIds));
+    console.log({media});
+    delete media.toolIds;
+  }
+  if (media.slug) {
+    await validation.validateSlugAsync(media.slug);
+  }
+  return media;
+}
+
 async function newMediaAsync(obj) {
+  // TODO(ccheever): Possibly handle duplicate slug case more explicitly
+  // rather than just letting the Postgres error bubble up
   return await data.writeNewObjectAsync(obj, 'media', { autoId: true });
 }
 
@@ -222,6 +242,7 @@ let mediaColumns = [
   'instructions',
   'userId',
   // 'extraData',
+  'links',
   'toolSet',
   'tags',
   'slug',
@@ -389,7 +410,7 @@ async function removeMediaTagsAsync(mediaId, tagList) {
 }
 
 let jsonFields = {
-  media: ['description', 'coverImage', 'instructions', 'dimensions', 'links'],
+  media: ['description', 'coverImage', 'instructions', 'dimensions', 'links', 'toolSet'],
   tool: ['about', 'image'],
   user: ['about', 'photo'],
   playlist: ['description', 'mediaItems', 'image'],
@@ -425,6 +446,7 @@ module.exports = {
   loadPlaylistsAsync,
   updatePlaylistAsync,
   deletePlaylistAsync,
+  ingestMediaAsync,
   newPlaylistAsync,
   multigetMediaAsync,
   loadMediaAsync,

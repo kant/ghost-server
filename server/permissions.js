@@ -77,7 +77,18 @@ async function canUpdateTeamAdminsAsync({ userId }, teamId) {
   throw PermissionError('You must be an admin of a team to add or remove admins');
 }
 
-async function canAddMediaAsync({ userId }) {
+async function canAddMediaAsync(context, media) {
+  let { userId } = context;
+  if (!userId) {
+    throw PermissionError('You must be logged in to add media');
+  }
+  if (media.userId) {
+    await _checkUserIsUserOrMemberOfTeamAsync(
+      userId,
+      media.userId,
+      "You don't have permission to add media as " + media.userId
+    );
+  }
   return;
 }
 

@@ -22,11 +22,11 @@ CREATE TABLE "playRecord" (
   "mediaId" text,
   "userId" text,
   "score" numeric,
-  "startTime" timestamp,
-  "endTime" timestamp,
+  "startTime" timestamptz,
+  "endTime" timestamptz,
   "deleted" int,
-  "createdTime" timestamp default now(), 
-  "updatedTime" timestamp default now()
+  "createdTime" timestamptz default now(), 
+  "updatedTime" timestamptz default now()
 );
 
 CREATE TRIGGER "playRecord_setUpdatedTime" BEFORE UPDATE ON "playRecord" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -38,8 +38,8 @@ CREATE TABLE "engine" (
   "url" text,
   "about" jsonb,
   "image" jsonb,
-  "createdTime" timestamp default now(),   
-  "updatedTime" timestamp default now()
+  "createdTime" timestamptz default now(),   
+  "updatedTime" timestamptz default now()
 );
 
 CREATE TRIGGER "engine_setUpdatedTime" BEFORE UPDATE ON "engine" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -52,8 +52,8 @@ CREATE TABLE "tool" (
   "image" jsonb,
   "creatorId" text,
   "tagSet" jsonb,
-  "createdTime" timestamp default now(),   
-  "updatedTime" timestamp default now()
+  "createdTime" timestamptz default now(),   
+  "updatedTime" timestamptz default now()
 );
 
 CREATE TRIGGER "tool_setUpdatedTime" BEFORE UPDATE ON "tool" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -67,8 +67,8 @@ CREATE TABLE "playlist" (
   "description" jsonb,
   "mediaItems" jsonb,
   "image" jsonb,
-  "createdTime" timestamp default now(),
-  "updatedTime" timestamp defualt now(),
+  "createdTime" timestamptz default now(),
+  "updatedTime" timestamptz defualt now(),
 );
 
 CREATE TRIGGER "playlist_setUpdatedTime" BEFORE UPDATE ON "playlist" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -87,7 +87,7 @@ CREATE TABLE "media" (
   "userId" varchar(255),
   "creators" jsonb,
   "extraData" jsonb,
-  "published" timestamp,
+  "published" timestamptz,
   "deleted" int,
   "tags" jsonb,
   "toolSet" jsonb,
@@ -127,8 +127,8 @@ CREATE TABLE "contact" (
   "confirmed" boolean,
   "deleted" boolean,
   "commandeered" boolean,
-  "createdTime" timestamp DEFAULT NOW(),
-  "updatedTime" timestamp default now()
+  "createdTime" timestamptz default now(),
+  "updatedTime" timestamptz default now()
 );
 
 CREATE TRIGGER "contact_setUpdatedTime" BEFORE UPDATE ON "contact" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -136,14 +136,14 @@ CREATE TRIGGER "contact_setUpdatedTime" BEFORE UPDATE ON "contact" FOR EACH ROW 
 CREATE TABLE "profileView" (
   "viewedProfileUserId" varchar(255),
   "viewerUserId" varchar(255),
-  "viewTime" timestamp
+  "viewTime" timestamptz
 );
 
 CREATE TABLE "session" (
   "clientId" text PRIMARY KEY,
   "userId" text,
   "createdIp" text,
-  "createdTime" timestamp default now(),
-  "updatedTime" timestamp default now()
+  "createdTime" timestamptz default now(),
+  "updatedTime" timestamptz default now()
 );
 CREATE TRIGGER "session_setUpdatedTime" BEFORE UPDATE ON "session" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

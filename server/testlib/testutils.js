@@ -32,20 +32,22 @@ async function getProductionDatabaseSchemaAsync() {
 }
 
 async function createDatabaseAsync(dbName) {
-
   // We use this to bootstrap the test database enviorment
-  // We can't rely on `db.queryAsync` or similar since that's 
+  // We can't rely on `db.queryAsync` or similar since that's
   // what we're trying to setup.
-  // 
+  //
   // Note that here we use a connection to the *production* database
   // just to run the CREATE DATABASE query we use to make the test
   // database that we're actually going to use
   let { Client } = pg;
   let client = new Client(secret.postgres);
   await client.connect();
-  let result = await client.query('CREATE DATABASE ' + JSON.stringify(dbName) + ';');
-  await client.end();
-  assert.strictEqual(result.command, 'CREATE');
+  try {
+    let result = await client.query('CREATE DATABASE ' + JSON.stringify(dbName) + ';');
+    assert.strictEqual(result.command, 'CREATE');
+  } finally {
+    await client.end();
+  }
 }
 
 module.exports = {

@@ -6,6 +6,35 @@ let time = require('@expo/time');
 let secret = require('./secret');
 let testutils = require('./testlib/testutils');
 
+let _testId = null;
+
+function _makeDateString(t) {
+  let twoDigits = (n) => ('0' + n).slice(-2);
+  return (
+    '' +
+    (t.getYear() + 1900) +
+    [t.getMonth() + 1, t.getDate(), t.getHours(), t.getMinutes(), t.getSeconds()]
+      .map(twoDigits)
+      .join('')
+  );
+}
+
+function _makeTestId() {
+  let testId = _makeDateString(new Date()) + '_';
+  let abc = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < 10; i++) {
+    testId += abc.charAt(Math.floor(Math.random() * abc.length));
+  }
+  return testId;
+}
+
+function getTestId() {
+  if (!_testId) {
+    _testId = _makeTestId();
+  }
+  return _testId;
+}
+
 let _config = {
   ...secret.postgres,
 };
@@ -26,12 +55,7 @@ if (process.env.NODE_ENV === 'test') {
     assert.strictEqual(process.env.NODE_ENV, 'test');
 
     // Pick a name for the new database
-    let testDatabaseName = secret.postgres.database + '__';
-    let abc = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < 10; i++) {
-      testDatabaseName += abc.charAt(Math.floor(Math.random() * abc.length));
-    }
-    testDatabaseName += '__test__';
+    let testDatabaseName = secret.postgres.database + '__' + getTestId() + '__test__';
 
     // Create it
     await testutils.createDatabaseAsync(testDatabaseName);
@@ -44,8 +68,11 @@ if (process.env.NODE_ENV === 'test') {
     let schemaSql = await testutils.getProductionDatabaseSchemaAsync();
     let client = new pg.Client(_config);
     await client.connect();
-    await client.query(schemaSql);
-    await client.end();
+    try {
+      await client.query(schemaSql);
+    } finally {
+      await client.end();
+    }
 
     // Now we're ready
     return process.env.NODE_ENV;
@@ -92,10 +119,15 @@ async function queryAsync(...args) {
 
   let tkq = time.start();
   let queryOk = false;
+  let queryError = null;
   try {
     let result = await client.query(...args);
     queryOk = true;
     return result;
+  } catch (e) {
+    queryError = e.message;
+    message = queryError + '. ' + message;
+    throw(e);
   } finally {
     time.end(tkq, 'db-query' + (queryOk ? '' : '-error'), { threshold: 0, message });
     client.release();
@@ -122,6 +154,10 @@ function replacer() {
 
 let iq = JSON.stringify;
 
+async function drainPoolAsync() {
+  let pool = await poolAsync();
+  await pool.end();
+}
 
 async function cleanupTestDatabaseAsync() {
   if (process.env.NODE_ENV === 'test') {
@@ -130,20 +166,22 @@ async function cleanupTestDatabaseAsync() {
       console.log('Cleaning up test database ' + dbName);
 
       // First we need to drain this pool and disconnect so we can drop the database
-      console.log('Draining pool and closing connections');
-      let pool = await poolAsync();
-      await pool.end();
-      console.log('Connections complete');
+      console.log('Draining pool and ending connections');
+      await drainPoolAsync();
+      console.log('Connections ended');
 
       // Now we need to use a connection to the production database to
       // drop the test database
       let { Client } = pg;
       let client = new Client(secret.postgres);
       await client.connect();
-      console.log('Dropping test database ' + dbName);
-      let result = await client.query(`DROP DATABASE ${iq(dbName)};`);
-      await client.end();
-      assert.strictEqual(result.command, 'DROP');
+      try {
+        console.log('Dropping test database ' + dbName);
+        let result = await client.query(`DROP DATABASE ${iq(dbName)};`);
+        assert.strictEqual(result.command, 'DROP');
+      } finally {
+        await client.end();
+      }
     }
   }
 }
@@ -156,7 +194,10 @@ module.exports = {
   poolAsync,
   databasePreparedAsync,
   cleanupTestDatabaseAsync,
+  drainPoolAsync,
+  getTestId,
   _config,
   _pool,
   _dbReady$,
+  _makeDateString,
 };

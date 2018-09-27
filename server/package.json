@@ -18,7 +18,7 @@
   "scripts": {
     "start": "npx nodemon .",
     "prod": "node .",
-    "test": "jest"
+    "test": "jest --forceExit"
   },
   "jest": {
     "transform": {}

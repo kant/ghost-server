@@ -141,10 +141,9 @@ module.exports = /* GraphQL */ `
   }
 
   input MediaInput {
-    name: String
     mediaId: ID
-    mediaUrl: String
     name: String
+    mediaUrl: String
     slug: String
     description: Json
     links: Json

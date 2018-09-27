@@ -26,6 +26,15 @@ async function loginAsync(clientId, usernameOrSimilar, password, opts) {
   if (!user) {
     throw ClientError('No such user', 'USER_NOT_FOUND');
   }
+  if (!clientId) {
+    throw ClientError(
+      'Your client must provide a client identifer via the' +
+        ' `X-ClientId` HTTP header if you want to login or make ' +
+        'other authorized requests. The clientId can be any ' +
+        'arbitrary string you choose, but it should be unique enough ' +
+        'that no other client would choose it.', 'CLIENT_ID_REQUIRED'
+    );
+  }
   if (await passwordlib.checkUserPasswordAsync(user.userId, password)) {
     await model.startSessionAsync({
       clientId,

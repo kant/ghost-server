@@ -67,8 +67,44 @@ async function validatePasswordAsync(password) {
   throw InvalidPasswordError('Passwords must be strings between 1 and 255 characters long');
 }
 
+function InvalidSlugError(message) {
+  return ClientError(message, 'INVALID_SLUG');
+}
+
+async function validateSlugAsync(slug) {
+  // Let's just use the rules for subdomains
+  // a-z and 0-9 and - allowed
+  // Can't start with a - or end with a -
+  // Max of 63 characters
+  //
+
+  if (typeof slug !== 'string') {
+    throw InvalidSlugError('Slug must be a string');
+  }
+
+  if (slug.length < 1) {
+    throw InvalidSlugError('Slug must be at least 1 character');
+  }
+
+  if (slug.length > 63) {
+    throw InvalidSlugError('Slug must but 63 characters or fewer');
+  }
+
+  let rv = /^[a-z0-9\-]+$/;
+  if (!rv.test(slug)) {
+    throw InvalidSlugError('Invalid character for slug. a-z 0-9 and dash (`-`) are valid');
+  }
+
+  if (slug.startsWith('-') || slug.endsWith('-')) {
+    throw InvalidSlugError("Slugs can't start or end with a dash (`-`)");
+  }
+
+  return slug;
+}
+
 module.exports = {
   validateUsernameAsync,
+  validateSlugAsync,
   validateTagAsync,
   validatePasswordAsync,
 };

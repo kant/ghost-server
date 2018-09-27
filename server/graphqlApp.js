@@ -1,32 +1,31 @@
-let assert = require('assert');
-
 let graphql = require('graphql'); // Not in package.json dependencies but will be installed by graphql-yoga
 let graphqlYoga = require('graphql-yoga');
 let time = require('@expo/time');
 
+let db = require('./db');
 let loaders = require('./loaders');
 let model = require('./model');
 let resolvers = require('./resolvers');
 let typeDefs = require('./typeDefs');
 
-async function makeGraphqlContextAsync({ request, userId }) {
-  let clientId = null;
+async function makeGraphqlContextAsync({ request, clientId }) {
   if (request) {
-    if (userId) {
-      throw Error('Provide only one of `userId` and `request` to `makeGraphqlContextAsync`');
-    }
     clientId = request.get('X-ClientId');
-    if (clientId) {
-      userId = await model.getUserIdForSessionAsync(clientId);
-    }
+  } else {
+    clientId = clientId || '__shell__' + db.getTestId();
+  }
+  let userId = null;
+  if (clientId) {
+    userId = await model.getUserIdForSessionAsync(clientId);
   }
   request = request || {};
-  return {
+  let context = {
     request,
     loaders: loaders.createLoaders(),
     clientId,
     userId,
   };
+  return context;
 }
 
 async function makeGraphqlAppAsync() {
@@ -90,30 +89,39 @@ async function graphqlAppAsync() {
   return _app;
 }
 
-async function graphqlQueryAsync({
-  query,
-  variableValues,
-  operationName,
-  fieldResolver,
-  userId,
-  opts,
-}) {
+/**
+ * Runs a GraphQL query and returns the results
+ */
+async function graphqlQueryAsync({query, variableValues, operationName, fieldResolver, clientId, opts}) {
+  let tk = time.start();
+
   opts = opts || {};
+  clientId = clientId || opts.clientId;
 
   let app = await graphqlAppAsync();
   let graphqlContext = await makeGraphqlContextAsync({
-    userId,
+    clientId,
   });
 
-  return await graphql.graphql(
-    app.executableSchema,
-    query,
-    null,
-    graphqlContext,
-    variableValues,
-    operationName,
-    fieldResolver
-  );
+  try {
+    return await graphql.graphql(
+      app.executableSchema,
+      query,
+      null,
+      graphqlContext,
+      variableValues,
+      operationName,
+      fieldResolver
+    );
+  } finally {
+    let logLimit = 256;
+    query = query || '<No Query (?!)>';
+    let message = query.substr(0, logLimit).replace(/\s+/g, ' ').trim();
+    if (query.length > logLimit) {
+      message += '...';
+    }
+    time.end(tk, 'graphql', { message });
+  }
 }
 
 module.exports = {

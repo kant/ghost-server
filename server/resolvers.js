@@ -84,10 +84,23 @@ module.exports = {
   },
   Media: {
     user: async (media, {}, context, info) => {
-      return await context.loaders.user.load(media.userId);
+      return media.userId && (await context.loaders.user.load(media.userId));
     },
     tools: async (media, {}, context, info) => {
-      return await context.loaders.tool.load(media.toolIds);
+      if (media.toolSet) {
+        let toolIds = Object.keys(media.toolSet);
+        return await context.loaders.tool.loadMany(toolIds);
+      } else {
+        return [];
+      }
+    },
+    toolIds: async (media, {}, context) => {
+      if (media.toolSet) {
+        let toolIds = Object.keys(media.toolSet);
+        return toolIds;
+      } else {
+        return [];
+      }
     },
   },
   SearchResult: {
@@ -150,10 +163,12 @@ module.exports = {
   },
   Playlist: {
     mediaItems: async (playlist, {}, context, info) => {
-      return await context.loaders.media.loadMany(playlist.mediaItems);
+      return await context.loaders.media.loadMany(playlist.mediaItems || []);
     },
     user: async (playlist, {}, context) => {
-      return context.loaders.user.load(playlist.userId);
+      if (playlist.userId) {
+        return await context.loaders.user.load(playlist.userId);
+      }
     },
   },
   Mutation: {
@@ -210,21 +225,18 @@ module.exports = {
       await permissions.canDeleteToolAsync(context, toolId);
       return await model.deleteToolAsync(toolId);
     },
-    addMedia: async (_, { media }, context, info) => {
-      await permissions.canAddMediaAsync(context);
-      let media_ = data.stringifyJsonFields(media, model.jsonFields.media);
-      if (media_.tags) {
-        media_.tags = JSON.stringify(data.listToSet(media_.tags));
+    addMedia: async (_, { media }, context) => {
+      await permissions.canAddMediaAsync(context, media);
+      let media_ = await model.ingestMediaAsync(media);
+      if (!media_.userId) {
+        media_.userId = context.userId;
       }
       let newMedia = await model.newMediaAsync(media_);
       return await context.loaders.media.load(newMedia.mediaId);
     },
-    updateMedia: async (_, { mediaId, media }, context, info) => {
+    updateMedia: async (_, { mediaId, media }, context) => {
       await permissions.canUpdateMediaAsync(context, mediaId);
-      let media_ = data.stringifyJsonFields(media, model.jsonFields.media);
-      if (media_.tags) {
-        media_.tags = JSON.stringify(data.listToSet(media_.tags));
-      }
+      let media_ = await model.ingestMediaAsync(media);
       media_.mediaId = mediaId;
       let newMedia = await model.updateMediaAsync(media_);
       return await context.loaders.media.load(mediaId);
