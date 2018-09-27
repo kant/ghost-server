@@ -309,6 +309,8 @@ module.exports = {
       await model.removeMediaTagsAsync(mediaId, tagList);
       return await context.loaders.media.load(mediaId);
     },
+    addMediaTools: async () => {},
+    removeMediaTools: async () => {},
     addPlaylist: async (_, { playlist }, context) => {
       await permissions.canAddPlaylistAsync(context);
       let playlist_ = await model.newPlaylistAsync({

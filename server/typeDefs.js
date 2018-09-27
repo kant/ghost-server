@@ -110,7 +110,11 @@ module.exports = /* GraphQL */ `
     playlistsForUser(userId: ID!): [Playlist]
     currentPlaylist: Playlist
     search(query: String, cursorPosition: Int, limit: Int): [SearchResult]
-    searchMediaAndPlaylists(query: String, cursorPosition: Int, limit: Int): MediaAndPlaylistSearchResults
+    searchMediaAndPlaylists(
+      query: String
+      cursorPosition: Int
+      limit: Int
+    ): MediaAndPlaylistSearchResults
     whoAmI: User
   }
 
@@ -188,12 +192,12 @@ module.exports = /* GraphQL */ `
     removeTeamAdmins(teamId: ID!, userIdList: [ID]): User
     convertUserToTeam(userId: ID!, adminUserIdList: [ID]!): User
     convertTeamToUser(teamId: ID!): User
-    addMediaTags(mediaId: ID!, tags: [String], tag: String): Media
-    removeMediaTags(mediaId: ID!, tags: [String], tag: String): Media
+    addMediaTags(mediaId: ID!, tags: [String!], tag: String): Media
+    removeMediaTags(mediaId: ID!, tags: [String!], tag: String): Media
+    addMediaTools(mediaId: ID!, toolId: ID, toolIds: [ID!]): Media
+    removeMediaTools(mediaId: ID!, toolId: ID, toolIds: [ID!]): Media
     addPlaylist(playlist: PlaylistInput): Playlist
     updatePlaylist(playlistId: ID!, playlist: PlaylistInput): Playlist
     deletePlaylist(playlistId: ID!): Boolean
-    
-
   }
 `;
