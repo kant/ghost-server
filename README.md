@@ -46,6 +46,14 @@ yarn run test-server
 
 Note that this will recreate the test database from scratch each time it reloads (every time you save).
 
+The test server will be available at http://localhost:1382/graphql
+
+### To run a repl against a test database
+
+```bash
+NODE_ENV=test ./repl
+```
+
 ### To easily run GraphQL queries against the server
 
 Run the server.
