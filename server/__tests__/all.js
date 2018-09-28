@@ -305,7 +305,7 @@ test('Test making a media item', async () => {
   )).data;
 
   expect(addMediaTools.toolIds).toHaveLength(2);
-  expect(addMedia.tools).toHaveLength(2);
+  expect(addMediaTools.tools).toHaveLength(2);
 
   let { removeMediaTools } = (await gqAsync(
     /* GraphQL */
@@ -327,8 +327,8 @@ test('Test making a media item', async () => {
     }
   )).data;
 
-  expect(addMediaTools.toolIds).toHaveLength(1);
-  expect(addMedia.tools).toHaveLength(1);
+  expect(removeMediaTools.toolIds).toHaveLength(1);
+  expect(removeMediaTools.tools).toHaveLength(1);
 
   // Test delete
   let { deleteMedia } = (await gqAsync(
