@@ -21,11 +21,13 @@ Rules for this repo.
 ### To run the repl
 
 `cd server`
+
 `./repl`
 
 ### To run the server
 
 `cd server`
+
 `yarn start`
 
 ### To deploy
