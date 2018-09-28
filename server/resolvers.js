@@ -1,4 +1,5 @@
 let auth = require('./auth');
+let ClientError = require('./ClientError');
 let db = require('./db');
 let data = require('./data');
 let model = require('./model');
@@ -12,6 +13,10 @@ function addType(type, obj) {
     ...obj,
     __graphqlType: type,
   };
+}
+
+function NotImplementedError(message) {
+  return ClientError(message || 'Not Implemented', 'NOT_IMPLEMENTED');
 }
 
 module.exports = {
@@ -75,6 +80,22 @@ module.exports = {
     },
     searchMediaAndPlaylists: async (_, { query, cursorPosition, limit }, context) => {
       return await search.queryJustMediaAndPlaylistsAsync(query, cursorPosition, { limit });
+    },
+    allUsers: async (_, { limit }, context) => {
+      return await context.loaders.user.loadMany(await model.allUserIdsAsync({ limit }));
+    },
+    allMedia: async (_, { limit }, context) => {
+      return await context.loaders.media.loadMany(await model.allMediaIdsAsync({ limit }));
+    },
+    allTools: async (_, { limit }, context) => {
+      return await context.loaders.tool.loadMany(await model.allToolIdsAsync({ limit }));
+    },
+    allPlaylists: async (_, { limit }, context) => {
+      return await context.loaders.playlist.loadMany(await model.allPlaylistIdsAsync({ limit }));
+    },
+    allTags: async () => {
+      throw NotImplementedError();
+      return [];
     },
   },
   MediaAndPlaylistSearchResults: {

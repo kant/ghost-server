@@ -116,6 +116,15 @@ module.exports = /* GraphQL */ `
       limit: Int
     ): MediaAndPlaylistSearchResults
     whoAmI: User
+
+    allMedia: [Media]
+    allUsers: [User]
+    allTools: [Tool]
+    allTags: [String]
+    allTeams: [User]
+    allPlaylists: [Playlist]
+
+
   }
 
   input ImageInput {
@@ -199,5 +208,6 @@ module.exports = /* GraphQL */ `
     addPlaylist(playlist: PlaylistInput): Playlist
     updatePlaylist(playlistId: ID!, playlist: PlaylistInput): Playlist
     deletePlaylist(playlistId: ID!): Boolean
+
   }
 `;

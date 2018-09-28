@@ -416,6 +416,22 @@ async function removeMediaToolsAsync(mediaId, toolIdList) {
   );
 }
 
+async function allMediaIdsAsync(opts) {
+  return await data.getAllIdsAsync('media', opts);
+}
+
+async function allUserIdsAsync(opts) {
+  return await data.getAllIdsAsync('user', opts);
+}
+
+async function allPlaylistIdsAsync(opts) {
+  return await data.getAllIdsAsync('playlist', opts);
+}
+
+async function allToolIdsAsync(opts) {
+  return await data.getAllIdsAsync('tool', opts);
+}
+
 let jsonFields = {
   media: ['description', 'coverImage', 'instructions', 'dimensions', 'links', 'toolSet'],
   tool: ['about', 'image'],
@@ -480,4 +496,8 @@ module.exports = {
   convertTeamToUserAsync,
   getSessionsForUserAsync,
   clearAllUserSessionsAsync,
+  allMediaIdsAsync,
+  allPlaylistIdsAsync,
+  allUserIdsAsync,
+  allToolIdsAsync,
 };

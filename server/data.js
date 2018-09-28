@@ -140,6 +140,21 @@ async function writeNewObjectAsync(obj, table, opts) {
   return o;
 }
 
+async function getAllIdsAsync(table, opts) {
+  opts = opts || {};
+  let column = opts.column || table + 'Id';
+  let limitClause = '';
+  let r = db.replacer();
+  if (opts.limit) {
+    limitClause = ' LIMIT ' + r(opts.limit);
+  }
+  let result = await db.queryAsync(
+    `SELECT ${db.iq(column)} FROM ${db.iq(table)} ORDER BY "updatedTime" DESC${limitClause};`,
+    r.values()
+  );
+  return result.rows.map((x) => x[column]);
+}
+
 async function updateObjectAsync(id, table, update, opts) {
   let o = { ...update };
   opts = opts || {};
@@ -265,6 +280,7 @@ module.exports = {
   updateObjectAsync,
   objectsFromResults,
   objectsListFromResults,
+  getAllIdsAsync,
   _deleteObjectAsync,
   quoteColumnIdentifiers,
   addJsonbSetItemsAsync,
