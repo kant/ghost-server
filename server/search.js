@@ -295,7 +295,7 @@ async function getTagResultsAsync(sq) {
   }
 
   let allTagsResult = await db.queryAsync(
-    `SELECT jsonb_object_keys("tags") AS "tag", count(*) as "number" FROM "media" GROUP BY "tag" ORDER BY "number" DESC`
+    `SELECT jsonb_object_keys("tagSet") AS "tag", count(*) as "number" FROM "media" GROUP BY "tag" ORDER BY "number" DESC`
   );
 
   let results = [];

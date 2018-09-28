@@ -95,8 +95,10 @@ module.exports = {
     },
     allTags: async () => {
       throw NotImplementedError();
-      return [];
     },
+    allTeams: async () => {
+      throw NotImplementedError();
+    }
   },
   MediaAndPlaylistSearchResults: {
     mediaItems: async (results, {}, context) => {
