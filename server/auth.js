@@ -1,39 +1,43 @@
+let ClientError = require('./ClientError');
 let model = require('./model');
 let passwordlib = require('./passwordlib');
-let ClientError = require('./ClientError');
+let validation = require('./validation');
 
-async function getUserForLoginAsync(identifier) {
-  // username is first priority
-  let user;
-  user = await model.getUserByUsernameAsync(identifier);
-  if (user) {
-    return user;
+async function getUserForLoginAsync(identifierObject) {
+  let { username, usernameOrSimilar, userId } = identifierObject;
+
+  if (userId) {
+    return await model.getUserAsync(userId);
   }
 
-  // userId next
-  user = await model.getUserAsync(identifier);
-  if (user) {
-    return user;
+  if (username) {
+    return await model.getUserByUsernameAsync(username);
   }
 
-  // TODO: phone, e-mail
+  if (usernameOrSimilar) {
+    // username is first priority
+    let user;
+    user = await model.getUserByUsernameAsync(usernameOrSimilar);
+    if (user) {
+      return user;
+    }
+
+    // userId next
+    user = await model.getUserAsync(usernameOrSimilar);
+    if (user) {
+      return user;
+    }
+  }
+
   return null;
 }
 
-async function loginAsync(clientId, usernameOrSimilar, password, opts) {
+async function loginAsync(clientId, identifierObject, password, opts) {
   opts = opts || {};
-  let user = await getUserForLoginAsync(usernameOrSimilar);
+
+  let user = await getUserForLoginAsync(identifierObject);
   if (!user) {
     throw ClientError('No such user', 'USER_NOT_FOUND');
-  }
-  if (!clientId) {
-    throw ClientError(
-      'Your client must provide a client identifer via the' +
-        ' `X-ClientId` HTTP header if you want to login or make ' +
-        'other authorized requests. The clientId can be any ' +
-        'arbitrary string you choose, but it should be unique enough ' +
-        'that no other client would choose it.', 'CLIENT_ID_REQUIRED'
-    );
   }
   if (await passwordlib.checkUserPasswordAsync(user.userId, password)) {
     await model.startSessionAsync({
@@ -47,6 +51,22 @@ async function loginAsync(clientId, usernameOrSimilar, password, opts) {
   }
 }
 
+async function changePasswordAsync(userId, oldPassword, newPassword) {
+  if (!userId) {
+    throw ClientError('You need to be logged in to change your password', 'PERMISSION_ERROR');
+  }
+
+  if (!(await passwordlib.checkUserPasswordAsync(userId, oldPassword))) {
+    throw ClientError('Incorrect password', 'INCORRECT_PASSWORD');
+  }
+
+  await validation.validatePasswordAsync(newPassword);
+
+  await passwordlib.setUserPasswordAsync(userId, newPassword);
+
+  return true;
+}
+
 async function logoutAsync(clientId) {
   return await model.endSessionAsync(clientId);
 }
@@ -55,4 +75,5 @@ module.exports = {
   getUserForLoginAsync,
   loginAsync,
   logoutAsync,
+  changePasswordAsync,
 };

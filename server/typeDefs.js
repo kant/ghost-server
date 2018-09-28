@@ -38,7 +38,7 @@ module.exports = /* GraphQL */ `
     username: String
     about: Json
     otherUsernames: Json
-    Links: Json
+    links: Json
     photo: Image
     isTeam: Boolean
     members: [User]
@@ -139,6 +139,8 @@ module.exports = /* GraphQL */ `
     name: String
     location: String
     username: String
+    otherUsernames: Json
+    links: Json
     about: Json
     photo: ImageInput
     isTeam: Boolean
@@ -180,7 +182,7 @@ module.exports = /* GraphQL */ `
   }
 
   type Mutation {
-    login(usernameOrSimilar: String!, password: String!): User
+    login(usernameOrSimilar: String, username: String, userId: ID, password: String!): User
     logout: Null
     signup(user: UserInput!, password: String!): User
     updateUser(userId: ID!, user: UserInput): User
@@ -208,6 +210,7 @@ module.exports = /* GraphQL */ `
     addPlaylist(playlist: PlaylistInput): Playlist
     updatePlaylist(playlistId: ID!, playlist: PlaylistInput): Playlist
     deletePlaylist(playlistId: ID!): Boolean
+    changePassword(oldPassword: String!, newPassword: String!): Boolean
 
   }
 `;

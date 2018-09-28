@@ -98,7 +98,7 @@ module.exports = {
     },
     allTeams: async () => {
       throw NotImplementedError();
-    }
+    },
   },
   MediaAndPlaylistSearchResults: {
     mediaItems: async (results, {}, context) => {
@@ -202,16 +202,25 @@ module.exports = {
       await model.updateUserAsync(user_);
       return await context.loaders.user.load(userId);
     },
-    login: async (_, { usernameOrSimilar, password }, context, info) => {
-      return await auth.loginAsync(context.clientId, usernameOrSimilar, password, {
-        createdIp: context.request.ip,
-      });
+    login: async (_, { usernameOrSimilar, userId, username, password }, context, info) => {
+      return await auth.loginAsync(
+        context.clientId,
+        { userId, username, usernameOrSimilar },
+        password,
+        {
+          createdIp: context.request.ip,
+        }
+      );
     },
     logout: async (_, {}, context, info) => {
       await auth.logoutAsync(context.clientId);
       return null;
     },
+    changePassword: async (_, {oldPassword, newPassword}, context, info) => {
+      return await auth.changePasswordAsync(context.userId, oldPassword, newPassword);
+    },
     signup: async (_, { user, password }, context, info) => {
+      await permissions.hasClientIdAsync(context);
       let createdUserInfo = await signup.signupAsync(user, password);
 
       // Log them in

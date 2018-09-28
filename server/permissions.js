@@ -100,7 +100,7 @@ async function canUpdateMediaAsync(context, mediaId) {
   if (!media) {
     throw ClientError('No media with the id ' + mediaId + ' exists', 'NO_SUCH_MEDIA');
   }
-  
+
   if (media.userId === userId) {
     return;
   }
@@ -149,12 +149,38 @@ async function canDeletePlaylistAsync(context, playlistId) {
   return await canUpdatePlaylistAsync(context, playlistId);
 }
 
+async function hasClientIdAsync(context) {
+  let { clientId } = context;
+  if (!clientId) {
+    throw ClientError(
+      'Your client must provide a client identifer via the' +
+        ' `X-ClientId` HTTP header if you want to login or make ' +
+        'other authorized requests. The clientId can be any ' +
+        'arbitrary string you choose, but it should be unique enough ' +
+        'that no other client would choose it.',
+      'CLIENT_ID_REQUIRED'
+    );
+  } else {
+    if (typeof clientId !== 'string') {
+      throw ClientError(
+        'The `clientId` that a client provides must be a string',
+        'INVALID_CLIENT_ID'
+      );
+    }
+    if (clientId.length === 0) {
+      throw ClientError('Your `clientId` cannot be the empty string.');
+    }
+    if (clientId.length >= 1024) {
+      throw ClientError('Your `clientId` must be < 1024 characters');
+    }
+  }
+}
+
 module.exports = {
   _checkUserIsUserOrMemberOfTeamAsync,
   canAddToolAsync,
   canUpdateToolAsync,
   canUpdateUserAsync,
-  isLoggedInAsAsync,
   canAddMediaAsync,
   canUpdateMediaAsync,
   canUpdateTeamAdminsAsync,
@@ -162,4 +188,6 @@ module.exports = {
   canAddPlaylistAsync,
   canUpdatePlaylistAsync,
   canDeletePlaylistAsync,
+  hasClientIdAsync,
+  isLoggedInAsAsync,
 };
