@@ -1,5 +1,6 @@
 let db = require('../db');
 let gq = require('../testlib/gq');
+let populateTestDatabase = require('../testlib/populateTestDatabase');
 
 afterAll(async () => {
   await db.drainPoolAsync();
@@ -8,100 +9,7 @@ afterAll(async () => {
 let SharedIds = {};
 
 beforeAll(async () => {
-  let gqAsync = gq.withClientId('beforeAll');
-
-  // Setup some users and stuff
-  let [american, jonathan] = await Promise.all([
-    gqAsync(/* GraphQL */ `
-      mutation {
-        signup(
-          user: {
-            name: "American McGee"
-            location: "Dallas"
-            username: "american"
-            about: "Made some video games"
-            photo: {
-              url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/American_McGee.jpg/936px-American_McGee.jpg"
-              height: 468
-              width: 600
-            }
-            isTeam: false
-          }
-          password: "alice"
-        ) {
-          userId
-          username
-          name
-          location
-          about
-        }
-      }
-    `),
-    gqAsync(/* GraphQL */ `
-      mutation {
-        signup(
-          user: {
-            name: "Jonathan Gay"
-            location: "Sebastopol"
-            username: "jgay"
-            about: "Made some video games and also invented Flash"
-            photo: {
-              url: "https://static.giantbomb.com/uploads/scale_small/0/5395/323199-spot_gay.jpg"
-              height: 160
-              width: 160
-            }
-            isTeam: false
-          }
-          password: "flash"
-        ) {
-          userId
-          username
-          name
-          location
-          about
-        }
-      }
-    `),
-  ]);
-
-  SharedIds.american = american.data.signup.userId;
-  SharedIds.jonathan = jonathan.data.signup.userId;
-
-  let [havok, sc2Engine] = await Promise.all([
-    gqAsync(/* GraphQL */ `
-      mutation {
-        addTool(
-          tool: {
-            # toolId: ID
-            name: "Havok"
-            url: "https://www.havok.com/"
-            about: "Havok Physics offers the fastest, most robust collision detection and physical simulation technology available, which is why it has become the gold standard within the games industry and has been used by leading game developers in over 400 launched titles and many more in development."
-            tags: ["physics", "engine"]
-          }
-        ) {
-          toolId
-          name
-        }
-      }
-    `),
-    gqAsync(/* GraphQL */ `
-      mutation {
-        addTool(
-          tool: {
-            # toolId: ID
-            name: "SC2 Engine"
-            url: "https://starcraft2.com/"
-            tags: ["blizzard", "engine"]
-          }
-        ) {
-          toolId
-          name
-        }
-      }
-    `),
-  ]);
-  SharedIds.havok = havok.data.addTool.toolId;
-  SharedIds.sc2Engine = sc2Engine.data.addTool.toolId;
+  SharedIds = await populateTestDatabase.populateDatabaseAsync();
 }, 30000);
 
 test('Test login and whoAmI and logout', async () => {
@@ -374,6 +282,53 @@ test('Test making a media item', async () => {
 
   expect(removeMediaTags.tags).toHaveLength(3);
   expect(removeMediaTags.tags).toContain('blizzard');
+
+  let { addMediaTools } = (await gqAsync(
+    /* GraphQL */
+    `
+      mutation($mediaId: ID!, $toolId: ID, $toolIds: [ID!]) {
+        addMediaTools(mediaId: $mediaId, toolId: $toolId, toolIds: $toolIds) {
+          mediaId
+          name
+          toolIds
+          tools {
+            toolId
+          }
+        }
+      }
+    `,
+    {
+      mediaId,
+      toolId: SharedIds.sc2Engine,
+      toolIds: [SharedIds.havok],
+    }
+  )).data;
+
+  expect(addMediaTools.toolIds).toHaveLength(2);
+  expect(addMedia.tools).toHaveLength(2);
+
+  let { removeMediaTools } = (await gqAsync(
+    /* GraphQL */
+    `
+      mutation($mediaId: ID!, $toolId: ID, $toolIds: [ID!]) {
+        removeMediaTools(mediaId: $mediaId, toolId: $toolId, toolIds: $toolIds) {
+          mediaId
+          name
+          toolIds
+          tools {
+            toolId
+          }
+        }
+      }
+    `,
+    {
+      mediaId,
+      toolIds: [SharedIds.havok],
+    }
+  )).data;
+
+  expect(addMediaTools.toolIds).toHaveLength(1);
+  expect(addMedia.tools).toHaveLength(1);
 
   // Test delete
   let { deleteMedia } = (await gqAsync(

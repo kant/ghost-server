@@ -309,8 +309,18 @@ module.exports = {
       await model.removeMediaTagsAsync(mediaId, tagList);
       return await context.loaders.media.load(mediaId);
     },
-    addMediaTools: async () => {},
-    removeMediaTools: async () => {},
+    addMediaTools: async (_, { mediaId, toolId, toolIds }, context) => {
+      await permissions.canUpdateMediaAsync(context, mediaId);
+      let toolIdList = data.combinePluralAndSingular(toolIds, toolId);
+      await model.addMediaToolsAsync(mediaId, toolIdList);
+      return await context.loaders.media.load(mediaId);
+    },
+    removeMediaTools: async (_, { mediaId, toolId, toolIds }, context) => {
+      await permissions.canUpdateMediaAsync(context, mediaId);
+      let toolIdList = data.combinePluralAndSingular(toolIds, toolId);
+      await model.removeMediaToolsAsync(mediaId, toolIdList);
+      return await context.loaders.media.load(mediaId);
+    },
     addPlaylist: async (_, { playlist }, context) => {
       await permissions.canAddPlaylistAsync(context);
       let playlist_ = await model.newPlaylistAsync({

@@ -21,7 +21,8 @@
   "scripts": {
     "start": "npx nodemon .",
     "prod": "node .",
-    "test": "jest --forceExit"
+    "test": "jest --forceExit",
+    "test-server": "NODE_ENV='test' npx nodemon ."
   },
   "jest": {
     "transform": {}

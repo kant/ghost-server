@@ -9,6 +9,7 @@ let spawnAsync = require('@expo/spawn-async');
 
 let db = require('./db');
 let graphqlApp = require('./graphqlApp');
+let populateTestDatabase = require('./testlib/populateTestDatabase');
 
 async function serveAsync(port) {
   let endpoints = {
@@ -69,8 +70,12 @@ async function serveAsync(port) {
   // Make a connection to the database so its ready to go
   await db.queryAsync('SELECT 1 AS primed');
 
+  if (process.env.NODE_ENV === 'test') {
+    await populateTestDatabase.populateDatabaseAsync();
+  }
+
   // Start the server
-  port = port || process.env.PORT || 1380;
+  port = port || process.env.PORT || 1380 + 2 * (process.env.NODE_ENV === 'test');
   app.start(
     {
       port,

@@ -403,6 +403,19 @@ async function removeMediaTagsAsync(mediaId, tagList) {
   return await data.removeJsonbSetItemsAsync(mediaId, 'media', 'tagSet', data.listToSet(tagList));
 }
 
+async function addMediaToolsAsync(mediaId, toolIdList) {
+  return await data.addJsonbSetItemsAsync(mediaId, 'media', 'toolSet', data.listToSet(toolIdList));
+}
+
+async function removeMediaToolsAsync(mediaId, toolIdList) {
+  return await data.removeJsonbSetItemsAsync(
+    mediaId,
+    'media',
+    'toolSet',
+    data.listToSet(toolIdList)
+  );
+}
+
 let jsonFields = {
   media: ['description', 'coverImage', 'instructions', 'dimensions', 'links', 'toolSet'],
   tool: ['about', 'image'],
@@ -461,6 +474,8 @@ module.exports = {
   jsonFields,
   addMediaTagsAsync,
   removeMediaTagsAsync,
+  addMediaToolsAsync,
+  removeMediaToolsAsync,
   convertUserToTeamAsync,
   convertTeamToUserAsync,
   getSessionsForUserAsync,
