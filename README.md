@@ -17,19 +17,46 @@ Rules for this repo.
 
 1. Clone https://github.com/expo/ghost-secret into a peer directory to this one
 2. `yarn` in the root of the project
+3. `cd server` to go into the `ghost-server/server` directory
 
 ### To run the repl
 
-`cd server`
-
-`./repl`
+```bash
+./repl
+```
 
 ### To run the server
 
-`cd server`
+```bash
+yarn start
+```
 
-`yarn start`
+It will start serving at http://localhost:1380/
+
+### To run automated tests (uses Jest)
+
+```bash
+yarn test
+```
+
+### To run a server that uses a test database
+```bash
+yarn run test-server
+```
+
+Note that this will recreate the test database from scratch each time it reloads (every time you save).
+
+### To easily run GraphQL queries against the server
+
+Run the server.
+
+Then visit http://localhost:1380/graphql
 
 ### To deploy
 
 Just git push
+
+The production server is at https://ghost-server.app.render.com/
+
+You can play with the GraphQL API against production at https://ghost-server.app.render.com/graphql
+
