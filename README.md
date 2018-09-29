@@ -54,7 +54,7 @@ yarn run test-server
 
 Note that this will recreate the test database from scratch each time it reloads (every time you save).
 
-The test server will be available at http://localhost:1382/graphql
+The test server will be available at http://localhost:1382/ and you can make GraphQL queries against it at http://localhost:1382/graphql
 
 ### To run a repl against a test database
 
