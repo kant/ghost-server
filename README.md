@@ -39,6 +39,14 @@ It will start serving at http://localhost:1380/
 yarn test
 ```
 
+You can also do
+
+```bash
+yarn run test-watch
+```
+
+This will watch your filesystem for changes and rerun all your tests every time you save a file. I kind of like this.
+
 ### To run a server that uses a test database
 ```bash
 yarn run test-server
