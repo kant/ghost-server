@@ -21,10 +21,12 @@ async function makeGraphqlContextAsync({ request, clientId }) {
   request = request || {};
   let context = {
     request,
-    loaders: loaders.createLoaders(),
     clientId,
     userId,
   };
+  // The loaders need access to the context in case any of them 
+  // need to call into other loaders
+  context.loaders = loaders.createLoaders(context);
   return context;
 }
 

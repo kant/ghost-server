@@ -176,6 +176,22 @@ async function hasClientIdAsync(context) {
   }
 }
 
+async function canSubscribeToUserAsync(context, { fromId, toId }) {
+  let { userId } = context;
+  if (!userId) {
+    throw ClientError('You must be logged in to subscribe', 'LOGIN_REQUIRED');
+  }
+  await _checkUserIsUserOrMemberOfTeamAsync(userId, fromId, `You don't have permission to make ${fromId} subscribe to stuff`);
+}
+
+async function canUnsubscribeFromUserAsync(context, { fromId, toId }) {
+  let { userId } = context;
+  if (!userId) {
+    throw ClientError('You must be logged in to unsubscribe', 'LOGIN_REQUIRED');
+  }
+  await _checkUserIsUserOrMemberOfTeamAsync(userId, fromId, `You don't have permission to make ${fromId} unsubscribe from stuff`);
+}
+
 module.exports = {
   _checkUserIsUserOrMemberOfTeamAsync,
   canAddToolAsync,
@@ -190,4 +206,6 @@ module.exports = {
   canDeletePlaylistAsync,
   hasClientIdAsync,
   isLoggedInAsAsync,
+  canSubscribeToUserAsync,
+  canUnsubscribeFromUserAsync,
 };

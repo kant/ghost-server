@@ -22,7 +22,8 @@
     "start": "npx nodemon .",
     "prod": "node .",
     "test": "jest --forceExit",
-    "test-server": "NODE_ENV='test' npx nodemon ."
+    "test-server": "NODE_ENV='test' npx nodemon .",
+    "test-watch": "npx nodemon ./node_modules/.bin/jest --forceExist"
   },
   "jest": {
     "transform": {}

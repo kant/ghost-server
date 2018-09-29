@@ -45,6 +45,10 @@ module.exports = /* GraphQL */ `
     admins: [User]
     createdTime: Datetime
     updatedTime: Datetime
+    subscribers: [User]
+    subscriberCount: Int
+    subscriptions: [User]
+    subscriptionCount: Int
   }
 
   type Tool {
@@ -124,7 +128,10 @@ module.exports = /* GraphQL */ `
     allTeams: [User]
     allPlaylists: [Playlist]
 
-
+    subscribers(toId: ID): [User]
+    subscriptions(fromId: ID): [User]
+    subscriberCount(toId: ID): Int
+    subscriptionCount(fromId: ID): Int
   }
 
   input ImageInput {
@@ -211,6 +218,7 @@ module.exports = /* GraphQL */ `
     updatePlaylist(playlistId: ID!, playlist: PlaylistInput): Playlist
     deletePlaylist(playlistId: ID!): Boolean
     changePassword(oldPassword: String!, newPassword: String!): Boolean
-
+    subscribe(fromId: ID, toId: ID!): Boolean
+    unsubscribe(fromId: ID, toId: ID!): Boolean
   }
 `;

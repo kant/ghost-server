@@ -118,10 +118,6 @@ async function getToolAsync(toolId) {
   return await data.getObjectAsync(toolId, 'tool', { column: 'toolId' });
 }
 
-async function loadToolsAsync(toolIdList) {
-  return await data.loadObjectsAsync(toolIdList, 'tool', 'toolId');
-}
-
 async function newUserAsync(userInput) {
   let userInput_ = data.stringifyJsonFields(userInput, jsonFields.user);
   return await data.writeNewObjectAsync(userInput_, 'user', {
@@ -137,10 +133,6 @@ async function getUserAsync(userId) {
 
 async function multigetUsersAsync(userIdList, opts) {
   return await data.multigetObjectsAsync(userIdList, 'user', { column: 'userId', ...opts });
-}
-
-async function loadUsersAsync(userIdList) {
-  return await data.loadObjectsAsync(userIdList, 'user', 'userId');
 }
 
 async function updateUserAsync(obj) {
@@ -164,10 +156,6 @@ async function getUserByUsernameAsync(username) {
 
 async function getPlaylistAsync(playlistId) {
   return await data.getObjectAsync(playlistId, 'playlist', { column: 'playlistId' });
-}
-
-async function loadPlaylistsAsync(playlistIdList) {
-  return await data.loadObjectsAsync(playlistIdList, 'playlist');
 }
 
 async function updatePlaylistAsync(obj) {
@@ -261,12 +249,6 @@ async function multigetMediaAsync(mediaIdList, opts) {
   });
 }
 
-async function loadMediaAsync(mediaIdList) {
-  // This is a little hacky :/
-  return await data.loadObjectsAsync(mediaIdList, 'media', 'mediaId', {
-    columns: mediaColumns,
-  });
-}
 
 async function getTeamsForUserAsync(userId) {
   // Should this get all admin and member teams or just member teams?
@@ -416,6 +398,47 @@ async function removeMediaToolsAsync(mediaId, toolIdList) {
   );
 }
 
+async function subscribeAsync(fromId, toId) {
+  let r = db.replacer();
+  let result = await db.queryAsync(
+    /* SQL */
+    `INSERT INTO "sub" ("fromId", "toId") 
+    VALUES (${r(fromId)}, ${r(toId)}) 
+    ON CONFLICT ON CONSTRAINT "sub_pkey" DO NOTHING;`,
+    r.values()
+  );
+  return result.rowCount > 0;
+}
+
+async function unsubscribeAsync(fromId, toId) {
+  let r = db.replacer();
+  let result = await db.queryAsync(
+    /* SQL */ `
+  DELETE FROM "sub" WHERE 
+  "fromId" = ${r(fromId)} AND
+  "toId" = ${r(toId)};
+  `,
+    r.values()
+  );
+  return result.rowCount > 0;
+}
+
+async function subscribersAsync(toId) {
+  let r = db.replace();
+  let result = await db.queryAsync(/* SQL */ `
+  SELECT "fromId" FROM "sub" WHERE "toId" = ${r(toId)} ORDER BY "updatedTime" DESC;
+  `);
+  return result.rows.map((row) => row.fromId);
+}
+
+async function subscriptionsAsync(fromId) {
+  let r = db.replace();
+  let result = await db.queryAsync(/* SQL */ `
+  SELECT "toId" FROM "sub" WHERE "fromId" = ${r(fromId)} ORDER BY "updatedTime" DESC;
+  `);
+  return result.rows.map((row) => row.toId);
+}
+
 async function allMediaIdsAsync(opts) {
   return await data.getAllIdsAsync('media', opts);
 }
@@ -456,23 +479,19 @@ module.exports = {
   getTotalProfileViews,
   getTotalMediaPlays,
   getToolAsync,
-  loadToolsAsync,
   newUserAsync,
   updateUserAsync,
   getUserAsync,
   multigetUsersAsync,
-  loadUsersAsync,
   getUserByUsernameAsync,
   _deleteUserAsync,
   getPlaylistAsync,
   getPlaylistsForUser,
-  loadPlaylistsAsync,
   updatePlaylistAsync,
   deletePlaylistAsync,
   ingestMediaAsync,
   newPlaylistAsync,
   multigetMediaAsync,
-  loadMediaAsync,
   getTeamsForUserAsync,
   _addTeamRolesAsync,
   addTeamAdminsAsync,
@@ -500,4 +519,8 @@ module.exports = {
   allPlaylistIdsAsync,
   allUserIdsAsync,
   allToolIdsAsync,
+  subscribeAsync,
+  unsubscribeAsync,
+  subscribersAsync,
+  subscriptionsAsync,
 };

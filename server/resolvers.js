@@ -99,6 +99,18 @@ module.exports = {
     allTeams: async () => {
       throw NotImplementedError();
     },
+    subscriptions: async (_, { fromId }, context) => {
+      return await context.loaders.subscriptions.load(fromId);
+    },
+    subscribers: async (_, { toId }, context) => {
+      return await context.loaders.subscribers.load(toId);
+    },
+    subscriptionCount: async (_, { fromId }, context) => {
+      return await context.loaders.subscriptionCount.load(fromId);
+    },
+    subscriberCount: async (_, { toId }, context) => {
+      return await context.loaders.subscriberCount.load(toId);
+    },
   },
   MediaAndPlaylistSearchResults: {
     mediaItems: async (results, {}, context) => {
@@ -183,6 +195,18 @@ module.exports = {
         return [];
       }
     },
+    subscribers: async (user, {}, context) => {
+      return await context.loaders.subscribers.load(user.userId);
+    },
+    subscriptions: async (user, {}, context) => {
+      return await context.loaders.subscriptions.load(user.userId);
+    },
+    subscriberCount: async (user, {}, context) => {
+      return await context.loaders.subscriberCount.load(user.userId);
+    },
+    subscriptionCount: async (user, {}, context) => {
+      return await context.loaders.subscriptionCount.load(user.userId);
+    }
   },
   Playlist: {
     mediaItems: async (playlist, {}, context, info) => {
@@ -216,7 +240,7 @@ module.exports = {
       await auth.logoutAsync(context.clientId);
       return null;
     },
-    changePassword: async (_, {oldPassword, newPassword}, context, info) => {
+    changePassword: async (_, { oldPassword, newPassword }, context, info) => {
       return await auth.changePasswordAsync(context.userId, oldPassword, newPassword);
     },
     signup: async (_, { user, password }, context, info) => {
@@ -370,6 +394,16 @@ module.exports = {
     deletePlaylist: async (_, { playlistId }, context) => {
       await permissions.canDeletePlaylistAsync(context, playlistId);
       return await model.deletePlaylistAsync(playlistId);
+    },
+    subscribe: async (_, { fromId, toId }, context) => {
+      fromId = fromId || context.userId;
+      await permissions.canSubscribeToUserAsync(context, { fromId, toId });
+      return await model.subscribeAsync(fromId, toId);
+    },
+    unsubscribe: async (_, { fromId, toId }, context) => {
+      fromId = fromId || context.userId;
+      await permissions.canUnsubscribeFromUserAsync(context, { fromId, toId });
+      return await model.unsubscribeAsync(fromId, toId);
     },
   },
 };
