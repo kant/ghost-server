@@ -29,6 +29,10 @@ module.exports = {
         info,
       });
     },
+    hello: (_, { name }, context) => {
+      return `Hello ${name || 'World'}`;
+    },
+
     env: async (_, {}, context) => {
       let result = await db.queryAsync(`SELECT "value" FROM "env" WHERE "var" = 'env';`);
       if (result.rowCount > 0) {
@@ -40,8 +44,10 @@ module.exports = {
         return await context.loaders.user.load(context.userId);
       }
     },
-    hello: (_, { name }, context) => {
-      return `Hello ${name || 'World'}`;
+    me: async (_, {}, context) => {
+      if (context.userId) {
+        return await context.loaders.user.load(context.userId);
+      }
     },
     media: async (_, { mediaId }, context) => {
       return await context.loaders.media.load(mediaId);
@@ -206,7 +212,7 @@ module.exports = {
     },
     subscriptionCount: async (user, {}, context) => {
       return await context.loaders.subscriptionCount.load(user.userId);
-    }
+    },
   },
   Playlist: {
     mediaItems: async (playlist, {}, context, info) => {
@@ -219,6 +225,14 @@ module.exports = {
     },
   },
   Mutation: {
+    User: async (_, { userId, username }, context) => {
+      if (userId) {
+        return await context.loaders.user.load(userId);
+      } else if (username) {
+        return await context.loaders.userByUsername.load(username);
+      }
+      return user;
+    },
     updateUser: async (_, { userId, user }, context, info) => {
       await permissions.canUpdateUserAsync(context, userId);
       let user_ = data.stringifyJsonFields(user, model.jsonFields.user);
@@ -226,10 +240,10 @@ module.exports = {
       await model.updateUserAsync(user_);
       return await context.loaders.user.load(userId);
     },
-    login: async (_, { usernameOrSimilar, userId, username, password }, context, info) => {
+    login: async (_, { who, userId, username, password }, context, info) => {
       return await auth.loginAsync(
         context.clientId,
-        { userId, username, usernameOrSimilar },
+        { userId, username, who },
         password,
         {
           createdIp: context.request.ip,
@@ -404,6 +418,39 @@ module.exports = {
       fromId = fromId || context.userId;
       await permissions.canUnsubscribeFromUserAsync(context, { fromId, toId });
       return await model.unsubscribeAsync(fromId, toId);
+    },
+    me: async (_, {}, context) => {
+      if (context.userId) {
+        return await context.loaders.user.load(context.userId);
+      }
+    },
+  },
+  UserMutation: {
+    convertToTeam: async (user, {}, context) => {
+      await permissions.canUpdateUserAsync(context, user.userId);
+      await model.convertUserToTeamAsync(user.userId);
+      context.loaders.user.clear(user.userId);
+      return await context.loaders.user.load(user.userId);
+    },
+    convertToUser: async (user, {}, context) => {
+      await permissions.canUpdateUserAsync(context, user.userId);
+      await model.convertTeamToUserAsync(user.userId);
+      context.loaders.user.clear(user.userId);
+      return await context.loaders.user.load(user.userId);
+    },
+    update: async (user, { update }, context) => {
+      await permissions.canUpdateUserAsync(context, user.userId);
+      let userUpdate = data.stringifyJsonFields(update, model.jsonFields.user);
+      userUpdate.userId = user.userId;
+      await model.updateUserAsync(userUpdate);
+      context.loaders.user.clear(user.userId);
+      return await context.loaders.user.load(user.userId);
+    },
+    delete: async (user, {}, context) => {
+      await permissions.canDeleteUserAsync(context, user.userId);
+      await model._deleteUserAsync(user.userId);
+      context.loaders.user.clear(user.userId);
+      return await context.loaders.user.load(user.userId);
     },
   },
 };

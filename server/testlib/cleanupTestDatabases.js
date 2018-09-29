@@ -28,3 +28,7 @@ module.exports = {
   getTestDatabasesToCleanUpAsync,
   cleanupTestDatabasesAsync,
 };
+
+if (require.main === module) {
+  cleanupTestDatabasesAsync();
+}

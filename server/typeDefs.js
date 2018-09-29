@@ -119,6 +119,7 @@ module.exports = /* GraphQL */ `
       cursorPosition: Int
       limit: Int
     ): MediaAndPlaylistSearchResults
+    me: User
     whoAmI: User
 
     allMedia: [Media]
@@ -188,11 +189,22 @@ module.exports = /* GraphQL */ `
     mediaItems: [ID]
   }
 
+  type UserMutation {
+    convertToTeam: User
+    convertToUser: User
+    update(update: UserInput): User
+    delete: User
+  }
+
   type Mutation {
-    login(usernameOrSimilar: String, username: String, userId: ID, password: String!): User
+    User(userId: ID, username: String): UserMutation
+    me: UserMutation
+
+    login(who: String, username: String, userId: ID, password: String!): User
     logout: Null
     signup(user: UserInput!, password: String!): User
     updateUser(userId: ID!, user: UserInput): User
+
 
     addTool(tool: ToolInput): Tool
     updateTool(toolId: ID!, tool: ToolInput): Tool

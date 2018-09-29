@@ -64,8 +64,12 @@ async function canUpdateUserAsync({ userId }, updateUserId) {
   if (await model.isAdminOfTeamAsync(userId, updateUserId)) {
     return;
   }
-  throw PermissionError("You don't have permission to update that user");
+  throw PermissionError(
+    `You (${userId}) don't have permission to update that user (${updateUserId})`
+  );
 }
+
+let canDeleteUserAsync = canUpdateUserAsync;
 
 async function canUpdateTeamAdminsAsync({ userId }, teamId) {
   if (userId === teamId) {
@@ -181,7 +185,11 @@ async function canSubscribeToUserAsync(context, { fromId, toId }) {
   if (!userId) {
     throw ClientError('You must be logged in to subscribe', 'LOGIN_REQUIRED');
   }
-  await _checkUserIsUserOrMemberOfTeamAsync(userId, fromId, `You don't have permission to make ${fromId} subscribe to stuff`);
+  await _checkUserIsUserOrMemberOfTeamAsync(
+    userId,
+    fromId,
+    `You don't have permission to make ${fromId} subscribe to stuff`
+  );
 }
 
 async function canUnsubscribeFromUserAsync(context, { fromId, toId }) {
@@ -189,7 +197,11 @@ async function canUnsubscribeFromUserAsync(context, { fromId, toId }) {
   if (!userId) {
     throw ClientError('You must be logged in to unsubscribe', 'LOGIN_REQUIRED');
   }
-  await _checkUserIsUserOrMemberOfTeamAsync(userId, fromId, `You don't have permission to make ${fromId} unsubscribe from stuff`);
+  await _checkUserIsUserOrMemberOfTeamAsync(
+    userId,
+    fromId,
+    `You don't have permission to make ${fromId} unsubscribe from stuff`
+  );
 }
 
 module.exports = {
@@ -197,6 +209,7 @@ module.exports = {
   canAddToolAsync,
   canUpdateToolAsync,
   canUpdateUserAsync,
+  canDeleteUserAsync,
   canAddMediaAsync,
   canUpdateMediaAsync,
   canUpdateTeamAdminsAsync,

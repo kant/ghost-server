@@ -4,7 +4,7 @@ let passwordlib = require('./passwordlib');
 let validation = require('./validation');
 
 async function getUserForLoginAsync(identifierObject) {
-  let { username, usernameOrSimilar, userId } = identifierObject;
+  let { username, who, userId } = identifierObject;
 
   if (userId) {
     return await model.getUserAsync(userId);
@@ -14,16 +14,16 @@ async function getUserForLoginAsync(identifierObject) {
     return await model.getUserByUsernameAsync(username);
   }
 
-  if (usernameOrSimilar) {
+  if (who) {
     // username is first priority
     let user;
-    user = await model.getUserByUsernameAsync(usernameOrSimilar);
+    user = await model.getUserByUsernameAsync(who);
     if (user) {
       return user;
     }
 
     // userId next
-    user = await model.getUserAsync(usernameOrSimilar);
+    user = await model.getUserAsync(who);
     if (user) {
       return user;
     }

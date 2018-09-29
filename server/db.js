@@ -72,7 +72,7 @@ if (process.env.NODE_ENV === 'test') {
       await client.query(schemaSql);
       // await client.query(`INSERT INTO "env" ("var", "value") VALUES ('env', 'test') ON CONFLICT ("var") DO UPDATE SET "value" = 'test';`);
     } catch (e) {
-      console.error("Error setting up schema for test database " + testDatabaseName);
+      console.error('Error setting up schema for test database ' + testDatabaseName);
       throw e;
     } finally {
       await client.end();
@@ -147,6 +147,10 @@ function replacer() {
 
   r.json = (val) => {
     return r(JSON.stringify(val));
+  };
+
+  r.inList = (list) => {
+    return '(' + list.map(r).join(', ') + ')';
   };
 
   r.values = () => {

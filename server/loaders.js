@@ -5,8 +5,25 @@ let db = require('./db');
 let model = require('./model');
 
 function createLoaders(context) {
+  // `user` and `userByUsername` are slightly more complicated
+  // implementations here because we use the `prime` method
+  // to make it so if you load a user via one loader, you don't
+  // have to load it again via the other one.
+  // See: https://github.com/facebook/dataloader#loading-by-alternative-keys
   let user = new DataLoader(async (keys) => {
-    return await loadUsersAsync(keys);
+    let users = await loadUsersAsync(keys);
+    for (let user of users) {
+      context.loaders.userByUsername.prime(user.username, user);
+    }
+    return users;
+  });
+
+  let userByUsername = new DataLoader(async (keys) => {
+    let users = await loadUsersByUsernameAsync(keys);
+    for (let user of users) {
+      context.loaders.user.prime(user.userId, user);
+    }
+    return users;
   });
 
   let media = new DataLoader(async (keys) => {
@@ -39,6 +56,7 @@ function createLoaders(context) {
 
   return {
     user,
+    userByUsername,
     media,
     playlist,
     tool,
@@ -49,12 +67,34 @@ function createLoaders(context) {
   };
 }
 
+function _orderedListFromResults(results, keys, column, fn) {
+  fn = fn || ((x) => x);
+  let byKey = {};
+  for (let row of results.rows) {
+    byKey[row[column]] = fn(row);
+  }
+  let loadList = [];
+  for (let key of keys) {
+    loadList.push(byKey[key]);
+  }
+  return loadList;
+}
+
 async function loadPlaylistsAsync(playlistIdList) {
   return await data.loadObjectsAsync(playlistIdList, 'playlist');
 }
 
 async function loadUsersAsync(userIdList) {
   return await data.loadObjectsAsync(userIdList, 'user', 'userId');
+}
+
+async function loadUsersByUsernameAsync(usernameList) {
+  let r = db.replacer();
+  let results = await db.queryAsync(
+    `SELECT * FROM "user" WHERE "username" IN ${r.inList(usernameList)};`,
+    r.values()
+  );
+  return _orderedListFromResults(results, usernameList, 'username');
 }
 
 async function loadToolsAsync(toolIdList) {
@@ -71,9 +111,9 @@ async function loadMediaAsync(mediaIdList) {
 async function loadSubscriberCountsAsync(toIdList) {
   let r = db.replacer();
   let q = /* SQL */ `
-  SELECT "toId", COUNT(1) AS "count" FROM "sub" WHERE "toId" IN (`;
-  q += toIdList.map(r).join(', ');
-  q += `) GROUP BY "toId";`;
+  SELECT "toId", COUNT(1) AS "count" FROM "sub" 
+  WHERE "toId" IN ${r.inList(toIdList)}
+  GROUP BY "toId";`;
   let result = await db.queryAsync(q, r.values());
   let counts = {};
   for (let row of result.rows) {
@@ -89,9 +129,9 @@ async function loadSubscriberCountsAsync(toIdList) {
 async function loadSubscriptionCountsAsync(fromIdList) {
   let r = db.replacer();
   let q = /* SQL */ `
-  SELECT "fromId", COUNT(1) AS "count" FROM "sub" WHERE "fromId" IN (`;
-  q += fromIdList.map(r).join(', ');
-  q += ') GROUP BY "fromId";';
+  SELECT "fromId", COUNT(1) AS "count" FROM "sub" 
+  WHERE "fromId" IN ${r.inList(fromIdList)}
+  GROUP BY "fromId";`;
   let result = await db.queryAsync(q, r.values());
   let counts = {};
   for (let row of result.rows) {
