@@ -21,9 +21,9 @@
   "scripts": {
     "start": "npx nodemon .",
     "prod": "node .",
-    "test": "npx jest --forceExit",
+    "test": "jest --forceExit",
     "test-server": "NODE_ENV='test' npx nodemon .",
-    "test-watch": "npx nodemon ./node_modules/.bin/jest --forceExist",
+    "test-watch": "nodemon ./node_modules/.bin/jest --forceExist",
     "cleanup-test-databases": "node testlib/cleanupTestDatabases.js"
   },
   "jest": {
