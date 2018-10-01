@@ -183,9 +183,14 @@ async function getPlaylistAsync(playlistId) {
   return await data.getObjectAsync(playlistId, 'playlist', { column: 'playlistId' });
 }
 
-async function updatePlaylistAsync(obj) {
-  let obj_ = data.stringifyJsonFields(obj, jsonFields.playlist);
-  return await data.updateObjectAsync(obj_.playlistId, 'playlist', obj_, { column: 'playlistId' });
+async function ingestPlaylistAsync(playlistInput) {
+  let obj = data.stringifyJsonFields(playlistInput, jsonFields.playlist);
+  return obj;
+}
+
+async function updatePlaylistAsync(playlistInput) {
+  let obj = await ingestPlaylistAsync(playlistInput);
+  return await data.updateObjectAsync(obj.playlistId, 'playlist', obj, { column: 'playlistId' });
 }
 
 async function deletePlaylistAsync(playlistId) {
@@ -200,9 +205,9 @@ async function getPlaylistsForUser(userId) {
   return data.objectsListFromResults(results);
 }
 
-async function newPlaylistAsync(obj) {
-  let obj_ = data.stringifyJsonFields(obj, jsonFields.playlist);
-  return await data.writeNewObjectAsync(obj_, 'playlist', { column: 'playlistId', autoId: true });
+async function addPlaylistAsync(playlistInput) {
+  let obj = await ingestPlaylistAsync(playlistInput);
+  return await data.writeNewObjectAsync(obj, 'playlist', { column: 'playlistId', autoId: true });
 }
 
 async function isRoleOfTeamAsync(userId, teamId, role) {
@@ -515,7 +520,7 @@ module.exports = {
   updatePlaylistAsync,
   deletePlaylistAsync,
   ingestMediaAsync,
-  newPlaylistAsync,
+  addPlaylistAsync,
   multigetMediaAsync,
   getTeamsForUserAsync,
   _addTeamRolesAsync,

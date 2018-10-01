@@ -388,7 +388,7 @@ module.exports = {
     },
     addPlaylist: async (_, { playlist }, context) => {
       await permissions.canAddPlaylistAsync(context);
-      let playlist_ = await model.newPlaylistAsync({
+      let playlist_ = await model.addPlaylistAsync({
         ...playlist,
         userId: context.userId,
       });
