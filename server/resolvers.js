@@ -39,11 +39,6 @@ module.exports = {
         return result.rows[0].value;
       }
     },
-    whoAmI: async (_, {}, context) => {
-      if (context.userId) {
-        return await context.loaders.user.load(context.userId);
-      }
-    },
     me: async (_, {}, context) => {
       if (context.userId) {
         return await context.loaders.user.load(context.userId);

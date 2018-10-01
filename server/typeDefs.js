@@ -120,7 +120,6 @@ module.exports = /* GraphQL */ `
       limit: Int
     ): MediaAndPlaylistSearchResults
     me: User
-    whoAmI: User
 
     allMedia: [Media]
     allUsers: [User]
