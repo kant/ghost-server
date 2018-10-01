@@ -3,9 +3,11 @@ try {
   module.exports = require('/etc/secrets/ghost-secret');
 } catch (e) {
   try {
+    // If you put a symlink in the server/ directory
     module.exports = require('./ghost-secret');
   } catch (e) {
     try {
+      // If you just cloned ghost-secret into a peer directory to ghost-server
       module.exports = require('../../ghost-secret');
     } catch (e2) {
       console.error(

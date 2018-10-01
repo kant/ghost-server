@@ -24,7 +24,7 @@ async function makeGraphqlContextAsync({ request, clientId }) {
     clientId,
     userId,
   };
-  // The loaders need access to the context in case any of them 
+  // The loaders need access to the context in case any of them
   // need to call into other loaders
   context.loaders = loaders.createLoaders(context);
   return context;
@@ -33,8 +33,23 @@ async function makeGraphqlContextAsync({ request, clientId }) {
 async function makeGraphqlAppAsync() {
   let graphqlMiddleware = async (resolve, parent, args, context, info) => {
     if (!parent) {
+
+      // Hide anything that looks like a password from logs
+      let variableValues = { ...info.variableValues };
+      let queryArgs = { ...args };
+      for (let k in variableValues) {
+        if (k.toLowerCase().search('password') !== -1) {
+          variableValues[k] = 'XXXXXX';
+        }
+      }
+      for (let k in queryArgs) {
+        if (k.toLowerCase().search('password') !== -1) {
+          queryArgs[k] = 'XXXXXX';
+        }
+      }
+
       let message =
-        info.path.key + ' ' + JSON.stringify(args) + ' ' + JSON.stringify(info.variableValues);
+        info.path.key + ' ' + JSON.stringify(queryArgs) + ' ' + JSON.stringify(variableValues);
       context.request.__logMessage = message;
       let result;
       try {
@@ -94,7 +109,14 @@ async function graphqlAppAsync() {
 /**
  * Runs a GraphQL query and returns the results
  */
-async function graphqlQueryAsync({query, variableValues, operationName, fieldResolver, clientId, opts}) {
+async function graphqlQueryAsync({
+  query,
+  variableValues,
+  operationName,
+  fieldResolver,
+  clientId,
+  opts,
+}) {
   let tk = time.start();
 
   opts = opts || {};
@@ -118,7 +140,10 @@ async function graphqlQueryAsync({query, variableValues, operationName, fieldRes
   } finally {
     let logLimit = 256;
     query = query || '<No Query (?!)>';
-    let message = query.substr(0, logLimit).replace(/\s+/g, ' ').trim();
+    let message = query
+      .substr(0, logLimit)
+      .replace(/\s+/g, ' ')
+      .trim();
     if (query.length > logLimit) {
       message += '...';
     }
