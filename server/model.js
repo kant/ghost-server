@@ -62,13 +62,32 @@ async function ingestMediaAsync(mediaInput) {
 async function newMediaAsync(obj) {
   // TODO(ccheever): Possibly handle duplicate slug case more explicitly
   // rather than just letting the Postgres error bubble up
-  return await data.writeNewObjectAsync(obj, 'media', { autoId: true });
+  let media = await ingestMediaAsync(obj);
+  try {
+    return await data.writeNewObjectAsync(media, 'media', { autoId: true });
+  } catch (e) {
+    if (e.code === '23505' && e.detail.startsWith('Key (slug)=')) {
+      throw ClientError('Duplicate slug: ' + media.slug, 'DUPLICATE_SLUG');
+    } else {
+      throw e;
+    }
+  }
 }
 
 async function updateMediaAsync(obj) {
   // TODO(ccheever): We may want some way to update links
   // individually instead of only the whole set at once
-  return await data.updateObjectAsync(obj.mediaId, 'media', obj, { column: 'mediaId' });
+  let media = await ingestMediaAsync(obj);
+  console.log({ media });
+  try {
+    return await data.updateObjectAsync(media.mediaId, 'media', media, { column: 'mediaId' });
+  } catch (e) {
+    if (e.code === '23505' && e.detail.startsWith('Key (slug)=')) {
+      throw ClientError('Duplicate slug: ' + media.slug, 'DUPLICATE_SLUG');
+    } else {
+      throw e;
+    }
+  }
 }
 
 async function newToolAsync(obj) {
@@ -118,8 +137,13 @@ async function getToolAsync(toolId) {
   return await data.getObjectAsync(toolId, 'tool', { column: 'toolId' });
 }
 
+async function ingestUserAsync(userInput) {
+  let user = data.stringifyJsonFields(userInput, jsonFields.user);
+  return user;
+}
+
 async function newUserAsync(userInput) {
-  let userInput_ = data.stringifyJsonFields(userInput, jsonFields.user);
+  let userInput_ = await ingestUserAsync(userInput);
   return await data.writeNewObjectAsync(userInput_, 'user', {
     column: 'userId',
     autoId: true,
@@ -135,7 +159,8 @@ async function multigetUsersAsync(userIdList, opts) {
   return await data.multigetObjectsAsync(userIdList, 'user', { column: 'userId', ...opts });
 }
 
-async function updateUserAsync(obj) {
+async function updateUserAsync(userInput) {
+  let obj = await ingestUserAsync(userInput);
   return await data.updateObjectAsync(obj.userId, 'user', obj, { column: 'userId' });
 }
 
@@ -248,7 +273,6 @@ async function multigetMediaAsync(mediaIdList, opts) {
     ...opts,
   });
 }
-
 
 async function getTeamsForUserAsync(userId) {
   // Should this get all admin and member teams or just member teams?
@@ -482,6 +506,7 @@ module.exports = {
   newUserAsync,
   updateUserAsync,
   getUserAsync,
+  ingestUserAsync,
   multigetUsersAsync,
   getUserByUsernameAsync,
   _deleteUserAsync,

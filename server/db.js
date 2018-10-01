@@ -48,7 +48,7 @@ async function databasePreparedAsync() {
 }
 
 if (process.env.NODE_ENV === 'test') {
-  console.warn("// Using test environment because `process.env.NODE_ENV` is 'test'");
+  console.log("// Using test environment because `process.env.NODE_ENV` is 'test'");
 
   async function _prepareTestDatabaseAsync() {
     // Sanity check
@@ -57,14 +57,15 @@ if (process.env.NODE_ENV === 'test') {
     // Pick a name for the new database
     let testDatabaseName = secret.postgres.database + '__' + getTestId() + '__test__';
 
+
     // Create it
     await testutils.createDatabaseAsync(testDatabaseName);
 
     // Use it
     _config.database = testDatabaseName;
-    console.warn('// Using database ' + _config.database);
 
     // Copy over the schema
+    console.log('// Using test database ' + testDatabaseName);
     let schemaSql = await testutils.getProductionDatabaseSchemaAsync();
     let client = new pg.Client(_config);
     await client.connect();
@@ -79,6 +80,9 @@ if (process.env.NODE_ENV === 'test') {
     }
 
     // Now we're ready
+    // process.stdout.write(`\n// Test database ready.\n// Using ${_config.database}\n> `);
+    process.stdout.write(`\n// Test database ready.\n> `); 
+
     return process.env.NODE_ENV;
   }
 

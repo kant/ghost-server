@@ -235,20 +235,15 @@ module.exports = {
     },
     updateUser: async (_, { userId, user }, context, info) => {
       await permissions.canUpdateUserAsync(context, userId);
-      let user_ = data.stringifyJsonFields(user, model.jsonFields.user);
+      let user_ = { ...user };
       user_.userId = userId;
       await model.updateUserAsync(user_);
       return await context.loaders.user.load(userId);
     },
     login: async (_, { who, userId, username, password }, context, info) => {
-      return await auth.loginAsync(
-        context.clientId,
-        { userId, username, who },
-        password,
-        {
-          createdIp: context.request.ip,
-        }
-      );
+      return await auth.loginAsync(context.clientId, { userId, username, who }, password, {
+        createdIp: context.request.ip,
+      });
     },
     logout: async (_, {}, context, info) => {
       await auth.logoutAsync(context.clientId);
@@ -297,7 +292,7 @@ module.exports = {
     },
     addMedia: async (_, { media }, context) => {
       await permissions.canAddMediaAsync(context, media);
-      let media_ = await model.ingestMediaAsync(media);
+      let media_ = { ...media };
       if (!media_.userId) {
         media_.userId = context.userId;
       }
@@ -306,7 +301,7 @@ module.exports = {
     },
     updateMedia: async (_, { mediaId, media }, context) => {
       await permissions.canUpdateMediaAsync(context, mediaId);
-      let media_ = await model.ingestMediaAsync(media);
+      let media_ = { ...media };
       media_.mediaId = mediaId;
       let newMedia = await model.updateMediaAsync(media_);
       return await context.loaders.media.load(mediaId);
@@ -440,7 +435,7 @@ module.exports = {
     },
     update: async (user, { update }, context) => {
       await permissions.canUpdateUserAsync(context, user.userId);
-      let userUpdate = data.stringifyJsonFields(update, model.jsonFields.user);
+      let userUpdate = model.ingestUserAsync(update);
       userUpdate.userId = user.userId;
       await model.updateUserAsync(userUpdate);
       context.loaders.user.clear(user.userId);
