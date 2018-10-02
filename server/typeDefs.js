@@ -194,6 +194,10 @@ module.exports = /* GraphQL */ `
     convertToUser: User
     update(update: UserInput): User
     delete: User
+    addTeamMembers(userIdList: [ID]): User
+    removeTeamMembers(userIdList: [ID]): User
+    addTeamAdmins(userIdList: [ID]): User
+    removeTeamAdmins(userIdList: [ID]): User
   }
 
   type Mutation {

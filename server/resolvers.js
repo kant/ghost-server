@@ -8,6 +8,12 @@ let search = require('./search');
 let signup = require('./signup');
 let validation = require('./validation');
 
+function assertOrClientError(test, message, code) {
+  if (!test) {
+    throw ClientError(message, code);
+  }
+}
+
 function addType(type, obj) {
   return {
     ...obj,
@@ -33,13 +39,13 @@ module.exports = {
       return `Hello ${name || 'World'}`;
     },
 
-    env: async (_, {}, context) => {
+    env: async (_, { }, context) => {
       let result = await db.queryAsync(`SELECT "value" FROM "env" WHERE "var" = 'env';`);
       if (result.rowCount > 0) {
         return result.rows[0].value;
       }
     },
-    me: async (_, {}, context) => {
+    me: async (_, { }, context) => {
       if (context.userId) {
         return await context.loaders.user.load(context.userId);
       }
@@ -62,7 +68,7 @@ module.exports = {
     playlistsForUser: async (_, { userId }) => {
       return await model.getPlaylistsForUser(userId);
     },
-    currentPlaylist: async (_, {}, context) => {
+    currentPlaylist: async (_, { }, context) => {
       let playlist = await context.loaders.playlist.load('playlist:badboxart2018');
       let playlist_ = { ...playlist };
       playlist_.mediaItems = playlist_.mediaItems.slice(0);
@@ -114,33 +120,33 @@ module.exports = {
     },
   },
   MediaAndPlaylistSearchResults: {
-    mediaItems: async (results, {}, context) => {
+    mediaItems: async (results, { }, context) => {
       return await context.loaders.media.loadMany(results.mediaResults.map((x) => x.id));
     },
-    playlistItems: async (results, {}, context) => {
+    playlistItems: async (results, { }, context) => {
       return await context.loaders.playlist.loadMany(results.playlistResults.map((x) => x.id));
     },
-    recommendedItems: async (results, {}, context) => {
+    recommendedItems: async (results, { }, context) => {
       return await context.loaders.media.loadMany(results.recommendedResults.map((x) => x.id));
     },
   },
   Media: {
-    user: async (media, {}, context, info) => {
+    user: async (media, { }, context, info) => {
       return media.userId && (await context.loaders.user.load(media.userId));
     },
-    tags: async (media, {}, context) => {
+    tags: async (media, { }, context) => {
       return data.setToList(media.tagSet);
     },
-    tools: async (media, {}, context, info) => {
+    tools: async (media, { }, context, info) => {
       let toolIds = data.setToList(media.toolSet);
       return await context.loaders.tool.loadMany(toolIds);
     },
-    toolIds: async (media, {}, context) => {
+    toolIds: async (media, { }, context) => {
       return data.setToList(media.toolSet);
     },
   },
   SearchResult: {
-    object: async (result, {}, context) => {
+    object: async (result, { }, context) => {
       switch (result.type) {
         case 'user':
           return addType('User', await context.loaders.user.load(result.id));
@@ -173,14 +179,14 @@ module.exports = {
     },
   },
   Tool: {
-    tags: async (tool, {}, context, info) => {
+    tags: async (tool, { }, context, info) => {
       if (tool.tagSet) {
         return Object.keys(tool.tagSet);
       }
     },
   },
   User: {
-    members: async (team, {}, context, info) => {
+    members: async (team, { }, context, info) => {
       if (team.isTeam && team.members) {
         return await context.loaders.user.loadMany(Object.keys(team.members));
       }
@@ -188,7 +194,7 @@ module.exports = {
         return [];
       }
     },
-    admins: async (team, {}, context, info) => {
+    admins: async (team, { }, context, info) => {
       if (team.isTeam && team.admins) {
         return await context.loaders.user.loadMany(Object.keys(team.admins));
       }
@@ -196,24 +202,24 @@ module.exports = {
         return [];
       }
     },
-    subscribers: async (user, {}, context) => {
+    subscribers: async (user, { }, context) => {
       return await context.loaders.subscribers.load(user.userId);
     },
-    subscriptions: async (user, {}, context) => {
+    subscriptions: async (user, { }, context) => {
       return await context.loaders.subscriptions.load(user.userId);
     },
-    subscriberCount: async (user, {}, context) => {
+    subscriberCount: async (user, { }, context) => {
       return await context.loaders.subscriberCount.load(user.userId);
     },
-    subscriptionCount: async (user, {}, context) => {
+    subscriptionCount: async (user, { }, context) => {
       return await context.loaders.subscriptionCount.load(user.userId);
     },
   },
   Playlist: {
-    mediaItems: async (playlist, {}, context, info) => {
+    mediaItems: async (playlist, { }, context, info) => {
       return await context.loaders.media.loadMany(playlist.mediaItems || []);
     },
-    user: async (playlist, {}, context) => {
+    user: async (playlist, { }, context) => {
       if (playlist.userId) {
         return await context.loaders.user.load(playlist.userId);
       }
@@ -240,7 +246,7 @@ module.exports = {
         createdIp: context.request.ip,
       });
     },
-    logout: async (_, {}, context, info) => {
+    logout: async (_, { }, context, info) => {
       await auth.logoutAsync(context.clientId);
       return null;
     },
@@ -359,20 +365,20 @@ module.exports = {
       await permissions.canUnsubscribeFromUserAsync(context, { fromId, toId });
       return await model.unsubscribeAsync(fromId, toId);
     },
-    me: async (_, {}, context) => {
+    me: async (_, { }, context) => {
       if (context.userId) {
         return await context.loaders.user.load(context.userId);
       }
     },
   },
   UserMutation: {
-    convertToTeam: async (user, {}, context) => {
+    convertToTeam: async (user, { }, context) => {
       await permissions.canUpdateUserAsync(context, user.userId);
       await model.convertUserToTeamAsync(user.userId);
       context.loaders.user.clear(user.userId);
       return await context.loaders.user.load(user.userId);
     },
-    convertToUser: async (user, {}, context) => {
+    convertToUser: async (user, { }, context) => {
       await permissions.canUpdateUserAsync(context, user.userId);
       await model.convertTeamToUserAsync(user.userId);
       context.loaders.user.clear(user.userId);
@@ -386,11 +392,40 @@ module.exports = {
       context.loaders.user.clear(user.userId);
       return await context.loaders.user.load(user.userId);
     },
-    delete: async (user, {}, context) => {
+    delete: async (user, { }, context) => {
       await permissions.canDeleteUserAsync(context, user.userId);
       await model._deleteUserAsync(user.userId);
       context.loaders.user.clear(user.userId);
       return await context.loaders.user.load(user.userId);
+    },
+    addTeamMembers: async (team, { userIdList }, context) => {
+      assertOrClientError(!!team.isTeam, "Can't change members of a user that isn't a team", 'NOT_A_TEAM');
+      await permissions.canUpdateUserAsync(context, team.userId);
+      await model.addTeamMembersAsync(team.userId, userIdList);
+      context.loaders.user.clear(team.userId);
+      return await context.loaders.user.load(team.userId);
+    },
+    removeTeamMembers: async (team, { userIdList }, context) => {
+      assertOrClientError(!!team.isTeam, "Can't change members of a user that isn't a team", 'NOT_A_TEAM');
+      await permissions.canUpdateUserAsync(context, team.userId);
+      await model.removeTeamMembersAsync(team.userId, userIdList);
+      context.loaders.user.clear(team.userId);
+      return await context.loaders.user.load(team.userId);
+    },
+    addTeamAdmins: async (team, { userIdList }, context) => {
+      assertOrClientError(!!team.isTeam, "Can't change admins of a user that isn't a team", 'NOT_A_TEAM');
+      await permissions.canUpdateUserAsync(context, team.userId);
+      await model.addTeamAdminsAsync(team.userId, userIdList);
+      context.loaders.user.clear(team.userId);
+      return await context.loaders.user.load(team.userId);
+
+    },
+    removeTeamAdmins: async (team, { userIdList }, context) => {
+      assertOrClientError(!!team.isTeam, "Can't change admins of a user that isn't a team", 'NOT_A_TEAM');
+      await permissions.canUpdateUserAsync(context, team.userId);
+      await model.removeTeamAdminsAsync(team.userId, userIdList);
+      context.loaders.user.clear(team.userId);
+      return await context.loaders.user.load(team.userId);
     },
   },
 };
