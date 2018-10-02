@@ -406,33 +406,34 @@ test('Signing up a user and updating a user and logging in and logging out', asy
   expect(signup.photo.url).toHaveLength(7639);
   expect(signup.isTeam).toBeFalsy();
 
-  let { updateUser } = (await gqAsync(
+  let updateUser = (await gqAsync(
     /* GraphQL */ `
       mutation($userId: ID!) {
-        updateUser(
-          userId: $userId
-          user: {
-            name: "Babe Gruel"
-            location: "Ex-MSFT"
-            username: "gabenlagen"
-            otherUsernames: { reddit: "GabeNewellBellevue" }
-            links: { wikipedia: "https://en.wikipedia.org/wiki/Gabe_Newell" }
-            about: "C'mon, people, you can't show the player a really big bomb and not let them blow it up."
+        User(userId: $userId) {
+          update(
+            update: {
+              name: "Babe Gruel"
+              location: "Ex-MSFT"
+              username: "gabenlagen"
+              otherUsernames: { reddit: "GabeNewellBellevue" }
+              links: { wikipedia: "https://en.wikipedia.org/wiki/Gabe_Newell" }
+              about: "C'mon, people, you can't show the player a really big bomb and not let them blow it up."
+            }
+          ) {
+            userId
+            username
+            name
+            location
+            username
+            otherUsernames
+            links
+            about
           }
-        ) {
-          userId
-          username
-          name
-          location
-          username
-          otherUsernames
-          links
-          about
         }
       }
     `,
     { userId: gaben }
-  )).data;
+  )).data.User.update;
 
   expect(updateUser.name).toBe('Babe Gruel');
   expect(updateUser.location).toBe('Ex-MSFT');
@@ -469,12 +470,7 @@ test('Signing up a user and updating a user and logging in and logging out', asy
   let login_1 = (await gqAsync(
     /* GraphQL */ `
       mutation($who: String, $userId: ID, $username: String) {
-        login(
-          who: $who
-          userId: $userId
-          username: $username
-          password: "hl3confirmed"
-        ) {
+        login(who: $who, userId: $userId, username: $username, password: "hl3confirmed") {
           userId
           username
           name
@@ -498,12 +494,7 @@ test('Signing up a user and updating a user and logging in and logging out', asy
   let login_2 = (await gqAsync(
     /* GraphQL */ `
       mutation($who: String, $userId: ID, $username: String) {
-        login(
-          who: $who
-          userId: $userId
-          username: $username
-          password: "hl3confirmed"
-        ) {
+        login(who: $who, userId: $userId, username: $username, password: "hl3confirmed") {
           userId
           username
           name
@@ -527,12 +518,7 @@ test('Signing up a user and updating a user and logging in and logging out', asy
   let login_3 = (await gqAsync(
     /* GraphQL */ `
       mutation($who: String, $userId: ID, $username: String) {
-        login(
-          who: $who
-          userId: $userId
-          username: $username
-          password: "hl3confirmed"
-        ) {
+        login(who: $who, userId: $userId, username: $username, password: "hl3confirmed") {
           userId
           username
           name
@@ -557,12 +543,7 @@ test('Signing up a user and updating a user and logging in and logging out', asy
   let login_4 = (await gqAsync(
     /* GraphQL */ `
       mutation($who: String, $userId: ID, $username: String) {
-        login(
-          who: $who
-          userId: $userId
-          username: $username
-          password: "hl3confirmed"
-        ) {
+        login(who: $who, userId: $userId, username: $username, password: "hl3confirmed") {
           userId
           username
           name
@@ -614,12 +595,7 @@ test('Signing up a user and updating a user and logging in and logging out', asy
   let login_5 = (await gqAsync(
     /* GraphQL */ `
       mutation($who: String, $userId: ID, $username: String) {
-        login(
-          who: $who
-          userId: $userId
-          username: $username
-          password: "bengay"
-        ) {
+        login(who: $who, userId: $userId, username: $username, password: "bengay") {
           userId
           username
           name
@@ -658,12 +634,7 @@ test('Signing up a user and updating a user and logging in and logging out', asy
   let incorrectPassword_1 = await gqAllowErrorsAsync(
     /* GraphQL */ `
       mutation($who: String, $userId: ID, $username: String) {
-        login(
-          who: $who
-          userId: $userId
-          username: $username
-          password: "kensentme"
-        ) {
+        login(who: $who, userId: $userId, username: $username, password: "kensentme") {
           userId
           username
           name
@@ -679,12 +650,7 @@ test('Signing up a user and updating a user and logging in and logging out', asy
   let incorrectPassword_2 = await gqAllowErrorsAsync(
     /* GraphQL */ `
       mutation($who: String, $userId: ID, $username: String) {
-        login(
-          who: $who
-          userId: $userId
-          username: $username
-          password: "xyzzy"
-        ) {
+        login(who: $who, userId: $userId, username: $username, password: "xyzzy") {
           userId
           username
           name
@@ -700,12 +666,7 @@ test('Signing up a user and updating a user and logging in and logging out', asy
   let incorrectPassword_3 = await gqAllowErrorsAsync(
     /* GraphQL */ `
       mutation($who: String, $userId: ID, $username: String) {
-        login(
-          who: $who
-          userId: $userId
-          username: $username
-          password: "xyzzy"
-        ) {
+        login(who: $who, userId: $userId, username: $username, password: "xyzzy") {
           userId
           username
           name
@@ -735,50 +696,148 @@ test('Signing up a user and updating a user and logging in and logging out', asy
 });
 
 test('Test teams', async () => {
-  // let gqAsync = gq.withClientId('testTeams');
-  // let signup_1 = (await gqAsync(/* GraphQL */ `
-  //   mutation {
-  //     signup(user: { username: "ab84", name: "Antonio Brown" }, password: "callgod") {
-  //       userId
-  //       username
-  //       name
-  //     }
-  //   }
-  // `)).data.signup;
-  // let ab = signup_1.userId;
+  let gqAsync = gq.withClientId('testTeams');
+  let signup_1 = (await gqAsync(/* GraphQL */ `
+    mutation {
+      signup(user: { username: "dwight", name: "Dwight Schrute" }, password: "beets") {
+        userId
+        username
+        name
+      }
+    }
+  `)).data.signup;
+  let dwight = signup_1.userId;
+  let signup_2 = (await gqAsync(/* GraphQL */ `
+    mutation {
+      signup(user: { username: "jim", name: "Jim Halpert" }, password: "ilovepam") {
+        userId
+        username
+        name
+      }
+    }
+  `)).data.signup;
+  let jim = signup_2.userId;
+  let signup_3 = (await gqAsync(/* GraphQL */ `
+    mutation {
+      signup(user: { username: "littlekidlover", name: "Michael Scott" }, password: "twss") {
+        userId
+        username
+        name
+      }
+    }
+  `)).data.signup;
+  let michael = signup_3.userId;
+  let signup_4 = (await gqAsync(/* GraphQL */ `
+    mutation {
+      signup(
+        user: { username: "dundermifflin", isTeam: true, name: "Dunder Mifflin Paper Company" }
+        password: "scranton"
+      ) {
+        userId
+        username
+        name
+      }
+    }
+  `)).data.signup;
+  let dundermifflin = signup_4.userId;
 
-  // let signup_2 = (await gqAsync(/* GraphQL */ `
-  //   mutation {
-  //     signup(user: { username: "troy", name: "Troy Polamalu" }, password: "callgod") {
-  //       userId
-  //       username
-  //       name
-  //     }
-  //   }
-  // `)).data.signup;
-  // let troy = signup_2.userId;
+  await gqAsync(
+    /* GraphQL */ `
+      mutation($teamId: ID!, $admins: [ID]!) {
+        User(userId: $teamId) {
+          addTeamAdmins(userIdList: $admins) {
+            admins {
+              userId
+              username
+              name
+            }
+          }
+        }
+      }
+    `,
+    { teamId: dundermifflin, admins: [michael] }
+  );
 
-  // let signup_3 = (await gqAsync(/* GraphQL */ `
-  //   mutation {
-  //     signup(user: { username: "peezy", name: "Joey Porter" }, password: "whoride") {
-  //       userId
-  //       username
-  //       name
-  //     }
-  //   }
-  // `)).data.signup;
-  // let peezy = signup_3.userId;
+  await gqAsync(/* GraphQL */ `
+    mutation {
+      login(who: "littlekidlover", password: "twss") {
+        userId
+      }
+    }
+  `);
 
-  // let signup_4 = (await gqAsync(/* GraphQL */ `
-  // mutation {
-  //   signup(user: { username: "steelers", name: "The Pittsburgh Steelers" }, password: "7rings") {
-  //     userId
-  //     username
-  //     name
-  //   }
-  // }
-  // `)).data.signup;
+  await gqAsync(
+    /* GraphQL */ `
+      mutation($teamId: ID!, $members: [ID]!) {
+        User(userId: $teamId) {
+          addTeamMembers(userIdList: $members) {
+            members {
+              userId
+              username
+              name
+            }
+          }
+        }
+      }
+    `,
+    {
+      teamId: dundermifflin,
+      members: [michael, jim, dwight],
+    }
+  );
 
-  // let steelers = signup_4.userId;
+  let { members, admins } = (await gqAsync(/* GraphQL */ `
+    query {
+      userByUsername(username: "dundermifflin") {
+        members {
+          userId
+        }
+        admins {
+          userId
+        }
+      }
+    }
+  `)).data.userByUsername;
+  expect(members).toHaveLength(3);
+  expect(admins).toHaveLength(1);
+  expect(admins[0].userId).toBe(michael);
 
+  await gqAsync(
+    /* GraphQL */ `
+      mutation($teamId: ID!, $members: [ID]!) {
+        User(userId: $teamId) {
+          removeTeamMembers(userIdList: $members) {
+            members {
+              userId
+              username
+              name
+            }
+          }
+        }
+      }
+    `,
+    {
+      teamId: dundermifflin,
+      members: [jim, dwight],
+    }
+  );
+
+  let data = (await gqAsync(/* GraphQL */ `
+    query {
+      userByUsername(username: "dundermifflin") {
+        members {
+          userId
+        }
+        admins {
+          userId
+        }
+      }
+    }
+  `)).data.userByUsername;
+  members = data.members;
+  admins = data.admins;
+  expect(members).toHaveLength(1);
+  expect(admins).toHaveLength(1);
+  expect(admins[0].userId).toBe(michael);
+  expect(members[0].userId).toBe(michael);
 });

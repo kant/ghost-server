@@ -193,22 +193,43 @@ module.exports = /* GraphQL */ `
     convertToTeam: User
     convertToUser: User
     update(update: UserInput): User
-    delete: User
+    delete: Null
     addTeamMembers(userIdList: [ID]): User
     removeTeamMembers(userIdList: [ID]): User
     addTeamAdmins(userIdList: [ID]): User
     removeTeamAdmins(userIdList: [ID]): User
   }
 
+  type MediaMutation {
+    update(update: MediaInput): Media
+    delete: Null
+    addTags(tagList: [String]!): Media
+    removeTags(tagList: [String]!): Media
+    addTools(tagList: [ID]!): Media
+    removeTools(tagLIst: [ID]!): Media
+  }
+
+  type ToolMutation {
+    update(update: ToolInput): Tool
+    delete: Null
+  }
+
+  type PlaylistMutation {
+    update(update: PlaylistInput): Playlist
+    delete: Null
+  }
+
   type Mutation {
     User(userId: ID, username: String): UserMutation
     me: UserMutation
 
+    Tool(toolId: ID): ToolMutation
+    Media(mediaId: ID): MediaMutation
+    Playlist(playlistId: ID): PlaylistMutation
+
     login(who: String, username: String, userId: ID, password: String!): User
     logout: Null
     signup(user: UserInput!, password: String!): User
-    updateUser(userId: ID!, user: UserInput): User
-
 
     addTool(tool: ToolInput): Tool
     updateTool(toolId: ID!, tool: ToolInput): Tool

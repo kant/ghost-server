@@ -98,7 +98,7 @@ async function populateDatabaseAsync() {
   sharedIds.havok = havok.data.addTool.toolId;
   sharedIds.sc2Engine = sc2Engine.data.addTool.toolId;
 
-  let [ab_, troy_, peezy_, steelers_] = await Promise.all([
+  let [ab_, troy_, peezy_, steelers_, artosis_, tasteless_, tastosis_] = await Promise.all([
     gqAsync(/* GraphQL */ `
       mutation {
         signup(
@@ -152,14 +152,132 @@ async function populateDatabaseAsync() {
         }
       }
     `),
+
+    gqAsync(/* GraphQL */ `
+      mutation {
+        signup(user: { username: "artosis", name: "Dan Stemkoski" }, password: "somanybanelings") {
+          userId
+          username
+          name
+        }
+      }
+    `),
+
+    gqAsync(/* GraphQL */ `
+      mutation {
+        signup(user: { username: "tasteless", name: "Nick Plott" }, password: "pandabearguy") {
+          userId
+          username
+          name
+        }
+      }
+    `),
+
+    gqAsync(/* GraphQL */ `
+      mutation {
+        signup(
+          user: { username: "tastosis", name: "The Casting Archon", isTeam: true }
+          password: "gsl"
+        ) {
+          userId
+          username
+          name
+        }
+      }
+    `),
   ]);
 
   sharedIds.ab = ab_.data.signup.userId;
   sharedIds.troy = troy_.data.signup.userId;
   sharedIds.peezy = peezy_.data.signup.userId;
   sharedIds.steelers = steelers_.data.signup.userId;
+  sharedIds.artosis = artosis_.data.signup.userId;
+  sharedIds.tasteless = tasteless_.data.signup.userId;
+  sharedIds.tastosis = tastosis_.data.signup.userId;
 
   // Add team members and admins
+  await gqAsync(/* GraphQL */ `
+    mutation {
+      login(who: "tastosis", password: "gsl") {
+        userId
+      }
+    }
+  `);
+  await gqAsync(
+    /* GraphQL */ `
+    mutation($teamId: ID!, $admins: [ID]!) {
+      User(userId: $teamId) {
+        addTeamAdmins(userIdList: $admins) {
+          admins {
+            userId
+            username
+            name
+          }
+        }
+      }
+    }
+    `,
+    {
+      teamId: sharedIds.tastosis,
+      admins: [sharedIds.tasteless, sharedIds.artosis],
+    }
+  );
+
+  await gqAsync(/* GraphQL */ `
+    mutation {
+      login(who: "steelers", password: "superbowl") {
+        userId
+      }
+    }
+  `);
+
+  await gqAsync(
+    /* GraphQL */ `
+      mutation($teamId: ID!, $admins: [ID]!) {
+        User(userId: $teamId) {
+          addTeamAdmins(userIdList: $admins) {
+            admins {
+              userId
+              username
+              name
+            }
+          }
+        }
+      }
+      `,
+    {
+      teamId: sharedIds.steelers,
+      admins: [sharedIds.peezy],
+    }
+  );
+
+  await gqAsync(/* GraphQL */ `
+    mutation {
+      login(who: "peezy", password: "whoride") {
+        userId
+      }
+    }
+  `);
+
+  await gqAsync(
+    /* GraphQL */ `
+      mutation($teamId: ID!, $members: [ID]!) {
+        User(userId: $teamId) {
+          addTeamMembers(userIdList: $members) {
+            members {
+              userId
+              username
+              name
+            }
+          }
+        }
+      }
+      `,
+    {
+      teamId: sharedIds.steelers,
+      members: [sharedIds.peezy, sharedIds.troy, sharedIds.ab],
+    }
+  );
 
   return sharedIds;
 }

@@ -1,3 +1,5 @@
+let assert = require('assert');
+
 let ClientError = require('./ClientError');
 let data = require('./data');
 let db = require('./db');
@@ -160,6 +162,11 @@ async function multigetUsersAsync(userIdList, opts) {
 }
 
 async function updateUserAsync(userInput) {
+  assert(typeof(userInput) === 'object', "`userInput` must be an object");
+  // If there's no data passed in, then just return
+  if (Object.keys(userInput).length === 0) {
+    return;
+  }
   let obj = await ingestUserAsync(userInput);
   return await data.updateObjectAsync(obj.userId, 'user', obj, { column: 'userId' });
 }
