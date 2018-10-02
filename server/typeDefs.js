@@ -149,6 +149,7 @@ module.exports = /* GraphQL */ `
     otherUsernames: Json
     links: Json
     about: Json
+    info: Json
     photo: ImageInput
     isTeam: Boolean
   }

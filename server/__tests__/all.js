@@ -735,50 +735,50 @@ test('Signing up a user and updating a user and logging in and logging out', asy
 });
 
 test('Test teams', async () => {
-  let gqAsync = gq.withClientId('testTeams');
-  let signup_1 = (await gqAsync(/* GraphQL */ `
-    mutation {
-      signup(user: { username: "ab84", name: "Antonio Brown" }, password: "callgod") {
-        userId
-        username
-        name
-      }
-    }
-  `)).data.signup;
-  let ab = signup_1.userId;
+  // let gqAsync = gq.withClientId('testTeams');
+  // let signup_1 = (await gqAsync(/* GraphQL */ `
+  //   mutation {
+  //     signup(user: { username: "ab84", name: "Antonio Brown" }, password: "callgod") {
+  //       userId
+  //       username
+  //       name
+  //     }
+  //   }
+  // `)).data.signup;
+  // let ab = signup_1.userId;
 
-  let signup_2 = (await gqAsync(/* GraphQL */ `
-    mutation {
-      signup(user: { username: "troy", name: "Troy Polamalu" }, password: "callgod") {
-        userId
-        username
-        name
-      }
-    }
-  `)).data.signup;
-  let troy = signup_2.userId;
+  // let signup_2 = (await gqAsync(/* GraphQL */ `
+  //   mutation {
+  //     signup(user: { username: "troy", name: "Troy Polamalu" }, password: "callgod") {
+  //       userId
+  //       username
+  //       name
+  //     }
+  //   }
+  // `)).data.signup;
+  // let troy = signup_2.userId;
 
-  let signup_3 = (await gqAsync(/* GraphQL */ `
-    mutation {
-      signup(user: { username: "peezy", name: "Joey Porter" }, password: "whoride") {
-        userId
-        username
-        name
-      }
-    }
-  `)).data.signup;
-  let peezy = signup_3.userId;
+  // let signup_3 = (await gqAsync(/* GraphQL */ `
+  //   mutation {
+  //     signup(user: { username: "peezy", name: "Joey Porter" }, password: "whoride") {
+  //       userId
+  //       username
+  //       name
+  //     }
+  //   }
+  // `)).data.signup;
+  // let peezy = signup_3.userId;
 
-  let signup_4 = (await gqAsync(/* GraphQL */ `
-  mutation {
-    signup(user: { username: "steelers", name: "The Pittsburgh Steelers" }, password: "7rings") {
-      userId
-      username
-      name
-    }
-  }
-  `)).data.signup;
+  // let signup_4 = (await gqAsync(/* GraphQL */ `
+  // mutation {
+  //   signup(user: { username: "steelers", name: "The Pittsburgh Steelers" }, password: "7rings") {
+  //     userId
+  //     username
+  //     name
+  //   }
+  // }
+  // `)).data.signup;
 
-  let steelers = signup_4.userId;
+  // let steelers = signup_4.userId;
 
 });

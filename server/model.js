@@ -487,7 +487,7 @@ async function allToolIdsAsync(opts) {
 let jsonFields = {
   media: ['description', 'coverImage', 'instructions', 'dimensions', 'links', 'toolSet'],
   tool: ['about', 'image'],
-  user: ['about', 'photo'],
+  user: ['about', 'photo', 'info'],
   playlist: ['description', 'mediaItems', 'image'],
 };
 

@@ -97,6 +97,70 @@ async function populateDatabaseAsync() {
   ]);
   sharedIds.havok = havok.data.addTool.toolId;
   sharedIds.sc2Engine = sc2Engine.data.addTool.toolId;
+
+  let [ab_, troy_, peezy_, steelers_] = await Promise.all([
+    gqAsync(/* GraphQL */ `
+      mutation {
+        signup(
+          user: { username: "ab84", name: "Antonio Brown", info: { number: 84 } }
+          password: "whoride"
+        ) {
+          userId
+          username
+          name
+        }
+      }
+    `),
+    gqAsync(/* GraphQL */ `
+      mutation {
+        signup(
+          user: { username: "troy", name: "Troy Polamalu", info: { number: 43 } }
+          password: "hair"
+        ) {
+          userId
+          username
+          name
+        }
+      }
+    `),
+    gqAsync(/* GraphQL */ `
+      mutation {
+        signup(
+          user: { username: "peezy", name: "Joey Porter", info: { number: 55 } }
+          password: "whoride"
+        ) {
+          userId
+          username
+          name
+        }
+      }
+    `),
+    gqAsync(/* GraphQL */ `
+      mutation {
+        signup(
+          user: {
+            username: "steelers"
+            name: "The Pittsburgh Steelers"
+            info: { colors: "Black and Gold" }
+            isTeam: true
+          }
+          password: "superbowl"
+        ) {
+          userId
+          username
+          name
+        }
+      }
+    `),
+  ]);
+
+  sharedIds.ab = ab_.data.signup.userId;
+  sharedIds.troy = troy_.data.signup.userId;
+  sharedIds.peezy = peezy_.data.signup.userId;
+  sharedIds.steelers = steelers_.data.signup.userId;
+
+  // Add team members and admins
+
   return sharedIds;
 }
 
