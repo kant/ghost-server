@@ -211,16 +211,6 @@ module.exports = /* GraphQL */ `
     addMedia(media: MediaInput): Media
     updateMedia(mediaId: ID!, media: MediaInput): Media
     deleteMedia(mediaId: ID!): Boolean
-    addTeamMember(teamId: ID!, userId: ID!): User
-    addTeamMembers(teamId: ID!, userIdList: [ID]): User
-    removeTeamMember(teamId: ID!, userId: ID!): User
-    removeTeamMembers(teamId: ID!, userIdList: [ID]): User
-    addTeamAdmin(teamId: ID!, userId: ID!): User
-    addTeamAdmins(teamId: ID!, userIdList: [ID]): User
-    removeTeamAdmin(teamId: ID!, userId: ID!): User
-    removeTeamAdmins(teamId: ID!, userIdList: [ID]): User
-    convertUserToTeam(userId: ID!, adminUserIdList: [ID]!): User
-    convertTeamToUser(teamId: ID!): User
     addMediaTags(mediaId: ID!, tags: [String!], tag: String): Media
     removeMediaTags(mediaId: ID!, tags: [String!], tag: String): Media
     addMediaTools(mediaId: ID!, toolId: ID, toolIds: [ID!]): Media

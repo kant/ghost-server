@@ -105,6 +105,7 @@ CREATE TABLE "user" (
   "username" varchar(255),
   "links" jsonb,
   "otherUsernames" jsonb,
+  "info" jsonb,
   "about" jsonb,
   "location" text,
   "photo" jsonb,
