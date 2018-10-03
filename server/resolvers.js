@@ -214,10 +214,15 @@ module.exports = {
     subscriptionCount: async (user, {}, context) => {
       return await context.loaders.subscriptionCount.load(user.userId);
     },
-    media: async (user, {}, context) => {
+    mediaItems: async (user, {}, context) => {
       let mediaIdList = await context.loaders.mediaForUser.load(user.userId);
-      let media = await context.loaders.media.loadMany(mediaIdList);
-      return media;
+      let mediaItems = await context.loaders.media.loadMany(mediaIdList);
+      return mediaItems;
+    },
+    playlists: async (user, {}, context) => {
+      let playlistIdList = await context.loaders.playlistsForUser.load(user.userId);
+      let playlists = await context.loaders.playlist.loadMany(playlistIdList);
+      return playlists;
     }
   },
   Playlist: {

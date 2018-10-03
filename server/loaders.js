@@ -58,12 +58,17 @@ function createLoaders(context) {
     return await loadMediaIdsForUserIdsAsync(keys);
   });
 
+  let playlistsForUser = new DataLoader(async (keys) => {
+    return await loadPlaylistIdsForUserIdsAsync(keys);
+  });
+
   return {
     user,
     userByUsername,
     media,
     mediaForUser,
     playlist,
+    playlistsForUser,
     tool,
     subscriptions,
     subscribers,
@@ -125,6 +130,26 @@ async function loadMediaIdsForUserIdsAsync(userIdList) {
   for (let row of results.rows) {
     byUserId[row.userId] = byUserId[row.userId] || [];
     byUserId[row.userId].push(row.mediaId);
+  }
+  let ordered = [];
+  for (let userId of userIdList) {
+    ordered.push(byUserId[userId] || []);
+  }
+  return ordered;
+}
+
+async function loadPlaylistIdsForUserIdsAsync(userIdList) {
+  let r = db.replacer();
+  let results = await db.queryAsync(
+    /* SQL */ `
+    SELECT "playlistId", "userId" FROM "playlist" WHERE "userId" IN ${r.inList(userIdList)};
+    `,
+    r.values()
+  );
+  let byUserId = {};
+  for (let row of results.rows) {
+    byUserId[row.userId] = byUserId[row.userId] || [];
+    byUserId[row.userId].push(row.playlistId);
   }
   let ordered = [];
   for (let userId of userIdList) {
@@ -222,4 +247,5 @@ module.exports = {
   loadSubscriptionsAsync,
   loadSubscribersAsync,
   loadMediaIdsForUserIdsAsync,
+  loadPlaylistIdsForUserIdsAsync,
 };

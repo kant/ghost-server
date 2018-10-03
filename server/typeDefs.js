@@ -49,7 +49,8 @@ module.exports = /* GraphQL */ `
     subscriberCount: Int
     subscriptions: [User]
     subscriptionCount: Int
-    media: [Media]
+    mediaItems: [Media]
+    playlists: [Playlist]
   }
 
   type Tool {
