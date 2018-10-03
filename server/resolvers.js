@@ -45,7 +45,6 @@ module.exports = {
         return result.rows[0].value;
       }
     },
-
     me: async (_, {}, context) => {
       if (context.userId) {
         return await context.loaders.user.load(context.userId);
@@ -118,9 +117,6 @@ module.exports = {
     },
     subscriberCount: async (_, { toId }, context) => {
       return await context.loaders.subscriberCount.load(toId);
-    },
-    uploads: async (_, {}, context) => {
-      return [];
     },
   },
   MediaAndPlaylistSearchResults: {
@@ -230,7 +226,7 @@ module.exports = {
       let playlistIdList = await context.loaders.playlistsForUser.load(user.userId);
       let playlists = await context.loaders.playlist.loadMany(playlistIdList);
       return playlists;
-    },
+    }
   },
   Playlist: {
     mediaItems: async (playlist, {}, context, info) => {
@@ -388,17 +384,6 @@ module.exports = {
       if (context.userId) {
         return await context.loaders.user.load(context.userId);
       }
-    },
-
-    singleUpload: async (_, { file }, context) => {
-      return await uploads.processUploadAsync(context, file);
-    },
-    multipleUpload: async (_, { files }, context) => {
-      return await Promise.all(
-        files.map(async (file) => {
-          return await uploads.processUploadAsync(context, file);
-        })
-      );
     },
   },
   MediaMutation: {
