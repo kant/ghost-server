@@ -100,6 +100,7 @@ module.exports = /* GraphQL */ `
 
   type MediaAndPlaylistSearchResults {
     mediaItems: [Media]
+    playlists: [Playlist]
     playlistItems: [Playlist]
     recommendedItems: [Media]
   }

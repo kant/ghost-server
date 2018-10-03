@@ -126,6 +126,9 @@ module.exports = {
     playlistItems: async (results, {}, context) => {
       return await context.loaders.playlist.loadMany(results.playlistResults.map((x) => x.id));
     },
+    playlists: async (results, {}, context) => {
+      return await context.loaders.playlist.loadMany(results.playlistResults.map((x) => x.id));
+    },
     recommendedItems: async (results, {}, context) => {
       return await context.loaders.media.loadMany(results.recommendedResults.map((x) => x.id));
     },
