@@ -25,9 +25,11 @@ class GhostApiExample extends React.Component {
 
   componentDidMount() {
     let GhostApiClient = require('ghost-api-client');
-    this._api = new GhostApiClient();
+    this._api = GhostApiClient();
+    this._localApi = GhostApiClient('http://localhost:1380');
     if (window) {
-      window._Api = this._api;
+      window.Api = this._api;
+      window.localApi = this._localApi
     }
   }
 
