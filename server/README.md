@@ -25,6 +25,9 @@ so we can open source this repo.
 
 3. `yarn` in this directory 
 
+The whole repo uses yarn workspaces, so this will install node modules
+for all the projects within it.
+
 Now, you can do three things that are useful:
 
 To get a repl, do

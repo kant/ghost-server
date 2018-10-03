@@ -54,10 +54,15 @@ function createLoaders(context) {
     return await loadSubscriberCountsAsync(keys);
   });
 
+  let mediaForUser = new DataLoader(async (keys) => {
+    return await loadMediaIdsForUserIdsAsync(keys);
+  });
+
   return {
     user,
     userByUsername,
     media,
+    mediaForUser,
     playlist,
     tool,
     subscriptions,
@@ -106,6 +111,26 @@ async function loadMediaAsync(mediaIdList) {
   return await data.loadObjectsAsync(mediaIdList, 'media', 'mediaId', {
     columns: model.mediaColumns,
   });
+}
+
+async function loadMediaIdsForUserIdsAsync(userIdList) {
+  let r = db.replacer();
+  let results = await db.queryAsync(
+    /* SQL */ `
+  SELECT "mediaId", "userId" FROM "media" WHERE "userId" IN ${r.inList(userIdList)};
+  `,
+    r.values()
+  );
+  let byUserId = {};
+  for (let row of results.rows) {
+    byUserId[row.userId] = byUserId[row.userId] || [];
+    byUserId[row.userId].push(row.mediaId);
+  }
+  let ordered = [];
+  for (let userId of userIdList) {
+    ordered.push(byUserId[userId] || []);
+  }
+  return ordered;
 }
 
 async function loadSubscriberCountsAsync(toIdList) {
@@ -196,4 +221,5 @@ module.exports = {
   loadSubscriptionCountsAsync,
   loadSubscriptionsAsync,
   loadSubscribersAsync,
+  loadMediaIdsForUserIdsAsync,
 };

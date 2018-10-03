@@ -214,6 +214,11 @@ module.exports = {
     subscriptionCount: async (user, {}, context) => {
       return await context.loaders.subscriptionCount.load(user.userId);
     },
+    media: async (user, {}, context) => {
+      let mediaIdList = await context.loaders.mediaForUser.load(user.userId);
+      let media = await context.loaders.media.loadMany(mediaIdList);
+      return media;
+    }
   },
   Playlist: {
     mediaItems: async (playlist, {}, context, info) => {

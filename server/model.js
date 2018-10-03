@@ -460,7 +460,7 @@ async function unsubscribeAsync(fromId, toId) {
 }
 
 async function subscribersAsync(toId) {
-  let r = db.replace();
+  let r = db.replacer();
   let result = await db.queryAsync(/* SQL */ `
   SELECT "fromId" FROM "sub" WHERE "toId" = ${r(toId)} ORDER BY "updatedTime" DESC;
   `);
@@ -468,7 +468,7 @@ async function subscribersAsync(toId) {
 }
 
 async function subscriptionsAsync(fromId) {
-  let r = db.replace();
+  let r = db.replacer();
   let result = await db.queryAsync(/* SQL */ `
   SELECT "toId" FROM "sub" WHERE "fromId" = ${r(fromId)} ORDER BY "updatedTime" DESC;
   `);
