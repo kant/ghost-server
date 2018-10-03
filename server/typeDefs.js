@@ -2,6 +2,7 @@ module.exports = /* GraphQL */ `
   scalar Json
   scalar Datetime
   scalar Null
+  scalar Upload
 
   type Image {
     url: String
@@ -9,6 +10,14 @@ module.exports = /* GraphQL */ `
     width: Float
     donwloaded: Int
     type: String
+  }
+
+  type File {
+    id: ID!
+    path: String!
+    filename: String!
+    mimetype: String!
+    encoding: String!
   }
 
   type Media {
@@ -135,6 +144,8 @@ module.exports = /* GraphQL */ `
     subscriptions(fromId: ID): [User]
     subscriberCount(toId: ID): Int
     subscriptionCount(fromId: ID): Int
+
+    uploads: [File]
   }
 
   input ImageInput {
@@ -250,5 +261,8 @@ module.exports = /* GraphQL */ `
     changePassword(oldPassword: String!, newPassword: String!): Boolean
     subscribe(fromId: ID, toId: ID!): Boolean
     unsubscribe(fromId: ID, toId: ID!): Boolean
+
+    singleUpload (file: Upload!): File!
+    multipleUpload (files: [Upload!]!): [File!]!
   }
 `;

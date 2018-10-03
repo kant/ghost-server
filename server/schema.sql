@@ -157,5 +157,20 @@ CREATE TABLE "sub" (
   "updatedTime" timestamptz default now(),
   PRIMARY KEY ("fromId", "toId")
 );
-
 CREATE TRIGGER "sub_setUpdatedTime" BEFORE UPDATE ON "sub" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+CREATE TABLE "file" (
+  "fileHash" text PRIMARY KEY,
+  "content" bytea,
+  "mimeType" text,
+  "filename" text,
+  "userId" text,
+  "fromIp" text,
+  "uploadTime" timestamptz,
+  "length" integer,
+  "uploadCount" integer default 1,
+  "createdTime" timestamptz default now(),
+  "updatedTime" timestamptz default now()
+);
+CREATE TRIGGER "file_setUpdatedTime" BEFORE UPDATE ON "file" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
