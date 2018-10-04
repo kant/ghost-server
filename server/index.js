@@ -27,6 +27,9 @@ async function serveAsync(port) {
   app.use(cors());
   app.use(bodyParser.json());
   app.get(endpoints.status, async (req, res) => {
+    // Don't pollute the logs with timing for status requests
+    // unless they become very slow for some reason
+    // (Render will ping every few seconds to make sure the server is OK)
     req.__timingThreshold = 1000;
     res.json({ status: 'OK' });
   });
