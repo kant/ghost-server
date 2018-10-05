@@ -19,6 +19,7 @@ async function makeGraphqlContextAsync({ request, clientId }) {
     userId = await model.getUserIdForSessionAsync(clientId);
   }
   request = request || {};
+
   let context = {
     request,
     clientId,
@@ -31,9 +32,9 @@ async function makeGraphqlContextAsync({ request, clientId }) {
 }
 
 async function makeGraphqlAppAsync() {
+  
   let graphqlMiddleware = async (resolve, parent, args, context, info) => {
     if (!parent) {
-
       // Hide anything that looks like a password from logs
       let variableValues = { ...info.variableValues };
       let queryArgs = { ...args };
@@ -76,6 +77,11 @@ async function makeGraphqlAppAsync() {
     }
   };
 
+  let serverInfoMiddleware = (req, res, next) => {
+    req.baseUrl = req.protocol + '://' + req.get('Host');
+    next();
+  };
+
   let requestTimingMiddleware = (req, res, next) => {
     let tk = time.start();
     res.once('finish', () => {
@@ -94,6 +100,7 @@ async function makeGraphqlAppAsync() {
     middlewares: [graphqlMiddleware],
   });
   app.use(requestTimingMiddleware);
+  app.use(serverInfoMiddleware);
 
   return app;
 }

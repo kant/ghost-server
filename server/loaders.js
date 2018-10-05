@@ -62,9 +62,14 @@ function createLoaders(context) {
     return await loadPlaylistIdsForUserIdsAsync(keys);
   });
 
+  let file = new DataLoader(async (keys) => {
+    return await loadFileInfoAsync(keys);
+  });
+
   return {
     user,
     userByUsername,
+    file,
     media,
     mediaForUser,
     playlist,
@@ -234,6 +239,13 @@ async function loadSubscriptionsAsync(fromIdList, context) {
     loadList.push(await context.loaders.user.loadMany(subscriptions[fromId]));
   }
   return loadList;
+}
+
+async function loadFileInfoAsync(fileIdList) {
+  let r = db.replacer();
+  let q = /* SQL */ `SELECT * FROM "file" WHERE "fileId" IN ${r.inList(fileIdList)};`;
+  let results = await db.queryAsync(q, r.values());
+  return _orderedListFromResults(results, fileIdList, 'fileId');
 }
 
 module.exports = {

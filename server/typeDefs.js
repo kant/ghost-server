@@ -106,6 +106,21 @@ module.exports = /* GraphQL */ `
     recommendedItems: [Media]
   }
 
+  type HostedFileMetadata {
+    fileId: ID
+    hash: String
+    name: String
+    encoding: String
+    mimeType: String
+    userId: ID
+    user: User
+    uploadedTime: Datetime
+    width: Int
+    height: Int
+    rawUrl: String
+    imgixUrl: String
+  }
+
   type Query {
     env: String
     inspect: String
@@ -132,10 +147,12 @@ module.exports = /* GraphQL */ `
     allTeams: [User]
     allPlaylists: [Playlist]
 
-    subscribers(toId: ID): [User]
-    subscriptions(fromId: ID): [User]
-    subscriberCount(toId: ID): Int
-    subscriptionCount(fromId: ID): Int
+    subscribers(toId: ID!): [User]
+    subscriptions(fromId: ID!): [User]
+    subscriberCount(toId: ID!): Int
+    subscriptionCount(fromId: ID!): Int
+
+    fileInfo(fileId: ID!): HostedFileMetadata
   }
 
   input ImageInput {
@@ -223,6 +240,7 @@ module.exports = /* GraphQL */ `
     delete: Null
   }
 
+
   type Mutation {
     User(userId: ID, username: String): UserMutation
     me: UserMutation
@@ -252,7 +270,7 @@ module.exports = /* GraphQL */ `
     subscribe(fromId: ID, toId: ID!): Boolean
     unsubscribe(fromId: ID, toId: ID!): Boolean
 
-    singleUpload(file: Upload!): Json
-    tripleUpload(file1: Upload!, file2: Upload!, file3: Upload!): Null
+    uploadFile(file: Upload!): HostedFileMetadata
+    uploadMultipleFiles(files: [Upload!]!): [HostedFileMetadata]
   }
 `;

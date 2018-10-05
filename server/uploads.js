@@ -1,3 +1,4 @@
+let bufferImageSize = require('buffer-image-size');
 let md5 = require('md5');
 let streamBuffers = require('stream-buffers');
 
@@ -33,13 +34,24 @@ async function storeUploadAsync(file, opts) {
   }
 
   let r = db.replacer();
-  await db.queryAsync(
+
+  // Use `queryDontLogValuesAsync` since these blobs can be quite large 
+  // and serializing them to JSON would be a big waste
+  await db.queryDontLogValuesAsync(
     /* SQL */
     `INSERT INTO "blob" ("hash", "data", "size") VALUES
      (${r(hash)}, ${r(content)}, ${r(content.byteLength)})
      ON CONFLICT (hash) DO NOTHING;`,
     r.values()
   );
+
+  let dimensions = bufferImageSize(content);
+  let height = null;
+  let width = null;
+  if (dimensions) {
+    height = dimensions.height;
+    width = dimensions.width;
+  }
 
   let fileId = 'file:' + hash.substr(0, 7);
   let createdFile = await data.writeNewObjectAsync(
@@ -49,7 +61,10 @@ async function storeUploadAsync(file, opts) {
       encoding,
       mimeType: mimetype,
       userId,
+      name: filename,
       uploadIp,
+      height,
+      width,
     },
     'file',
     { autoId: true }

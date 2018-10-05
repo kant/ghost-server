@@ -51,6 +51,9 @@ module.exports = {
         return result.rows[0].value;
       }
     },
+    fileInfo: async (_, { fileId }, context) => {
+      return await context.loaders.file.load(fileId);
+    },
     me: async (_, {}, context) => {
       if (context.userId) {
         return await context.loaders.user.load(context.userId);
@@ -123,6 +126,23 @@ module.exports = {
     },
     subscriberCount: async (_, { toId }, context) => {
       return await context.loaders.subscriberCount.load(toId);
+    },
+  },
+  HostedFileMetadata: {
+    user: async (obj, {}, context) => {
+      if (obj.userId) {
+        return await context.loaders.user.load(obj.userId);
+      }
+    },
+    rawUrl: async (obj, {}, context) => {
+      if (obj.fileId) {
+        return context.request.baseUrl + '/raw/' + obj.fileId;
+      }
+    },
+    imgixUrl: async (obj, {}, context) => {
+      if (obj.fileId) {
+        return 'https://castle.imgix.net/' + obj.fileId;
+      }
     },
   },
   MediaAndPlaylistSearchResults: {
@@ -391,17 +411,25 @@ module.exports = {
         return await context.loaders.user.load(context.userId);
       }
     },
-    singleUpload: async (_, { file }, context) => {
-      console.log('singleUpload', { file });
+    uploadFile: async (_, { file }, context) => {
       let createdFile = await uploads.storeUploadAsync(file, {
         userId: context.userId,
-        uploadIp: context.ip,
+        uploadIp: context.request.ip,
       });
-      console.log('singleUpload', { createdFile });
-      return createdFile;
+      return await context.loaders.file.load(createdFile.fileId);
     },
-    tripleUpload: async (_, { file1, file2, file3 }, context) => {
-      console.log('tripleUpload', file1, file2, file3);
+    uploadMultipleFiles: async (_, { files }, context) => {
+      let a$ = [];
+      for (let file of files) {
+        a$.push(
+          uploads.storeUploadAsync(file, {
+            userId: context.userId,
+            uploadIp: context.request.ip,
+          })
+        );
+      }
+      let createdFiles = await Promise.all(a$);
+      return await context.loaders.file.loadMany(createdFiles.map((x) => x.fileId));
     },
   },
   MediaMutation: {

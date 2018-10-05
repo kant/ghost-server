@@ -16,13 +16,33 @@ export default class UploadPage extends React.Component {
     let result = await this._client(
       /* GraphQL */ `
         mutation($file: Upload!) {
-          singleUpload(file: $file)
+          uploadFile(file: $file) {
+            fileId
+            hash
+            name
+            encoding
+            mimeType
+            userId
+            user {
+              userId
+              username
+              name
+            }
+            uploadedTime
+            width
+            height
+            rawUrl
+            imgixUrl
+          }
         }
       `,
       { file: this.state.avatarFile[0] }
     );
     // let fileId = result.data.singleUpload.fileId;
     // console.log({ fileId });
+    if (result.data.uploadFile) {
+      this.setState({ hostedFile: result.data.uploadFile });
+    }
     console.log(result);
   }
 
@@ -41,13 +61,61 @@ export default class UploadPage extends React.Component {
             console.log('changed file input', files);
           }}
         />
+        <span>{this.state.avatarFile && this.state.avatarFile[0].name}</span>
         <input
           type="submit"
+          title="Upload"
           onClick={() => {
-            console.log("submit");
             this._uploadFileAsync();
           }}
         />
+        <br />
+        {this.state.hostedFile && (
+          <table>
+            <tbody>
+              <tr>
+                <td>fileId</td>
+                <td>{this.state.hostedFile.fileId}</td>
+              </tr>
+              <tr>
+                <td>filename</td>
+                <td>{this.state.hostedFile.name}</td>
+              </tr>
+              <tr>
+                <td>userId</td>
+                <td>{this.state.hostedFile.userId}</td>
+              </tr>
+              <tr>
+                <td>hash</td>
+                <td>{this.state.hostedFile.hash}</td>
+              </tr>
+              <tr>
+                <td>height</td>
+                <td>{this.state.hostedFile.height}</td>
+              </tr>
+              <tr>
+                <td>width</td>
+                <td>{this.state.hostedFile.width}</td>
+              </tr>
+              <tr>
+                <td>MIME type</td>
+                <td>{this.state.hostedFile.mimeType}</td>
+              </tr>
+              <tr>
+                <td>raw hosted</td>
+                <td>
+                  <img src={this.state.hostedFile.rawUrl} />
+                </td>
+              </tr>
+              <tr>
+                <td>imgix hosted</td>
+                <td>
+                  <img src={this.state.hostedFile.imgixUrl} />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        )}
       </div>
     );
   }
