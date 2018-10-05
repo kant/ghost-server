@@ -162,7 +162,7 @@ async function multigetUsersAsync(userIdList, opts) {
 }
 
 async function updateUserAsync(userInput) {
-  assert(typeof(userInput) === 'object', "`userInput` must be an object");
+  assert(typeof userInput === 'object', '`userInput` must be an object');
   // If there's no data passed in, then just return
   if (Object.keys(userInput).length === 0) {
     return;
@@ -498,6 +498,33 @@ let jsonFields = {
   playlist: ['description', 'mediaItems', 'image'],
 };
 
+async function getUploadedFileAsync(fileId) {
+  let r = db.replacer();
+  let results = await db.queryAsync(
+    /* SQL */ `
+  SELECT 
+    "file"."fileId" AS "fileId",
+    "file"."hash" AS "hash",
+    "file"."name" AS "filename",
+    "file"."encoding" AS "encoding",
+    "file"."mimeType" AS "mimeType",
+    "file"."userId" AS "userId",
+    "blob"."data" AS "data",
+    "blob"."size" AS "size",
+    "file"."uploadedTime" AS "uploadedTime"
+  FROM "file" JOIN "blob" ON "file"."hash" = "blob"."hash" 
+  WHERE "file"."fileId" = ${r(fileId)};
+  `,
+    r.values()
+  );
+  if (results.rowCount > 0) {
+    let file = { ...results.rows[0] };
+    return file;
+  } else {
+    return null;
+  }
+}
+
 module.exports = {
   newPlayRecordAsync,
   getPlayRecordsAsync,
@@ -560,4 +587,5 @@ module.exports = {
   unsubscribeAsync,
   subscribersAsync,
   subscriptionsAsync,
+  getUploadedFileAsync,
 };

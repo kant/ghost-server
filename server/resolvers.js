@@ -6,6 +6,7 @@ let model = require('./model');
 let permissions = require('./permissions');
 let search = require('./search');
 let signup = require('./signup');
+let uploads = require('./uploads');
 let validation = require('./validation');
 
 function assertOrClientError(test, message, code) {
@@ -29,10 +30,15 @@ module.exports = {
   Query: {
     inspect: (obj, args, context, info) => {
       return JSON.stringify({
-        obj,
+        // obj,
         // args,
-        // context,
-        info,
+        requestKeys: Object.keys(context.request),
+        socket: Object.keys(context.request.socket),
+        connection: Object.keys(context.request.connection),
+        headers: context.request.headers,
+        ip: context.request.ip,
+        ips: context.request.ips,
+        // info,
       });
     },
     hello: (_, { name }, context) => {
@@ -226,7 +232,7 @@ module.exports = {
       let playlistIdList = await context.loaders.playlistsForUser.load(user.userId);
       let playlists = await context.loaders.playlist.loadMany(playlistIdList);
       return playlists;
-    }
+    },
   },
   Playlist: {
     mediaItems: async (playlist, {}, context, info) => {
@@ -384,6 +390,18 @@ module.exports = {
       if (context.userId) {
         return await context.loaders.user.load(context.userId);
       }
+    },
+    singleUpload: async (_, { file }, context) => {
+      console.log('singleUpload', { file });
+      let createdFile = await uploads.storeUploadAsync(file, {
+        userId: context.userId,
+        uploadIp: context.ip,
+      });
+      console.log('singleUpload', { createdFile });
+      return createdFile;
+    },
+    tripleUpload: async (_, { file1, file2, file3 }, context) => {
+      console.log('tripleUpload', file1, file2, file3);
     },
   },
   MediaMutation: {

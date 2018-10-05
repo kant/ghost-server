@@ -2,6 +2,7 @@ module.exports = /* GraphQL */ `
   scalar Json
   scalar Datetime
   scalar Null
+  scalar Upload
 
   type Image {
     url: String
@@ -250,5 +251,8 @@ module.exports = /* GraphQL */ `
     changePassword(oldPassword: String!, newPassword: String!): Boolean
     subscribe(fromId: ID, toId: ID!): Boolean
     unsubscribe(fromId: ID, toId: ID!): Boolean
+
+    singleUpload(file: Upload!): Json
+    tripleUpload(file1: Upload!, file2: Upload!, file3: Upload!): Null
   }
 `;

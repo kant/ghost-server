@@ -1,8 +1,60 @@
 let apolloFetch = require('apollo-fetch');
+let extractFiles = require('extract-files');
 
 let Storage = require('./Storage');
 
 let PRODUCTION_API_URL = 'https://ghost-server.app.render.com';
+
+// This code based on the code here by @jaydenseric
+// https://github.com/jaydenseric/apollo-upload-client/blob/master/src/index.js
+function constructUploadOptions(requestOrRequests, options) {
+  let files = extractFiles.extractFiles(requestOrRequests);
+
+  if (files.length) {
+    if (typeof FormData === 'undefined') {
+      throw new Error('Environment must support FormData to upload files.');
+    }
+
+    options.method = 'POST';
+
+    // Automatically set by fetch when the body is a FormData instance.
+    delete options.headers['content-type'];
+
+    // GraphQL multipart request spec:
+    // https://github.com/jaydenseric/graphql-multipart-request-spec
+    options.body = new FormData();
+    options.body.append('operations', JSON.stringify(requestOrRequests));
+    options.body.append(
+      'map',
+      JSON.stringify(
+        files.reduce((map, { path }, index) => {
+          map[`${index}`] = [path];
+          return map;
+        }, {})
+      )
+    );
+    files.forEach(({ file }, index) => options.body.append(index, file, file.name));
+    return options;
+  } else {
+    return apolloFetch.constructDefaultOptions(requestOrRequests, options);
+  }
+
+  // if (files.length) {
+  //   if (typeof FormData === 'undefined') {
+  //     throw new Error('Environment must support FormData to upload files.');
+  //   }
+
+  //   options.method = 'POST';
+  //   options.body = new FormData();
+  //   options.body.append('operations', JSON.stringify(requestOrRequests));
+  //   options.body.append('map', JSON.stringify({}));
+  //   files.forEach(({ path, file }) => options.body.append(path, file));
+
+  //   return options;
+  // } else {
+  //   return apolloFetch.constructDefaultOptions(requestOrRequests, options);
+  // }
+}
 
 class GhostClient {
   constructor(baseUrl, opts) {
@@ -11,6 +63,7 @@ class GhostClient {
     this._storage = this.opts.storage || new Storage();
     this._apolloFetch = apolloFetch.createApolloFetch({
       uri: this.url + '/graphql',
+      constructOptions: constructUploadOptions,
     });
 
     // Add auth header

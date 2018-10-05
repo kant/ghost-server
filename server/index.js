@@ -5,10 +5,12 @@ let _tkPrimedAndStarted = time.start();
 let bodyParser = require('body-parser');
 let cors = require('cors');
 let escapeHtml = require('escape-html');
+let fileType = require('file-type');
 let spawnAsync = require('@expo/spawn-async');
 
 let db = require('./db');
 let graphqlApp = require('./graphqlApp');
+let model = require('./model');
 let populateTestDatabase = require('./testlib/populateTestDatabase');
 
 async function serveAsync(port) {
@@ -17,6 +19,7 @@ async function serveAsync(port) {
     graphql: '/graphql',
     playground: '/graphql',
     subscriptions: '/subscriptions',
+    rawFile: '/raw',
   };
 
   let app = await graphqlApp.graphqlAppAsync();
@@ -61,6 +64,32 @@ async function serveAsync(port) {
         links.join('\n') +
         '</pre>'
     );
+  });
+
+  app.get(endpoints.rawFile + '/:fileId', async (req, res) => {
+    let fileId = req.params.fileId;
+    if (!fileId) {
+      res.status(404).send('No such file');
+      return;
+    }
+    let file = await model.getUploadedFileAsync(fileId);
+    if (!file) {
+      res.status(404).send('No such file');
+      return;
+    }
+    let mimeType = file.mimeType;
+    if (!mimeType) {
+      let ft = fileType(file.data);
+      if (ft) {
+        mimeType = ft.mime;
+      }
+    }
+    if (mimeType) {
+      res.type(mimeType);
+    } else {
+      console.warn("Can't figure out the MIME type for " + fileId + ' but sending data anyway');
+    }
+    res.send(file.data);
   });
 
   // Report the time it takes to load all the code separate
