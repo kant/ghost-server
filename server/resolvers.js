@@ -291,6 +291,17 @@ module.exports = {
       await auth.logoutAsync(context.clientId);
       return null;
     },
+    logoutSession: async (_, { clientId }, context, info) => {
+      return await auth.logoutAsync(clientId);
+    },
+    logoutEverywhere: async (_, {}, context, info) => {
+      await permissions.loginRequiredAsync(context);
+      return await auth.logoutEverywhereAsync(context.userId);
+    },
+    logoutEverywhereElse: async (_, {}, context, info) => {
+      await permissions.loginRequiredAsync(context);
+      return await auth.logoutEverywhereElseAsync(context.userId, context.clientId);
+    },
     changePassword: async (_, { oldPassword, newPassword }, context, info) => {
       return await auth.changePasswordAsync(context.userId, oldPassword, newPassword);
     },

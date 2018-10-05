@@ -51,6 +51,12 @@ async function canDeleteToolAsync({ userId }, toolId) {
   }
 }
 
+async function loginRequiredAsync(context) {
+  if (!context.userId) {
+    throw ClientError('You need to be logged in to do that', 'LOGIN_REQUIRED');
+  }
+}
+
 async function isLoggedInAsAsync({ userId }, userId2) {
   if (userId !== userId2) {
     throw PermissionError("You don't have permission to do that");
@@ -219,6 +225,7 @@ module.exports = {
   canDeletePlaylistAsync,
   hasClientIdAsync,
   isLoggedInAsAsync,
+  loginRequiredAsync,
   canSubscribeToUserAsync,
   canUnsubscribeFromUserAsync,
 };

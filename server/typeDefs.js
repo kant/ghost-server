@@ -251,6 +251,9 @@ module.exports = /* GraphQL */ `
 
     login(who: String, username: String, userId: ID, password: String!): User
     logout: Null
+    logoutSession(clientId: ID): Int
+    logoutEverywhereElse: Int
+    logoutEverywhere: Int
     signup(user: UserInput!, password: String!): User
 
     addTool(tool: ToolInput): Tool

@@ -71,9 +71,20 @@ async function logoutAsync(clientId) {
   return await model.endSessionAsync(clientId);
 }
 
+async function logoutEverywhereAsync(userId) {
+  return await model.endAllSessionsForUserAsync(userId);
+}
+
+async function logoutEverywhereElseAsync(userId, clientId) {
+  return await model.endAllSessionsForUserExceptAsync(userId, clientId);
+}
+
+
 module.exports = {
   getUserForLoginAsync,
   loginAsync,
   logoutAsync,
+  logoutEverywhereAsync,
+  logoutEverywhereElseAsync,
   changePasswordAsync,
 };

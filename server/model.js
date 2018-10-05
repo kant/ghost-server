@@ -380,6 +380,28 @@ async function endSessionAsync(clientId, opts) {
   return await data._deleteObjectAsync(clientId, 'session', { column: 'clientId', ...opts });
 }
 
+async function endAllSessionsForUserAsync(userId) {
+  let r = db.replacer();
+  let result = await db.queryAsync(
+    /* SQL */ `
+  DELETE FROM "session" WHERE "userId" = ${r(userId)};
+  `,
+    r.values()
+  );
+  return result.rowCount;
+}
+
+async function endAllSessionsForUserExceptAsync(userId, clientId) {
+  let r = db.replacer();
+  let result = await db.queryAsync(
+    /* SQL */ `
+  DELETE FROM "session" WHERE "userId" = ${r(userId)} AND "clientId" <> ${r(clientId)};
+  `,
+    r.values()
+  );
+  return result.rowCount;
+}
+
 async function getUserIdForSessionAsync(clientId) {
   let result = await db.queryAsync('SELECT "userId" FROM "session" WHERE "clientId" = $1', [
     clientId,
@@ -565,6 +587,8 @@ module.exports = {
   removeTeamMembersAsync,
   startSessionAsync,
   endSessionAsync,
+  endAllSessionsForUserAsync,
+  endAllSessionsForUserExceptAsync,
   getUserIdForSessionAsync,
   signupAsync,
   isRoleOfTeamAsync,
