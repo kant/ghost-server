@@ -128,7 +128,7 @@ module.exports = {
       return await context.loaders.subscriberCount.load(toId);
     },
   },
-  HostedFileMetadata: {
+  HostedFile: {
     user: async (obj, {}, context) => {
       if (obj.userId) {
         return await context.loaders.user.load(obj.userId);

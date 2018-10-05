@@ -106,7 +106,7 @@ module.exports = /* GraphQL */ `
     recommendedItems: [Media]
   }
 
-  type HostedFileMetadata {
+  type HostedFile {
     fileId: ID
     hash: String
     name: String
@@ -152,7 +152,7 @@ module.exports = /* GraphQL */ `
     subscriberCount(toId: ID!): Int
     subscriptionCount(fromId: ID!): Int
 
-    fileInfo(fileId: ID!): HostedFileMetadata
+    fileInfo(fileId: ID!): HostedFile
   }
 
   input ImageInput {
@@ -270,7 +270,7 @@ module.exports = /* GraphQL */ `
     subscribe(fromId: ID, toId: ID!): Boolean
     unsubscribe(fromId: ID, toId: ID!): Boolean
 
-    uploadFile(file: Upload!): HostedFileMetadata
-    uploadMultipleFiles(files: [Upload!]!): [HostedFileMetadata]
+    uploadFile(file: Upload!): HostedFile
+    uploadMultipleFiles(files: [Upload!]!): [HostedFile]
   }
 `;
