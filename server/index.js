@@ -66,6 +66,17 @@ async function serveAsync(port) {
     );
   });
 
+  app.get(endpoints.origin, async (req, res) => {
+    res
+      .status(404)
+      .type('text/plain')
+      .send(
+        'You can download the origin file for a hosted file at the URL ' +
+          req.baseUrl +
+          '/origin/<fileId>'
+      );
+  });
+
   app.get(endpoints.origin + '/:fileId', async (req, res) => {
     let fileId = req.params.fileId;
     if (!fileId) {
