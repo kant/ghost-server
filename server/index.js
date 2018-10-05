@@ -35,6 +35,7 @@ async function serveAsync(port) {
   app.get('/', async (req, res) => {
     let pkg = require('./package');
     let gitResult = await spawnAsync('git', ['log', '--pretty=oneline', '-n1']);
+    let gitStatusResult = await spawnAsync('git', ['status']);
     let links = [];
     for (let name in endpoints) {
       links.push(
@@ -50,20 +51,27 @@ async function serveAsync(port) {
     }
 
     let title = '👻 ' + pkg.name + ' v' + pkg.version;
-    res.send(
-      '<title>' +
-        title +
-        '</title>' +
-        '<pre>' +
-        title +
-        '<br /><br /><a href="' +
-        pkg.repository +
-        '">' +
-        escapeHtml(gitResult.stdout) +
-        '</a><br />' +
-        links.join('\n') +
-        '</pre>'
-    );
+
+    res.send(`
+<html>
+<head>
+<title>${title}</title>
+</head>
+<body>
+<pre>${title}
+
+${links.join('\n')}
+
+
+<a href="${pkg.repository}">${escapeHtml(gitResult.stdout)}</a>
+<small>
+${escapeHtml(gitStatusResult.stdout)}
+</small>
+</pre>
+</body>
+</html>
+    `);
+    
   });
 
   app.get(endpoints.origin, async (req, res) => {
