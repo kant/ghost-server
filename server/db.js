@@ -105,15 +105,7 @@ async function poolAsync() {
   return _pool;
 }
 
-async function queryAsync(...args) {
-  return await optsQueryAsync(null, ...args);
-}
-
-async function queryDontLogValuesAsync(...args) {
-  return await optsQueryAsync({dontLogValues: true}, ...args);
-}
-
-async function optsQueryAsync(opts, ...args) {
+async function queryAsync(query, values, opts) {
   opts = opts || {};
   let tk = time.start();
   let pool = await poolAsync();
@@ -121,7 +113,6 @@ async function optsQueryAsync(opts, ...args) {
   time.end(tk, 'db-connect', { threshold: 10 });
 
   // Construct message for logging this
-  let [query, values] = args;
   let logLimit = opts.logLimit || 256;
   let message = query.substr(0, logLimit);
   if (query.length > logLimit) {
@@ -138,7 +129,7 @@ async function optsQueryAsync(opts, ...args) {
   let queryOk = false;
   let queryError = null;
   try {
-    let result = await client.query(...args);
+    let result = await client.query(query, values);
     queryOk = true;
     return result;
   } catch (e) {
@@ -209,8 +200,6 @@ async function cleanupTestDatabaseAsync() {
 
 module.exports = {
   queryAsync,
-  queryDontLogValuesAsync,
-  optsQueryAsync,
   replacer,
   pg,
   iq,

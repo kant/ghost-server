@@ -35,14 +35,15 @@ async function storeUploadAsync(file, opts) {
 
   let r = db.replacer();
 
-  // Use `queryDontLogValuesAsync` since these blobs can be quite large 
+  // Use `queryDontLogValuesAsync` since these blobs can be quite large
   // and serializing them to JSON would be a big waste
-  await db.queryDontLogValuesAsync(
+  await db.queryAsync(
     /* SQL */
     `INSERT INTO "blob" ("hash", "data", "size") VALUES
      (${r(hash)}, ${r(content)}, ${r(content.byteLength)})
      ON CONFLICT (hash) DO NOTHING;`,
-    r.values()
+    r.values(),
+    { dontLogValues: true }
   );
 
   let dimensions = bufferImageSize(content);
