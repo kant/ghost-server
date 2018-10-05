@@ -31,7 +31,7 @@ export default class UploadPage extends React.Component {
             uploadedTime
             width
             height
-            rawUrl
+            originUrl
             imgixUrl
           }
         }
@@ -102,9 +102,9 @@ export default class UploadPage extends React.Component {
                 <td>{this.state.hostedFile.mimeType}</td>
               </tr>
               <tr>
-                <td>raw hosted</td>
+                <td>origin hosted</td>
                 <td>
-                  <img src={this.state.hostedFile.rawUrl} />
+                  <img src={this.state.hostedFile.originUrl} />
                 </td>
               </tr>
               <tr>

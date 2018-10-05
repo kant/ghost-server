@@ -19,7 +19,7 @@ async function serveAsync(port) {
     graphql: '/graphql',
     playground: '/graphql',
     subscriptions: '/subscriptions',
-    rawFile: '/raw',
+    origin: '/origin',
   };
 
   let app = await graphqlApp.graphqlAppAsync();
@@ -66,7 +66,7 @@ async function serveAsync(port) {
     );
   });
 
-  app.get(endpoints.rawFile + '/:fileId', async (req, res) => {
+  app.get(endpoints.origin + '/:fileId', async (req, res) => {
     let fileId = req.params.fileId;
     if (!fileId) {
       res.status(404).send('No such file');

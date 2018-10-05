@@ -134,9 +134,9 @@ module.exports = {
         return await context.loaders.user.load(obj.userId);
       }
     },
-    rawUrl: async (obj, {}, context) => {
+    originUrl: async (obj, {}, context) => {
       if (obj.fileId) {
-        return context.request.baseUrl + '/raw/' + obj.fileId;
+        return context.request.baseUrl + '/origin/' + obj.fileId;
       }
     },
     imgixUrl: async (obj, {}, context) => {

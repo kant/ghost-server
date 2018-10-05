@@ -117,7 +117,7 @@ module.exports = /* GraphQL */ `
     uploadedTime: Datetime
     width: Int
     height: Int
-    rawUrl: String
+    originUrl: String
     imgixUrl: String
   }
 
