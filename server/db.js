@@ -124,6 +124,8 @@ async function queryAsync(query, values, opts) {
       message = message.substr(0, logLimit) + ' ...]';
     }
   }
+  message = message.replace(/\s+/g, ' ');
+
 
   let tkq = time.start();
   let queryOk = false;
