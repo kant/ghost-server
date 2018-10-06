@@ -355,6 +355,11 @@ test('Test making a media item', async () => {
 });
 
 test('Signing up a user and updating a user and logging in and logging out', async () => {
+
+  // Jest has a default timeout of 5 seconds, and sometimes this test
+  // will take longer than that
+  jest.setTimeout(30000);
+  
   let gqAsync = gq.withClientId('testUserOperations');
   let gqAllowErrorsAsync = gq.withClientId('testUserOperations', { allowErrors: true });
   let signup = (await gqAsync(
