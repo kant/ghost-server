@@ -4,7 +4,7 @@ let path = require('path');
 class FileSystemStorage {
   constructor(opts) {
     this._opts = { ...opts };
-    this._file = this._opts.file || path.join(process.env.HOME, '.expo-ghost-client.json');
+    this._file = this._opts.file || path.join(process.env.HOME, '.castle-api.json');
   }
 
   _writeFileAsync(...args) {

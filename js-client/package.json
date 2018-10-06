@@ -1,10 +1,10 @@
 {
-  "name": "ghost-api-client",
-  "version": "3.2.0",
-  "description": "Ghost server API client",
-  "main": "GhostClient.js",
-  "repository": "https://github.com/expo/ghost-api-client-js.git",
-  "author": "Charlie Cheever <ccheever@gmail.com>",
+  "name": "castle-api-client",
+  "version": "4.0.0",
+  "description": "Castle API Client",
+  "main": "CastleApiClient.js",
+  "repository": "https://github.com/expo/ghost-server.git",
+  "author": "Charlie Cheever <ccheever@expo.io>",
   "license": "MIT",
   "devDependencies": {
     "project-repl": "^1.5.0"

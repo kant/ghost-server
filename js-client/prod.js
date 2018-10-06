@@ -1,4 +1,4 @@
-let GhostClient = require('./GhostClient');
+let CastleApiClient = require('.');
 
-module.exports = GhostClient();
+module.exports = CastleApiClient();
 

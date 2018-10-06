@@ -1,3 +1,3 @@
-let GhostClient = require('./GhostClient');
+let CastleApiClient = require('.');
 
-module.exports = GhostClient('http://localhost:1380');
+module.exports = CastleApiClient('http://localhost:1380');

@@ -2,7 +2,7 @@ class BrowserLocalStorage {
   constructor(opts) {
     this._opts = Object.assign({}, opts);
     this._localStorage = this._opts.localStorage || localStorage;
-    this._prefix = this._opts.prefix || '__GhostClient-';
+    this._prefix = this._opts.prefix || '__CastleApiClient-';
   }
 
   async setAsync(key, value) {

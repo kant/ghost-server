@@ -38,25 +38,9 @@ function constructUploadOptions(requestOrRequests, options) {
   } else {
     return apolloFetch.constructDefaultOptions(requestOrRequests, options);
   }
-
-  // if (files.length) {
-  //   if (typeof FormData === 'undefined') {
-  //     throw new Error('Environment must support FormData to upload files.');
-  //   }
-
-  //   options.method = 'POST';
-  //   options.body = new FormData();
-  //   options.body.append('operations', JSON.stringify(requestOrRequests));
-  //   options.body.append('map', JSON.stringify({}));
-  //   files.forEach(({ path, file }) => options.body.append(path, file));
-
-  //   return options;
-  // } else {
-  //   return apolloFetch.constructDefaultOptions(requestOrRequests, options);
-  // }
 }
 
-class GhostClient {
+class CastleApiClient {
   constructor(baseUrl, opts) {
     this.url = baseUrl || PRODUCTION_API_URL;
     this.opts = Object.assign({}, opts);
@@ -74,37 +58,90 @@ class GhostClient {
     });
   }
 
-  _makeClientIdentifier() {
+  _makeClientId() {
     let alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
-    let t = 'xci:';
+    let t = 'cid:';
     for (let i = 0; i < 16; i++) {
       t += alphabet[Math.floor(Math.random() * alphabet.length)];
     }
     return t;
   }
 
-  async _getClientIdentifierAsync() {
-    let token = await this._storage.getAsync('client-identifier');
-    if (!token) {
-      token = this._makeClientIdentifier();
-      await this._storage.setAsync('client-identifier', token);
+  async getClientIdAsync() {
+    let clientId = await this._storage.getAsync('clientId');
+    if (!clientId) {
+      clientId = await this.newSessionAsync();
     }
-    return token;
+    return clientId;
   }
 
   async _getRequestHeadersAsync() {
     let headers = {};
-    headers['X-ClientId'] = await this._getClientIdentifierAsync();
+    headers['X-ClientId'] = await this.getClientIdAsync();
     return headers;
   }
 
   async graphqlAsync(...args) {
     return await this._apolloFetch(...args);
   }
+
+  async _getSessionsAsync() {
+    let sessions = await this._storage.getAsync('sessions');
+    if (typeof sessions !== 'object' || Array.isArray(sessions)) {
+      sessions = {};
+    }
+    return sessions;
+  }
+
+  async newSessionAsync() {
+    let clientId = this._makeClientId();
+    await this.setSessionAsync(clientId);
+    return clientId;
+  }
+
+  async rememberSessionAsync(clientId) {
+    let sessions = await this._getSessionsAsync();
+    sessions[clientId] = true;
+    await this._storage.setAsync('sessions', sessions);
+    return Object.keys(sessions);
+  }
+
+  async forgetSessionAsync(clientId) {
+    let sessions = await this._getSessionsAsync();
+    delete sessions[clientId];
+    await this._storage.setAsync('sessions', sessions);
+
+    // If this is our current clientId, then stop using it
+    // if we are trying to forget it
+    if (clientId === (await this.getClientIdAsync())) {
+      await this._storage.deleteAsync('clientId');
+    }
+
+    return Object.keys(sessions);
+  }
+
+  async forgetAllSessionsAsync() {
+    await this._storage.deleteAsync('sessions');
+    await this._storage.deleteAsync('clientId');
+    return [];
+  }
+
+  async getAllSessionsAsync() {
+    let sessions = await this._getSessionsAsync();
+    return Object.keys(sessions);
+  }
+
+  async setSessionAsync(clientId) {
+    // Don't try to do these in parallel because there are
+    // race conditions in some of the Storage implementations
+    // (ex. the FileSystemStorage especially)
+    await this.rememberSessionAsync(clientId);
+    await this._storage.setAsync('clientId', clientId);
+  }
 }
 
 module.exports = (...args) => {
-  let client = new GhostClient(...args);
+  let client = new CastleApiClient(...args);
   let f = async (...graphqlArgs) => {
     // Let the caller use positional arguments
     if (typeof graphqlArgs[0] === 'string') {
@@ -121,12 +158,12 @@ module.exports = (...args) => {
     return await client.graphqlAsync(...graphqlArgs);
   };
   f.graphqlAsync = f;
-  f._client = client;
+  f.client = client;
   return f;
 };
 
 Object.assign(module.exports, {
-  GhostClient,
+  CastleApiClient,
   Storage,
   PRODUCTION_API_URL,
 });

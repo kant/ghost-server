@@ -36,7 +36,7 @@ function clearCookie(sName) {
 class BrowserCookieStorage {
   constructor(opts) {
     this._opts = Object.assign({}, opts);
-    this._prefix = this._opts.prefix || '__GhostClient-';
+    this._prefix = this._opts.prefix || 'arce-';
   }
 
   async setAsync(key, value) {
