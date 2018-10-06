@@ -97,6 +97,14 @@ module.exports = /* GraphQL */ `
     tag: String
   }
 
+  type SessionInfo {
+    clientId: ID
+    userId: ID
+    user: User
+    fromIp: String
+    createdTime: Datetime
+  }
+
   union SearchResultObject = User | Media | Playlist | Tool | Tag
 
   type MediaAndPlaylistSearchResults {
@@ -153,6 +161,9 @@ module.exports = /* GraphQL */ `
     subscriptionCount(fromId: ID!): Int
 
     fileInfo(fileId: ID!): HostedFile
+
+    sessionInfoForClientIds(clientIdList: [ID!]!): [SessionInfo]
+    userForLoginInput(who: String!): User
   }
 
   input ImageInput {

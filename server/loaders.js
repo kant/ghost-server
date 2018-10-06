@@ -66,6 +66,10 @@ function createLoaders(context) {
     return await loadFileInfoAsync(keys);
   });
 
+  let sessionInfo = new DataLoader(async (keys) => {
+    return await loadSessionInfoAsync(keys);
+  });
+
   return {
     user,
     userByUsername,
@@ -75,6 +79,7 @@ function createLoaders(context) {
     playlist,
     playlistsForUser,
     tool,
+    sessionInfo,
     subscriptions,
     subscribers,
     subscriptionCount,
@@ -248,6 +253,13 @@ async function loadFileInfoAsync(fileIdList) {
   return _orderedListFromResults(results, fileIdList, 'fileId');
 }
 
+async function loadSessionInfoAsync(clientIdList) {
+  let r = db.replacer();
+  let q = /* SQL */ `SELECT * FROM "session" WHERE "clientId" IN ${r.inList(clientIdList)};`;
+  let results = await db.queryAsync(q, r.values());
+  return _orderedListFromResults(results, clientIdList, 'clientId');
+}
+
 module.exports = {
   createLoaders,
   loadMediaAsync,
@@ -260,4 +272,5 @@ module.exports = {
   loadSubscribersAsync,
   loadMediaIdsForUserIdsAsync,
   loadPlaylistIdsForUserIdsAsync,
+  loadSessionInfoAsync,
 };

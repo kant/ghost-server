@@ -127,6 +127,19 @@ module.exports = {
     subscriberCount: async (_, { toId }, context) => {
       return await context.loaders.subscriberCount.load(toId);
     },
+    sessionInfoForClientIds: async (_, { clientIdList }, context) => {
+      return await context.loaders.sessionInfo.loadMany(clientIdList);
+    },
+    userForLoginInput: async (_, { who }, context) => {
+      return await auth.getUserForLoginAsync({ who });
+    },
+  },
+  SessionInfo: {
+    user: async (obj, {}, context) => {
+      if (obj.userId) {
+        return await context.loaders.user.load(obj.userId);
+      }
+    },
   },
   HostedFile: {
     user: async (obj, {}, context) => {

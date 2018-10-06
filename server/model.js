@@ -402,15 +402,39 @@ async function endAllSessionsForUserExceptAsync(userId, clientId) {
   return result.rowCount;
 }
 
+// async function getUserIdForSessionAsync(clientId) {
+//   let result = await db.queryAsync('SELECT "userId" FROM "session" WHERE "clientId" = $1', [
+//     clientId,
+//   ]);
+//   if (result.rowCount > 0) {
+//     return result.rows[0].userId;
+//   } else {
+//     return null;
+//   }
+// }
+
 async function getUserIdForSessionAsync(clientId) {
-  let result = await db.queryAsync('SELECT "userId" FROM "session" WHERE "clientId" = $1', [
-    clientId,
-  ]);
-  if (result.rowCount > 0) {
-    return result.rows[0].userId;
-  } else {
-    return null;
+  let [userId] = await userIdsForSessionsAsync([clientId]);
+  return userId;
+}
+
+async function userIdsForSessionsAsync(clientIdList) {
+  let r = db.replacer();
+  let result = await db.queryAsync(
+    /* SQL */ ` 
+  SELECT "userId", "clientId" FROM "session" WHERE "clientId" IN ${r.inList(clientIdList)};
+  `,
+    r.values()
+  );
+  let byClientId = {};
+  for (let row of result.rows) {
+    byClientId[row.clientId] = row.userId;
   }
+  let userIdList = [];
+  for (let clientId of clientIdList) {
+    userIdList.push(byClientId[clientId]);
+  }
+  return userIdList;
 }
 
 async function signupAsync(userInput) {
@@ -590,6 +614,7 @@ module.exports = {
   endAllSessionsForUserAsync,
   endAllSessionsForUserExceptAsync,
   getUserIdForSessionAsync,
+  userIdsForSessionsAsync,
   signupAsync,
   isRoleOfTeamAsync,
   isMemberOfTeamAsync,
