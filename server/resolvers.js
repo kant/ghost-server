@@ -28,8 +28,8 @@ function NotImplementedError(message) {
 
 module.exports = {
   Query: {
-    inspect: (obj, args, context, info) => {
-      return JSON.stringify({
+    _debugInfo: (obj, args, context, info) => {
+      return {
         // obj,
         // args,
         requestKeys: Object.keys(context.request),
@@ -39,7 +39,7 @@ module.exports = {
         ip: context.request.ip,
         ips: context.request.ips,
         // info,
-      });
+      };
     },
     hello: (_, { name }, context) => {
       return `Hello ${name || 'World'}`;
