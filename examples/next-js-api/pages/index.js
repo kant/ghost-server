@@ -24,9 +24,9 @@ class GhostApiExample extends React.Component {
   };
 
   componentDidMount() {
-    let GhostApiClient = require('ghost-api-client');
-    this._api = GhostApiClient();
-    this._localApi = GhostApiClient('http://localhost:1380');
+    let CastleApiClient = require('castle-api-client');
+    this._api = CastleApiClient();
+    this._localApi = CastleApiClient('http://localhost:1380');
     if (window) {
       window.Api = this._api;
       window.localApi = this._localApi

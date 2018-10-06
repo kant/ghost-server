@@ -1,6 +1,6 @@
 import React from 'react';
 
-import GhostApiClient from 'ghost-api-client';
+import CastleApiClient from 'castle-api-client';
 
 export default class UploadPage extends React.Component {
   state = {
@@ -8,7 +8,7 @@ export default class UploadPage extends React.Component {
   };
 
   componentDidMount() {
-    this._client = GhostApiClient('http://localhost:1380');
+    this._client = CastleApiClient('http://localhost:1380');
     window.client = this._client;
   }
 
