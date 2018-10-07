@@ -53,7 +53,7 @@ async function serveAsync(port) {
       );
     }
 
-    let title = '👻 ' + pkg.name + ' v' + pkg.version;
+    let title = '🏰 ' + pkg.name + ' v' + pkg.version + ' 👻';
 
     res.send(`
 <html>
