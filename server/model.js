@@ -637,4 +637,5 @@ module.exports = {
   subscribersAsync,
   subscriptionsAsync,
   getUploadedFileAsync,
+  mediaColumns,
 };
