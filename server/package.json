@@ -39,7 +39,6 @@
     "escape-html": "^1.0.3",
     "file-type": "^9.0.0",
     "graphql-yoga": "^1.16.2",
-    "md5": "^2.2.1",
     "moment": "^2.22.2",
     "node-fetch": "^2.2.0",
     "password-hash-and-salt": "^0.1.4",

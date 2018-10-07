@@ -1,10 +1,18 @@
+let crypto = require('crypto');
+
 let bufferImageSize = require('buffer-image-size');
-let md5 = require('md5');
 let streamBuffers = require('stream-buffers');
 
 let ClientError = require('./ClientError');
 let data = require('./data');
 let db = require('./db');
+
+function md5(x) {
+  return crypto
+    .createHash('md5')
+    .update(x, 'utf8')
+    .digest('hex');
+}
 
 async function storeUploadAsync(file, opts) {
   let { stream, filename, mimetype, encoding } = await file;
@@ -76,4 +84,5 @@ async function storeUploadAsync(file, opts) {
 
 module.exports = {
   storeUploadAsync,
+  md5,
 };
