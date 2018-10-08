@@ -18,6 +18,13 @@ async function storeUploadAsync(file, opts) {
   let { stream, filename, mimetype, encoding } = await file;
   let { userId, uploadIp } = opts;
 
+  if (!stream) {
+    throw ClientError(
+      'No upload file stream; did you include it in the request?',
+      'NO_UPLOAD_STREAM'
+    );
+  }
+
   let content = await new Promise((resolve, reject) => {
     let ws = new streamBuffers.WritableStreamBuffer({
       initialSize: 100 * 1024, // start at 100 kilobytes.
