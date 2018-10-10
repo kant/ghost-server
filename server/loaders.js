@@ -26,6 +26,16 @@ function createLoaders(context) {
     return users;
   });
 
+  let mediaByMediaUrl = new DataLoader(async (keys) => {
+    let mediaItems = await loadMediaByMediaUrlAsync(keys);
+    for (let media of mediaItems) {
+      if (media) {
+        context.loaders.media.prime(media.mediaId, media);
+      }
+    }
+    return mediaItems;
+  });
+
   let media = new DataLoader(async (keys) => {
     return await loadMediaAsync(keys);
   });
@@ -76,6 +86,7 @@ function createLoaders(context) {
     file,
     media,
     mediaForUser,
+    mediaByMediaUrl,
     playlist,
     playlistsForUser,
     tool,
@@ -115,6 +126,18 @@ async function loadUsersByUsernameAsync(usernameList) {
     r.values()
   );
   return _orderedListFromResults(results, usernameList, 'username');
+}
+
+async function loadMediaByMediaUrlAsync(mediaUrlList) {
+  let r = db.replacer();
+  let results = await db.queryAsync(
+    /* SQL */
+    `SELECT ${data.quoteColumnIdentifiers(
+      model.mediaColumns
+    )} FROM "media" WHERE "mediaUrl" IN ${r.inList(mediaUrlList)};`,
+    r.values()
+  );
+  return _orderedListFromResults(results, mediaUrlList, 'mediaUrl');
 }
 
 async function loadToolsAsync(toolIdList) {

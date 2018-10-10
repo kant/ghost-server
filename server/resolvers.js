@@ -62,6 +62,9 @@ module.exports = {
     media: async (_, { mediaId }, context) => {
       return await context.loaders.media.load(mediaId);
     },
+    mediaByMediaUrl: async(_, {mediaUrl}, context) => {
+      return await context.loaders.mediaByMediaUrl.load(mediaUrl);
+    },
     user: async (_, { userId }, context) => {
       return await context.loaders.user.load(userId);
     },

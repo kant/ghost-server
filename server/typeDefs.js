@@ -137,6 +137,7 @@ module.exports = /* GraphQL */ `
     _debugInfo: Json
     hello(name: String): String!
     media(mediaId: ID!): Media
+    mediaByMediaUrl(mediaUrl: String!): Media
     user(userId: ID!): User
     userByUsername(username: String!): User
     tool(toolId: ID!): Tool
