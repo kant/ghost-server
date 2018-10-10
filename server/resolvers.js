@@ -78,7 +78,8 @@ module.exports = {
       return await model.getPlaylistsForUser(userId);
     },
     currentPlaylist: async (_, {}, context) => {
-      let playlist = await context.loaders.playlist.load('playlist:badboxart2018');
+      // let playlist = await context.loaders.playlist.load('playlist:badboxart2018');
+      let playlist = await context.loaders.playlist.load('playlist:ghost-games');
       let playlist_ = { ...playlist };
       playlist_.mediaItems = playlist_.mediaItems.slice(0);
       let shuffle = (a) => {
