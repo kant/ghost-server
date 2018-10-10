@@ -77,7 +77,6 @@ ${escapeHtml(gitStatusResult.stdout)}
 </body>
 </html>
     `);
-    
   });
 
   app.get(endpoints.origin, async (req, res) => {
@@ -129,7 +128,20 @@ ${escapeHtml(gitStatusResult.stdout)}
   }
 
   // Start the server
-  port = port || process.env.PORT || 1380 + 2 * (process.env.NODE_ENV === 'test');
+  port = port || process.env.PORT;
+  if (!port) {
+    switch (process.env.NODE_ENV) {
+      case 'test':
+        port = 1382;
+        break;
+      case 'production':
+        port = 80;
+        break;
+      default:
+        port = 1380;
+        break;
+    }
+  }
   app.start(
     {
       port,

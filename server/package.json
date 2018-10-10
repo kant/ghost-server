@@ -20,9 +20,9 @@
   },
   "scripts": {
     "start": "npx nodemon .",
-    "prod": "node .",
+    "prod": "NODE_ENV=production node .",
     "test": "jest --forceExit",
-    "test-server": "NODE_ENV='test' npx nodemon .",
+    "test-server": "NODE_ENV=test npx nodemon .",
     "test-watch": "nodemon ./node_modules/.bin/jest --forceExit",
     "cleanup-test-databases": "node testlib/cleanupTestDatabases.js"
   },
