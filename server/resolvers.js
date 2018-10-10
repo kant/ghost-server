@@ -266,6 +266,9 @@ module.exports = {
       let playlists = await context.loaders.playlist.loadMany(playlistIdList);
       return playlists;
     },
+    isReal: async (user, {}, context) => {
+      return !!(!user.importedFromAnotherSite || (user.importedFromAnotherSite && user.claimedByUser));
+    },
   },
   Playlist: {
     mediaItems: async (playlist, {}, context, info) => {

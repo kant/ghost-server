@@ -66,6 +66,9 @@ async function serveAsync(port) {
 ${links.join('\n')}
 
 
+<hr style=" border-top: 1px dotted #8c8b8b; border-bottom: 1px dotted #fff;" />
+NODE_ENV=${escapeHtml(process.env.NODE_ENV || '')}
+
 <a href="${pkg.repository}">${escapeHtml(gitResult.stdout)}</a>
 <small>
 ${escapeHtml(gitStatusResult.stdout)}

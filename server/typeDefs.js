@@ -52,6 +52,9 @@ module.exports = /* GraphQL */ `
     subscriptionCount: Int
     mediaItems: [Media]
     playlists: [Playlist]
+    importedFromAnotherSite: Boolean
+    claimedByUser: Boolean
+    isReal: Boolean
   }
 
   type Tool {
