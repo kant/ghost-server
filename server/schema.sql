@@ -159,3 +159,43 @@ CREATE TABLE "sub" (
 );
 
 CREATE TRIGGER "sub_setUpdatedTime" BEFORE UPDATE ON "sub" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+CREATE TABLE "email" (
+  "userId" text,
+  "email" text,
+  "isPrimary" boolean,
+  "confirmationCode" text,
+  "codeSentTime" timestamptz,
+  "incorrectConfirmations" int default 0,
+  "confirmed" boolean,
+  "bouncing" boolean,
+  "commandeered" boolean,
+  "commandeeredBy" text,
+  "commandeeredTime" timestamptz,
+  "notes" text,
+  "createdTime" timestamptz default now(),
+  "updatedTime" timestamptz default now(),
+  PRIMARY KEY ("userId", "email")
+);
+
+CREATE TRIGGER "email_setUpdatedTime" BEFORE UPDATE ON "email" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+CREATE TABLE "phone" (
+  "userId" text,
+  "number" text,
+  "isPrimary" boolean,
+  "confirmationCode" text,
+  "codeSentTime" timestamptz,
+  "incorrectConfirmations" int default 0,
+  "confirmed" boolean,
+  "bouncing" boolean,
+  "commandeered" boolean,
+  "commandeeredBy" text,
+  "commandeeredTime" timestamptz,
+  "notes" text,
+  "createdTime" timestamptz default now(),
+  "updatedTime" timestamptz default now(),
+  PRIMARY KEY ("userId", "number")
+);
+
+CREATE TRIGGER "phone_setUpdatedTime" BEFORE UPDATE ON "phone" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

@@ -19,6 +19,20 @@ async function _checkUserIsUserOrMemberOfTeamAsync(userId, userOrTeamId, message
   throw PermissionError(message);
 }
 
+async function _checkUserIsUserOrAdminOfTeamAsync(userId, userOrTeamId, message) {
+  // For now, let's let anyone update/edit things that don't have any owner
+  if (!userOrTeamId) {
+    return;
+  }
+  if (userId === userOrTeamId) {
+    return;
+  }
+  if (await model.isAdminOfTeamAsync(userId, userOrTeamId)) {
+    return;
+  }
+  throw PermissionError(message);
+}
+
 async function canAddToolAsync({ userId }) {
   // For now, let's let anyone make and update tools...
   return;
@@ -210,8 +224,25 @@ async function canUnsubscribeFromUserAsync(context, { fromId, toId }) {
   );
 }
 
+async function canSeeContactInfoAsync(context, userId) {
+  await _checkUserIsUserOrMemberOfTeamAsync(
+    context.userId,
+    userId,
+    `You don't have permission to view the contact info for ${userId}`
+  );
+}
+
+async function canUpdateContactInfoAsync(context, userId) {
+  await _checkUserIsUserOrAdminOfTeamAsync(
+    context.userId,
+    userId,
+    `You don't have permission to view the contact info for ${userId}`
+  );
+}
+
 module.exports = {
   _checkUserIsUserOrMemberOfTeamAsync,
+  _checkUserIsUserOrAdminOfTeamAsync,
   canAddToolAsync,
   canUpdateToolAsync,
   canUpdateUserAsync,
@@ -228,4 +259,6 @@ module.exports = {
   loginRequiredAsync,
   canSubscribeToUserAsync,
   canUnsubscribeFromUserAsync,
+  canSeeContactInfoAsync,
+  canUpdateContactInfoAsync,
 };

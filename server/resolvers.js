@@ -62,7 +62,7 @@ module.exports = {
     media: async (_, { mediaId }, context) => {
       return await context.loaders.media.load(mediaId);
     },
-    mediaByMediaUrl: async(_, {mediaUrl}, context) => {
+    mediaByMediaUrl: async (_, { mediaUrl }, context) => {
       return await context.loaders.mediaByMediaUrl.load(mediaUrl);
     },
     user: async (_, { userId }, context) => {
@@ -271,7 +271,44 @@ module.exports = {
       return playlists;
     },
     isReal: async (user, {}, context) => {
-      return !!(!user.importedFromAnotherSite || (user.importedFromAnotherSite && user.claimedByUser));
+      return !!(
+        !user.importedFromAnotherSite ||
+        (user.importedFromAnotherSite && user.claimedByUser)
+      );
+    },
+    emailAddresses: async (user, {}, context) => {
+      await permissions.canSeeContactInfoAsync(context, user.userId);
+      let emails = await context.loaders.email.load(user.userId);
+      // TODO(ccheever): Sort by primary
+      return emails;
+    },
+    phoneNumbers: async (user, {}, context) => {
+      await permissions.canSeeContactInfoAsync(context, user.userId);
+      let phoneNumbers = await context.loaders.phone.load(user.userId);
+      // TODO(ccheever): Sort by primary
+      return phoneNumbers;
+    },
+    email: async (user, {}, context) => {
+      await permissions.canSeeContactInfoAsync(context, user.userId);
+      let emails = await context.loaders.email.load(user.userId);
+      if (emails) {
+        for (let email of emails) {
+          if (email.isPrimary) {
+            return email.email;
+          }
+        }
+      }
+    },
+    phone: async (user, {}, context) => {
+      await permissions.canSeeContactInfoAsync(context, user.userId);
+      let phoneNumbers = await context.loaders.phone.load(user.userId);
+      if (phoneNumbers) {
+        for (let phone of phoneNumbers) {
+          if (phone.isPrimary) {
+            return phone.number;
+          }
+        }
+      }
     },
   },
   Playlist: {

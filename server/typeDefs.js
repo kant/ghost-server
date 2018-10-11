@@ -55,6 +55,26 @@ module.exports = /* GraphQL */ `
     importedFromAnotherSite: Boolean
     claimedByUser: Boolean
     isReal: Boolean
+    emailAddresses: [Email]
+    email: String # Primary email
+    phoneNumbers: [Phone]
+    phone: String # Primary phone number
+  }
+
+  type Email {
+    email: String
+    isPrimary: Boolean
+    confirmed: Boolean
+    bouncing: Boolean
+    commandeered: Boolean
+  }
+
+  type Phone {
+    number: String
+    isPrimary: Boolean
+    confirmed: Boolean
+    bouncing: Boolean
+    commandeered: Boolean
   }
 
   type Tool {

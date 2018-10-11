@@ -80,6 +80,14 @@ function createLoaders(context) {
     return await loadSessionInfoAsync(keys);
   });
 
+  let email = new DataLoader(async (keys) => {
+    return await loadEmailAsync(keys);
+  });
+
+  let phone = new DataLoader(async (keys) => {
+    return await loadPhoneAsync(keys);
+  });
+
   return {
     user,
     userByUsername,
@@ -95,6 +103,8 @@ function createLoaders(context) {
     subscribers,
     subscriptionCount,
     subscriberCount,
+    email,
+    phone,
   };
 }
 
@@ -283,6 +293,42 @@ async function loadSessionInfoAsync(clientIdList) {
   return _orderedListFromResults(results, clientIdList, 'clientId');
 }
 
+async function loadEmailAsync(userIdList) {
+  let r = db.replacer();
+  let q = /* SQL */ `
+  SELECT * FROM "email" WHERE "userId" IN ${r.inList(userIdList)};
+  `;
+  let result = await db.queryAsync(q, r.values());
+  let byUserId = {};
+  for (let row of result.rows) {
+    byUserId[row.userId] = byUserId[row.userId] || [];
+    byUserId[row.userId].push(row);
+  }
+  let results = [];
+  for (let userId of userIdList) {
+    results.push(byUserId[userId]);
+  }
+  return results;
+}
+
+async function loadPhoneAsync(userIdList) {
+  let r = db.replacer();
+  let q = /* SQL */ `
+  SELECT * FROM "phone" WHERE "userId" IN ${r.inList(userIdList)};
+  `;
+  let result = await db.queryAsync(q, r.values());
+  let byUserId = {};
+  for (let row of result.rows) {
+    byUserId[row.userId] = byUserId[row.userId] || [];
+    byUserId[row.userId].push(row);
+  }
+  let results = [];
+  for (let userId of userIdList) {
+    results.push(byUserId[userId]);
+  }
+  return results;
+}
+
 module.exports = {
   createLoaders,
   loadMediaAsync,
@@ -296,4 +342,6 @@ module.exports = {
   loadMediaIdsForUserIdsAsync,
   loadPlaylistIdsForUserIdsAsync,
   loadSessionInfoAsync,
+  loadEmailAsync,
+  loadPhoneAsync,
 };
