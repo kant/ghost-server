@@ -571,6 +571,13 @@ async function getUploadedFileAsync(fileId) {
   }
 }
 
+async function addUserEmailAsync(userId, email, otherFields) {
+  let r = db.replacer();
+  let q = /* SQL */
+  otherFields = {};
+
+}
+
 module.exports = {
   newPlayRecordAsync,
   getPlayRecordsAsync,

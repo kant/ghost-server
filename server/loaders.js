@@ -296,7 +296,9 @@ async function loadSessionInfoAsync(clientIdList) {
 async function loadEmailAsync(userIdList) {
   let r = db.replacer();
   let q = /* SQL */ `
-  SELECT * FROM "email" WHERE "userId" IN ${r.inList(userIdList)};
+  SELECT * FROM "email" WHERE "userId" IN ${r.inList(userIdList)} 
+  ORDER BY "commandeered" ASC, "isPrimary" DESC, "confirmed" DESC, "bouncing" ASC
+  ;
   `;
   let result = await db.queryAsync(q, r.values());
   let byUserId = {};
@@ -314,7 +316,9 @@ async function loadEmailAsync(userIdList) {
 async function loadPhoneAsync(userIdList) {
   let r = db.replacer();
   let q = /* SQL */ `
-  SELECT * FROM "phone" WHERE "userId" IN ${r.inList(userIdList)};
+  SELECT * FROM "phone" WHERE "userId" IN ${r.inList(userIdList)}
+  ORDER BY "commandeered" ASC, "isPrimary" DESC, "confirmed" DESC, "bouncing" ASC
+  ;
   `;
   let result = await db.queryAsync(q, r.values());
   let byUserId = {};
