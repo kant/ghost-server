@@ -31,7 +31,13 @@ async function sendUserEmailAsync(userId, msg) {
   return await sendEmailAsync(msgToSend);
 }
 
+async function addNewEmailAddressAsync(userId, email, opts) {
+  return null;
+}
+
+
 module.exports = {
   sendEmailAsync,
   sendUserEmailAsync,
+  addNewEmailAddressAsync,
 };

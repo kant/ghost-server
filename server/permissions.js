@@ -236,7 +236,7 @@ async function canUpdateContactInfoAsync(context, userId) {
   await _checkUserIsUserOrAdminOfTeamAsync(
     context.userId,
     userId,
-    `You don't have permission to view the contact info for ${userId}`
+    `You don't have permission to update the contact info for ${userId}`
   );
 }
 

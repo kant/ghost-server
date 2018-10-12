@@ -2,6 +2,8 @@ let auth = require('./auth');
 let ClientError = require('./ClientError');
 let db = require('./db');
 let data = require('./data');
+let emaillib = require('./emaillib');
+let sms = require('./sms');
 let model = require('./model');
 let permissions = require('./permissions');
 let search = require('./search');
@@ -498,6 +500,14 @@ module.exports = {
       }
       let createdFiles = await Promise.all(a$);
       return await context.loaders.file.loadMany(createdFiles.map((x) => x.fileId));
+    },
+    addEmailAddress: async (_, { userId, email, makePrimary }, context) => {
+      await permissions.canUpdateContactInfoAsync(context, userId);
+      return await emaillib.addNewEmailAddressAsync(userId, email, { makePrimary });
+    },
+    addPhoneNumber: async (_, { userId, number, makePrimary }, context) => {
+      await permissions.canUpdateContactInfoAsync(context, userId);
+      return await sms.addNewPhoneNumberAsync(userId, number, { makePrimary });
     },
   },
   MediaMutation: {

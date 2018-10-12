@@ -67,6 +67,7 @@ module.exports = /* GraphQL */ `
     confirmed: Boolean
     bouncing: Boolean
     commandeered: Boolean
+    rawEmail: String
   }
 
   type Phone {
@@ -75,6 +76,7 @@ module.exports = /* GraphQL */ `
     confirmed: Boolean
     bouncing: Boolean
     commandeered: Boolean
+    rawNumber: String
   }
 
   type Tool {
@@ -310,5 +312,8 @@ module.exports = /* GraphQL */ `
 
     uploadFile(file: Upload!): HostedFile
     uploadMultipleFiles(files: [Upload!]!): [HostedFile]
+
+    addEmailAddress(userId: ID!, email: String!, makePrimary: Boolean): Email
+    addPhoneNumber(userId: ID!, number: String!, makePrimary: Boolean): Phone
   }
 `;

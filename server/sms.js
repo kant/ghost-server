@@ -24,7 +24,14 @@ async function sendUserMessageAsync(userId, message) {
   return await sendMessageAsync(msgToSend);
 }
 
+async function addNewPhoneNumberAsync(userId, number, opts) {
+  opts = opts || {};
+  let { makePrimary } = opts;
+  return null;
+}
+
 module.exports = {
   sendMessageAsync,
   sendUserMessageAsync,
+  addNewPhoneNumberAsync,
 };
