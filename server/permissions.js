@@ -240,6 +240,11 @@ async function canUpdateContactInfoAsync(context, userId) {
   );
 }
 
+async function canConfirmContactInfoAsync(context, userId) {
+  // For now, I think its fine to just not care who is logged in
+  // when confirming an e-mail address
+}
+
 module.exports = {
   _checkUserIsUserOrMemberOfTeamAsync,
   _checkUserIsUserOrAdminOfTeamAsync,
@@ -261,4 +266,5 @@ module.exports = {
   canUnsubscribeFromUserAsync,
   canSeeContactInfoAsync,
   canUpdateContactInfoAsync,
+  canConfirmContactInfoAsync,
 };

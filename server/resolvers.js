@@ -509,6 +509,15 @@ module.exports = {
       await permissions.canUpdateContactInfoAsync(context, userId);
       return await sms.addNewPhoneNumberAsync(userId, number, { makePrimary });
     },
+    confirmEmailAddress: async (_, {userId, email, code}, context) => {
+      await permissions.canConfirmContactInfoAsync(context, userId);
+      await emaillib.confirmEmailAsync(userId, email, code);
+      // TODO: Return email info
+      return null;
+    },
+    confirmPhoneNumber: async (_, {userId, number, code}, context) => {
+
+    },
   },
   MediaMutation: {
     update: async (media, { update }, context) => {},

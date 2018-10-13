@@ -263,6 +263,7 @@ let mediaColumns = [
   'name',
   'mediaUrl',
   'homepageUrl',
+  'sourceCodeUrl',
   'coverImage',
   'description',
   'dimensions',

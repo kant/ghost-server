@@ -15,6 +15,8 @@ module.exports = /* GraphQL */ `
   type Media {
     mediaId: ID! @unique
     mediaUrl: String
+    homepageUrl: String
+    sourceCodeUrl: String
     slug: String
     name: String
     description: Json
@@ -72,6 +74,7 @@ module.exports = /* GraphQL */ `
 
   type Phone {
     number: String
+    country: String
     isPrimary: Boolean
     confirmed: Boolean
     bouncing: Boolean
@@ -315,5 +318,8 @@ module.exports = /* GraphQL */ `
 
     addEmailAddress(userId: ID!, email: String!, makePrimary: Boolean): Email
     addPhoneNumber(userId: ID!, number: String!, makePrimary: Boolean): Phone
+
+    confirmEmailAddress(userId: ID!, email: String!, code: String!): Email
+    confirmPhoneNumber(userId: ID!, number: String!, code: String!): Phone
   }
 `;

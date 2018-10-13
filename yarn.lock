@@ -5930,6 +5930,11 @@ phone@^2.0.0:
   resolved "https://registry.yarnpkg.com/phone/-/phone-2.1.0.tgz#7d8e4ab7b64bb4236802359ad2280a2c11568ee3"
   integrity sha512-y3FnKpCsuMARJnJBA4avEhiQUBgEgLKbJqlOWxtfd2v3UK5RO6ikWJLEG0uZMCtV8xs+6yYTZaRjFL7ZEUL9VQ==
 
+phone@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/phone/-/phone-2.2.0.tgz#528b0ac757362588da2f2e4d01a300657eff51dd"
+  integrity sha512-eoPaukiBWmqOkYxnUCo8yv3bLmwvICgpfYDyNkiiwdfKz2jU1IVu52alxFRNpME6WDliDaxVKlPUc4dbyyzxvQ==
+
 pify@^2.0.0, pify@^2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/pify/-/pify-2.3.0.tgz#ed141a6ac043a849ea588498e7dca8b15330e90c"

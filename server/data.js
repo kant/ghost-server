@@ -85,7 +85,7 @@ async function writeNewObjectAsync(obj, table, opts) {
       o[column] = idlib.createId(table, opts.autoIdSource || o.name);
     }
   }
-  let id = o[column];
+  let id = o[column] || null;
 
   let complete = false;
   while (!complete) {
@@ -127,6 +127,11 @@ async function writeNewObjectAsync(obj, table, opts) {
 
       complete = true;
     } catch (e) {
+
+      if (opts.noRetry) {
+        throw e;
+      }
+
       // If unique_violation (duplicate primary key)
       if (e.code === '23505' && e.constraint.endsWith('_pkey')) {
         if (opts.autoId) {

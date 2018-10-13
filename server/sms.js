@@ -30,6 +30,12 @@ async function addNewPhoneNumberAsync(userId, number, opts) {
   return null;
 }
 
+async function writeNewPhoneNumberAsync(userId, number, opts) {
+  opts = opts || {};
+  let { makePrimary } = opts;
+
+}
+
 module.exports = {
   sendMessageAsync,
   sendUserMessageAsync,
