@@ -511,9 +511,10 @@ module.exports = {
     },
     confirmEmailAddress: async (_, {userId, email, code}, context) => {
       await permissions.canConfirmContactInfoAsync(context, userId);
-      await emaillib.confirmEmailAsync(userId, email, code);
-      // TODO: Return email info
-      return null;
+      let nEmail = emaillib.normalize(email);
+      await emaillib.confirmEmailAsync(userId, nEmail, code);
+      return model.getEmailInfoAsync(userId, nEmail);
+
     },
     confirmPhoneNumber: async (_, {userId, number, code}, context) => {
 

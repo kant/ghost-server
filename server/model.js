@@ -3,12 +3,26 @@ let assert = require('assert');
 let ClientError = require('./ClientError');
 let data = require('./data');
 let db = require('./db');
+let emaillib = require('./emaillib');
 let idlib = require('./idlib');
 let validation = require('./validation');
 
 async function newPlayRecordAsync(obj) {
   obj.playRecordId = obj.playRecordId || idlib.createId('playRecord');
   return await data.writeNewObjectAsync(obj, 'playRecord');
+}
+
+async function getEmailInfoAsync(userId, email) {
+  let r = db.replacer();
+  let result = await db.queryAsync(
+    /* SQL */ `
+  SELECT * FROM "email" WHERE "email" = ${r(email)} AND "userId" = ${r(userId)};
+  `,
+    r.values()
+  );
+  if (result.rowCount) {
+    return { ...result.rows[0] };
+  }
 }
 
 async function getPlayRecordsAsync(mediaId, opts) {
@@ -574,9 +588,7 @@ async function getUploadedFileAsync(fileId) {
 
 async function addUserEmailAsync(userId, email, otherFields) {
   let r = db.replacer();
-  let q = /* SQL */
-  otherFields = {};
-
+  let q /* SQL */ = (otherFields = {});
 }
 
 module.exports = {
@@ -646,4 +658,5 @@ module.exports = {
   subscriptionsAsync,
   getUploadedFileAsync,
   mediaColumns,
+  getEmailInfoAsync,
 };

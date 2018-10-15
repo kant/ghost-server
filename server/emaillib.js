@@ -48,7 +48,7 @@ async function addNewEmailAddressAsync(userId, email, opts) {
     userId,
     rawEmail: email,
     email: normalize(email),
-    isPrimary: !!opts.isPrimary,
+    isPrimary: !!opts.makePrimary,
     confirmed: false,
     confirmationCode: code,
   };
@@ -72,9 +72,36 @@ async function setPrimaryEmailAsync(userId, email) {
 
 async function _writeNewEmailAsync(obj) {
   let r = db.replacer();
-  await db.queryAsync(/* SQL */ `
-  `, r.values());
-  return await data.writeNewObjectAsync(obj, 'email', {noRetry: true});
+  let result = await db.queryAsync(
+    /* SQL */ `
+  INSERT INTO "email" (
+    "userId",
+    "email",
+    "isPrimary",
+    "confirmationCode",
+    "codeSentTime",
+    "incorrectConfirmations",
+    "confirmed",
+    "bouncing",
+    "rawEmail"
+  ) VALUES (
+    ${r(obj.userId)},
+    ${r(obj.email)},
+    ${r(obj.isPrimary)},
+    ${r(obj.confirmationCode)},
+    now(),
+    0,
+    False,
+    False,
+    ${r(obj.rawEmail)}
+  ) ON CONFLICT ON CONSTRAINT email_pkey DO UPDATE SET
+  "confirmationCode" = ${r(obj.confirmationCode)},
+  "codeSentTime" = now(),
+  "rawEmail" = ${r(obj.rawEmail)}
+  `,
+    r.values()
+  );
+  return result.rowCount;
 }
 
 async function _sendConfirmationEmail(emailData) {
@@ -94,7 +121,7 @@ async function _sendConfirmationEmail(emailData) {
   await sendEmailAsync({
     to: emailData.email,
     from: 'castle@expo.io',
-    subject: "Thanks for signup up for Castle! Please confirm your e-mail",
+    subject: 'Thanks for signup up for Castle! Please confirm your e-mail',
     text: `
 Thanks for signing up for Castle!
 
@@ -113,42 +140,56 @@ Send us feedback any time at feedback@playcastle.io
 }
 
 function stripNonDigits(s) {
-  return r.eplace(/[^0-9]+/g, '');
+  return s.replace(/[^0-9]+/g, '');
 }
 
 async function confirmEmailAsync(userId, email, code) {
   let r = db.replacer();
-  let result = db.queryAsync(
+  let result = await db.queryAsync(
     /* SQL */ `
-  SELECT "userId", "email", "confirmationCode" FROM "email" WHERE "userId" = ${r(
+  SELECT "userId", "email", "confirmed", "confirmationCode" FROM "email" WHERE "userId" = ${r(
     userId
   )} AND "email" = ${r(email)};
   `,
     r.values()
   );
   if (!result.rowCount) {
-    console.log("no rows");
     return false;
   }
-  if (result.rows[0].confirmationCode === stripNonDigits(code)) {
+  let emailInfo = result.rows[0];
+  if (emailInfo.confirmed) {
+    // Already confirmed
+    return false;
+  }
+  if (emailInfo.confirmationCode === stripNonDigits(code)) {
     r = db.replacer();
     result = await db.queryAsync(
       /* SQL */ `
-    UPDATE "email" SET "confirmed" = True WHERE "email" = ${r(email)} AND "userId" = ${r(userId)};
+    UPDATE "email" SET "confirmed" = True, "confirmedTime" = now() WHERE "email" = ${r(
+      email
+    )} AND "userId" = ${r(userId)};
     `,
       r.values()
     );
+
     r = db.replacer();
     result = await db.queryAsync(
       /* SQL */ `
-      UPDATE "email" SET "commandeered" = True, "commandeeredBy" = ${r(userId)}, "commandeeredTime" = NOW()
-      WHERE "email" = ${r(email)} AND "userId" <> ${r(userId)}`,
+    UPDATE "email" SET "commandeered" = True, "commandeeredBy" = ${r(
+      userId
+    )}, "commandeeredTime" = NOW() WHERE "email" = ${r(email)} AND "userId" <> ${r(userId)};
+    `,
       r.values()
     );
-    console.log("true");
     return true;
   } else {
-    console.log("code don't match");
+    r = db.replacer();
+    result = await db.queryAsync(
+      /* SQL */
+      `UPDATE "email" SET "incorrectConfirmations" = ("incorrectConfirmations" + 1) WHERE 
+      "userId" = ${r(userId)} AND "email" = ${r(email)};`,
+      r.values()
+    );
     return false;
   }
 }
