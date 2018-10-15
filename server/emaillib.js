@@ -165,7 +165,7 @@ async function confirmEmailAsync(userId, email, code) {
     r = db.replacer();
     result = await db.queryAsync(
       /* SQL */ `
-    UPDATE "email" SET "confirmed" = True, "confirmedTime" = now() WHERE "email" = ${r(
+    UPDATE "email" SET "confirmed" = True, "confirmedTime" = now(), "commandeered" = False WHERE "email" = ${r(
       email
     )} AND "userId" = ${r(userId)};
     `,

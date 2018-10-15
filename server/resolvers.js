@@ -509,15 +509,33 @@ module.exports = {
       await permissions.canUpdateContactInfoAsync(context, userId);
       return await sms.addNewPhoneNumberAsync(userId, number, { makePrimary });
     },
-    confirmEmailAddress: async (_, {userId, email, code}, context) => {
+    confirmEmailAddress: async (_, { userId, email, code }, context) => {
       await permissions.canConfirmContactInfoAsync(context, userId);
       let nEmail = emaillib.normalize(email);
-      await emaillib.confirmEmailAsync(userId, nEmail, code);
-      return model.getEmailInfoAsync(userId, nEmail);
-
+      let success = await emaillib.confirmEmailAsync(userId, nEmail, code);
+      if (success) {
+        return await model.getEmailInfoAsync(userId, nEmail);
+      }
     },
-    confirmPhoneNumber: async (_, {userId, number, code}, context) => {
-
+    confirmPhoneNumber: async (_, { userId, number, code }, context) => {
+      await permissions.canConfirmContactInfoAsync(context, userId);
+      let nPhone = sms.normalize(number);
+      let success = await sms.confirmPhoneNumberAsync(userId, nNumber, code);
+      if (success) {
+        return model.getPhoneNumberInfoAsync(userId, nNumber);
+      }
+    },
+    setPrimaryEmail: async (_, { userId, email }, context) => {
+      await permissions.canUpdateContactInfoAsync(context, userId);
+      let nEmail = emaillib.normalize(email);
+      await emaillib.setPrimaryEmailAsync(userId, nEmail);
+      return await model.getEmailInfoAsync(userId, nEmail);
+    },
+    setPrimaryPhoneNumber: async (_, { userId, number }, context) => {
+      await permissions.canUpdateContactInfoAsync(context, userId);
+      let nNumber = sms.normalize(number);
+      await sms.setPrimaryPhoneNumberAsync(userId, nNumber);
+      return await model.getPhoneNumberInfoAsync(userId, nNumber);
     },
   },
   MediaMutation: {

@@ -318,8 +318,9 @@ module.exports = /* GraphQL */ `
 
     addEmailAddress(userId: ID!, email: String!, makePrimary: Boolean): Email
     addPhoneNumber(userId: ID!, number: String!, makePrimary: Boolean): Phone
-
     confirmEmailAddress(userId: ID!, email: String!, code: String!): Email
     confirmPhoneNumber(userId: ID!, number: String!, code: String!): Phone
+    setPrimaryEmail(userId: ID!, email: String!): Email
+    setPrimaryPhoneNumber(userId: ID!, number: String!): Phone
   }
 `;

@@ -86,7 +86,15 @@ async function getUserResultsAsync(sq) {
   }
 
   let nameClause = nameParts.map(wrapParens).join(' AND ');
-  clauses.push(nameClause);
+  if (nameClause) {
+    clauses.push(nameClause);
+  }
+
+  if (!clauses.length) {
+    clauses.push('True');
+  }
+
+  clauses.push('False');
 
   q += clauses.map(wrapParens).join(' OR ');
 
@@ -136,7 +144,15 @@ async function getMediaResultsAsync(sq) {
   }
 
   let nameClause = nameParts.map(wrapParens).join(' AND ');
-  clauses.push(nameClause);
+  if (nameClause) {
+    clauses.push(nameClause);
+  }
+
+  if (!clauses.length) {
+    clauses.push('True');
+  }
+
+  clauses.push('False');
 
   for (let t of tokens) {
     clauses.push(`"tagSet"::jsonb ? ${r(t)}`);
@@ -148,7 +164,9 @@ async function getMediaResultsAsync(sq) {
   let results = [];
   for (let row of databaseResult.rows) {
     // For now, let's fake the url
-    let fakeUsername = row.userId.replace(/^user:(itch\+)?/, '');
+    let fakeUsername =
+      row.username || (row.userId ? row.userId.replace(/^user:([a-z-]\+)?/, '') : 'community');
+    // let fakeUsername = row.userId.replace(/^user:([a-z-]\+)?/, '');
     let fakeSlug = row.mediaId.substr('media:'.length);
 
     let type = 'media';
@@ -196,7 +214,15 @@ async function getToolResultsAsync(sq) {
   }
 
   let nameClause = nameParts.map(wrapParens).join(' AND ');
-  clauses.push(nameClause);
+  if (nameClause) {
+    clauses.push(nameClause);
+  }
+
+  if (!clauses.length) {
+    clauses.push('True');
+  }
+
+  clauses.push('False');
 
   q += clauses.map(wrapParens).join(' OR ');
 
@@ -248,7 +274,15 @@ async function getPlaylistResultsAsync(sq) {
   }
 
   let nameClause = nameParts.map(wrapParens).join(' AND ');
-  clauses.push(nameClause);
+  if (nameClause) {
+    clauses.push(nameClause);
+  }
+
+  if (!clauses.length) {
+    clauses.push('True');
+  }
+
+  clauses.push('False');
 
   q += clauses.map(wrapParens).join(' OR ');
 
