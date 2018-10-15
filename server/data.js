@@ -10,18 +10,15 @@ async function multigetObjectsAsync(idList, table, opts) {
   if (opts.columns) {
     selectColumns = quoteColumnIdentifiers(opts.columns);
   }
-  let results = await db.queryAsync(
-    'SELECT ' +
-      selectColumns +
-      ' FROM ' +
-      db.iq(table) +
-      ' WHERE ' +
-      db.iq(column) +
-      ' IN (' +
-      idList.map((_, n) => '$' + (n + 1)).join(', ') +
-      ');',
-    idList
-  );
+  let r = db.replacer();
+  let q = /* SQL */ `
+  SELECT ${selectColumns} FROM ${db.iq(table)} WHERE
+  ${db.iq(column)} IN ${r.inList(idList)}
+  `;
+  if (opts.ignoreDeleted) {
+    q += ' AND NOT "deleted"';
+  }
+  let results = await db.queryAsync(q + ';', r.values());
   let x = {};
 
   // Put in nulls so we know what things were missing
