@@ -299,6 +299,13 @@ module.exports = {
             return email.email;
           }
         }
+        // if we don't have any primary e-mail, let's
+        // just pick one, as long as its not commandeered
+        if (emails.length > 0) {
+          if (!emails[0].commandeered) {
+            return emails[0].email;
+          }
+        }
       }
     },
     phone: async (user, {}, context) => {
@@ -308,6 +315,15 @@ module.exports = {
         for (let phone of phoneNumbers) {
           if (phone.isPrimary) {
             return phone.number;
+          }
+        }
+
+        // If there are no numbers marked as the primary
+        // phone number, just use the first one, as long
+        // as its not commandeered
+        if (phoneNumbers.length > 0) {
+          if (!phoneNumbers[0].commandeered) {
+            return phoneNumbers[0].number;
           }
         }
       }
