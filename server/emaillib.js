@@ -159,7 +159,7 @@ async function confirmEmailAsync(userId, email, code) {
   let emailInfo = result.rows[0];
   if (emailInfo.confirmed) {
     // Already confirmed
-    return false;
+    return true;
   }
   if (emailInfo.confirmationCode === stripNonDigits(code)) {
     r = db.replacer();

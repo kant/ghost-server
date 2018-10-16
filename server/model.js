@@ -25,6 +25,19 @@ async function getEmailInfoAsync(userId, email) {
   }
 }
 
+async function getPhoneNumberInfoAsync(userId, number) {
+  let r = db.replacer();
+  let result = await db.queryAsync(
+    /* SQL */ `
+  SELECT * FROM "phone" WHERE "number" = ${r(number)} AND "userId" = ${r(userId)};
+  `,
+    r.values()
+  );
+  if (result.rowCount) {
+    return { ...result.rows[0] };
+  }
+}
+
 async function getPlayRecordsAsync(mediaId, opts) {
   opts = opts || {}; // userId, sortBy
   let limit = opts.limit || 30;
@@ -659,4 +672,5 @@ module.exports = {
   getUploadedFileAsync,
   mediaColumns,
   getEmailInfoAsync,
+  getPhoneNumberInfoAsync,
 };

@@ -519,7 +519,7 @@ module.exports = {
     },
     confirmPhoneNumber: async (_, { userId, number, code }, context) => {
       await permissions.canConfirmContactInfoAsync(context, userId);
-      let nPhone = sms.normalize(number);
+      let nNumber = sms.normalize(number);
       let success = await sms.confirmPhoneNumberAsync(userId, nNumber, code);
       if (success) {
         return model.getPhoneNumberInfoAsync(userId, nNumber);

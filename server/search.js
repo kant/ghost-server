@@ -166,7 +166,6 @@ async function getMediaResultsAsync(sq) {
     // For now, let's fake the url
     let fakeUsername =
       row.username || (row.userId ? row.userId.replace(/^user:([a-z-]\+)?/, '') : 'community');
-    // let fakeUsername = row.userId.replace(/^user:([a-z-]\+)?/, '');
     let fakeSlug = row.mediaId.substr('media:'.length);
 
     let type = 'media';
