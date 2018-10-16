@@ -3,7 +3,6 @@ let assert = require('assert');
 let ClientError = require('./ClientError');
 let data = require('./data');
 let db = require('./db');
-let emaillib = require('./emaillib');
 let idlib = require('./idlib');
 let validation = require('./validation');
 
@@ -599,9 +598,36 @@ async function getUploadedFileAsync(fileId) {
   }
 }
 
-async function addUserEmailAsync(userId, email, otherFields) {
+async function getUserIdForEmailAsync(email, opts) {
+  opts = opts || {};
   let r = db.replacer();
-  let q /* SQL */ = (otherFields = {});
+  let q = /* SQL */ `
+  SELECT "userId" FROM "email" WHERE "email" = ${r(email)} AND NOT "commandeered"
+  `;
+  if (opts.requireConfirmed) {
+    q += `AND "confirmed" `;
+  }
+  q += `ORDER BY "confirmed" DESC, "isPrimary" DESC`;
+  let result = await db.queryAsync(q + ';', r.values());
+  if (result.rowCount > 0) {
+    return result.rows[0].userId;
+  }
+}
+
+async function getUserIdForPhoneNumberAsync(number, opts) {
+  opts = opts || {};
+  let r = db.replacer();
+  let q = /* SQL */ `
+  SELECT "userId" FROM "phone" WHERE "number" = ${r(number)} AND NOT "commandeered"
+  `;
+  if (opts.requireConfirmed) {
+    q += `AND "confirmed" `;
+  }
+  q += `ORDER BY "confirmed" DESC, "isPrimary" DESC`;
+  let result = await db.queryAsync(q + ';', r.values());
+  if (result.rowCount > 0) {
+    return result.rows[0].userId;
+  }
 }
 
 module.exports = {
@@ -673,4 +699,6 @@ module.exports = {
   mediaColumns,
   getEmailInfoAsync,
   getPhoneNumberInfoAsync,
+  getUserIdForEmailAsync,
+  getUserIdForPhoneNumberAsync,
 };

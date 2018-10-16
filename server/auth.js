@@ -1,6 +1,8 @@
 let ClientError = require('./ClientError');
+let emaillib = require('./emaillib');
 let model = require('./model');
 let passwordlib = require('./passwordlib');
+let sms = require('./sms');
 let validation = require('./validation');
 
 async function getUserForLoginAsync(identifierObject) {
@@ -15,8 +17,29 @@ async function getUserForLoginAsync(identifierObject) {
   }
 
   if (who) {
+    let user, userId;
+
+    // E-mail
+    let nEmail = emaillib.normalize(who);
+    userId = await model.getUserIdForEmailAsync(nEmail);
+    if (userId) {
+      user = await model.getUserAsync(userId);
+      if (user) {
+        return user;
+      }
+    }
+
+    // Phone number
+    let nNumber = sms.normalize(who);
+    userId = await model.getUserIdForPhoneNumberAsync(nNumber);
+    if (userId) {
+      user = await model.getUserAsync(userId);
+      if (user) {
+        return user;
+      }
+    }
+
     // username is first priority
-    let user;
     user = await model.getUserByUsernameAsync(who);
     if (user) {
       return user;
@@ -78,7 +101,6 @@ async function logoutEverywhereAsync(userId) {
 async function logoutEverywhereElseAsync(userId, clientId) {
   return await model.endAllSessionsForUserExceptAsync(userId, clientId);
 }
-
 
 module.exports = {
   getUserForLoginAsync,
