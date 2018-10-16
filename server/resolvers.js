@@ -537,6 +537,16 @@ module.exports = {
       await sms.setPrimaryPhoneNumberAsync(userId, nNumber);
       return await model.getPhoneNumberInfoAsync(userId, nNumber);
     },
+    removeEmailAddress: async (_, { userId, email }, context) => {
+      await permissions.canUpdateContactInfoAsync(context, userId);
+      let nEmail = emaillib.normalize(email);
+      await emaillib.removeEmailAddressAsync(userId, nEmail);
+    },
+    removePhoneNumber: async (_, { userId, number }, context) => {
+      await permissions.canUpdateContactInfoAsync(context, userId);
+      let nNumber = sms.normalize(number);
+      await sms.removePhoneNumberAsync(userId, nNumber);
+    },
   },
   MediaMutation: {
     update: async (media, { update }, context) => {},

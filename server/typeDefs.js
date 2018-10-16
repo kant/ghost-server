@@ -322,5 +322,7 @@ module.exports = /* GraphQL */ `
     confirmPhoneNumber(userId: ID!, number: String!, code: String!): Phone
     setPrimaryEmail(userId: ID!, email: String!): Email
     setPrimaryPhoneNumber(userId: ID!, number: String!): Phone
+    removeEmailAddress(userId: ID!, email: String): Null
+    removePhoneNumber(userId: ID!, number: String): Null
   }
 `;

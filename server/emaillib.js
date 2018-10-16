@@ -204,6 +204,19 @@ function normalize(email) {
   return email.toLowerCase();
 }
 
+async function removeEmailAddressAsync(userId, email) {
+  let r = db.replacer();
+  let result = await db.queryAsync(
+    /* SQL */ `
+  DELETE FROM "email" 
+  WHERE "userId" = ${r(userId)} AND "email" = ${r(email)}
+  ;
+  `,
+    r.values()
+  );
+  return result.rowCount;
+}
+
 module.exports = {
   sendEmailAsync,
   sendUserEmailAsync,
@@ -212,4 +225,5 @@ module.exports = {
   makeConfirmationCode,
   setPrimaryEmailAsync,
   confirmEmailAsync,
+  removeEmailAddressAsync,
 };

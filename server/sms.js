@@ -188,6 +188,19 @@ async function setPrimaryPhoneNumberAsync(userId, number) {
   );
 }
 
+async function removePhoneNumberAsync(userId, number) {
+  let r = db.replacer();
+  let result = await db.queryAsync(
+    /* SQL */ `
+  DELETE FROM "phone" 
+  WHERE "number" = ${r(number)} AND "userId" = ${r(userId)}
+  ;
+  `,
+    r.values()
+  );
+  return result.rowCount;
+}
+
 module.exports = {
   sendMessageAsync,
   sendUserMessageAsync,
@@ -196,4 +209,5 @@ module.exports = {
   normalize,
   confirmPhoneNumberAsync,
   setPrimaryPhoneNumberAsync,
+  removePhoneNumberAsync,
 };
