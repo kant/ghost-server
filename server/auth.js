@@ -30,12 +30,19 @@ async function getUserForLoginAsync(identifierObject) {
     }
 
     // Phone number
-    let nNumber = sms.normalize(who);
-    userId = await model.getUserIdForPhoneNumberAsync(nNumber);
-    if (userId) {
-      user = await model.getUserAsync(userId);
-      if (user) {
-        return user;
+    let nNumber;
+    try {
+      nNumber = sms.normalize(who);
+    } catch (e) {
+      // pass
+    }
+    if (nNumber) {
+      userId = await model.getUserIdForPhoneNumberAsync(nNumber);
+      if (userId) {
+        user = await model.getUserAsync(userId);
+        if (user) {
+          return user;
+        }
       }
     }
 
