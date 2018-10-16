@@ -9,7 +9,7 @@
   "version": "1.0.0",
   "description": "Very lightweight JS client for sending e-mails with SendGrid",
   "main": "index.js",
-  "repository": "https://github.com/expo/sgmlite.git",
+  "repository": "https://github.com/expo/ghost-server.git",
   "author": "Charlie Cheever <ccheever@expo.io>",
   "license": "MIT"
 }
