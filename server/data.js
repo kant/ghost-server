@@ -124,7 +124,6 @@ async function writeNewObjectAsync(obj, table, opts) {
 
       complete = true;
     } catch (e) {
-
       if (opts.noRetry) {
         throw e;
       }
@@ -150,8 +149,14 @@ async function getAllIdsAsync(table, opts) {
   if (opts.limit) {
     limitClause = ' LIMIT ' + r(opts.limit);
   }
+  let where = '';
+  if (opts.ignoreDeleted) {
+    where = 'WHERE NOT "deleted"';
+  }
   let result = await db.queryAsync(
-    `SELECT ${db.iq(column)} FROM ${db.iq(table)} ORDER BY "updatedTime" DESC${limitClause};`,
+    `SELECT ${db.iq(column)} FROM ${db.iq(
+      table
+    )} ${where} ORDER BY "updatedTime" DESC${limitClause};`,
     r.values()
   );
   return result.rows.map((x) => x[column]);

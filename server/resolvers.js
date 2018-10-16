@@ -331,7 +331,8 @@ module.exports = {
   },
   Playlist: {
     mediaItems: async (playlist, {}, context, info) => {
-      return await context.loaders.media.loadMany(playlist.mediaItems || []);
+      let mediaItems = await context.loaders.media.loadMany(playlist.mediaItems || []);
+      return mediaItems.filter((x) => !x.deleted);
     },
     user: async (playlist, {}, context) => {
       if (playlist.userId) {

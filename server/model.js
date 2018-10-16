@@ -64,12 +64,6 @@ async function getMediaAsync(mediaId) {
   return await data.getObjectAsync(mediaId, 'media');
 }
 
-async function getAllMediaAsync() {
-  let q = 'SELECT * FROM "media" ORDER BY "updatedTime" DESC';
-  let results = await db.queryAsync(q);
-  return data.objectsListFromResults(results);
-}
-
 async function ingestMediaAsync(mediaInput) {
   let media = data.stringifyJsonFields(mediaInput, jsonFields.media);
   if (media.tags) {
@@ -301,6 +295,7 @@ let mediaColumns = [
   'tagSet',
   'slug',
   'published',
+  'deleted',
   'createdTime',
   'updatedTime',
 ];
@@ -549,7 +544,7 @@ async function subscriptionsAsync(fromId) {
 }
 
 async function allMediaIdsAsync(opts) {
-  return await data.getAllIdsAsync('media', opts);
+  return await data.getAllIdsAsync('media', { ignoreDeleted: true, ...opts });
 }
 
 async function allUserIdsAsync(opts) {
@@ -635,7 +630,6 @@ module.exports = {
   getPlayRecordsAsync,
   updatePlayRecordAsync,
   getMediaAsync,
-  getAllMediaAsync,
   newMediaAsync,
   updateMediaAsync,
   deleteMediaAsync,
