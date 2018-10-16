@@ -1,11 +1,11 @@
-let sendgridMail = require('@sendgrid/mail');
+let sgmlite = require('sgmlite');
 
 let data = require('./data');
 let db = require('./db');
 let loaders = require('./loaders');
 let secret = require('./secret');
 
-sendgridMail.setApiKey(secret.sendgrid.apiKey);
+let sg = sgmlite(secret.sendgrid.apiKey);
 
 async function sendEmailAsync(msg) {
   // let exampleMessage = {
@@ -16,7 +16,7 @@ async function sendEmailAsync(msg) {
   //   html: '<strong>and easy to do anywhere, even with Node.js</strong>',
   // };
 
-  return await sendgridMail.send(msg);
+  return await sg.sendEmailAsync(msg);
 }
 
 async function sendUserEmailAsync(userId, msg) {
