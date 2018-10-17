@@ -278,6 +278,26 @@ async function clearAllUserSessionsAsync(userId) {
   return results.rowCount;
 }
 
+async function _deleteUserAndDataAsync(userId) {
+  await _deleteUserAsync(userId);
+  let r;
+  r = db.replacer();
+  await db.queryAsync(
+    /* SQL */ `
+  DELETE FROM "session" WHERE "userId" = ${r(userId)};
+  `,
+    r.values()
+  );
+  r = db.replacer();
+  await db.queryAsync(
+    /* SQL */ `
+  DELETE FROM "email" WHERE "userId" = ${r(userId)};
+  `,
+    r.values()
+  );
+  return true;
+}
+
 let mediaColumns = [
   'mediaId',
   'name',
@@ -726,4 +746,5 @@ module.exports = {
   getUserIdForPhoneNumberAsync,
   addPlaylistMediaItemAsync,
   removePlaylistMediaItemAsync,
+  _deleteUserAndDataAsync,
 };

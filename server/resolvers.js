@@ -381,7 +381,7 @@ module.exports = {
     changePassword: async (_, { oldPassword, newPassword }, context, info) => {
       return await auth.changePasswordAsync(context.userId, oldPassword, newPassword);
     },
-    signup: async (_, { user, password }, context, info) => {
+    signup: async (_, { user, password, email }, context, info) => {
       await permissions.hasClientIdAsync(context);
       let createdUserInfo = await signup.signupAsync(user, password);
 
@@ -391,6 +391,16 @@ module.exports = {
         userId: createdUserInfo.userId,
         createdIp: context.request.ip,
       });
+
+      // This seems dangerous but also correct?
+      // Possibly should just have a method that allows us to rebuild the context?
+      context.userId = createdUserInfo.userId;
+
+      if (email) {
+        await emaillib.addNewEmailAddressAsync(createdUserInfo.userId, email, {
+          makePrimary: true,
+        });
+      }
 
       return await context.loaders.user.load(createdUserInfo.userId);
     },
