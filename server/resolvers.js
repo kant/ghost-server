@@ -163,6 +163,9 @@ module.exports = {
         return 'https://castle.imgix.net/' + obj.fileId;
       }
     },
+    url: async () => {
+      return null;
+    }
   },
   MediaAndPlaylistSearchResults: {
     mediaItems: async (results, {}, context) => {

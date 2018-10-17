@@ -155,6 +155,7 @@ module.exports = /* GraphQL */ `
     height: Int
     originUrl: String
     imgixUrl: String
+    url: Null
   }
 
   type Query {
