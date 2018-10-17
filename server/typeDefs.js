@@ -21,7 +21,7 @@ module.exports = /* GraphQL */ `
     name: String
     description: Json
     userId: ID
-    coverImage: Image
+    coverImage: HostedFile
     instructions: Json
     dimensions: Json
     links: Json
@@ -42,7 +42,7 @@ module.exports = /* GraphQL */ `
     about: Json
     otherUsernames: Json
     links: Json
-    photo: Image
+    photo: HostedFile
     isTeam: Boolean
     members: [User]
     admins: [User]
@@ -87,7 +87,7 @@ module.exports = /* GraphQL */ `
     name: String
     url: String
     about: Json
-    image: Image
+    image: HostedFile
     tags: Json
     creatorId: ID
     creator: User
@@ -102,7 +102,7 @@ module.exports = /* GraphQL */ `
     name: String
     website: String
     description: Json
-    image: Image
+    image: HostedFile
     mediaItems: [Media]
     createdTime: Datetime
     updatedTime: Datetime
@@ -116,7 +116,7 @@ module.exports = /* GraphQL */ `
     id: String
     snippet: String
     metadata: Json
-    image: Image
+    image: HostedFile
     score: Float
     object: SearchResultObject
   }
@@ -195,14 +195,6 @@ module.exports = /* GraphQL */ `
     userForLoginInput(who: String!): User
   }
 
-  input ImageInput {
-    url: String
-    height: Float
-    width: Float
-    type: String
-    downloaded: Int
-  }
-
   input UserInput {
     name: String
     location: String
@@ -211,7 +203,7 @@ module.exports = /* GraphQL */ `
     links: Json
     about: Json
     info: Json
-    photo: ImageInput
+    photo: ID
     isTeam: Boolean
   }
 
@@ -222,7 +214,7 @@ module.exports = /* GraphQL */ `
     about: Json
     creatorId: ID
     tags: [String]
-    image: ImageInput
+    image: ID
   }
 
   input MediaInput {
@@ -233,7 +225,7 @@ module.exports = /* GraphQL */ `
     description: Json
     links: Json
     userId: ID
-    coverImage: ImageInput
+    coverImage: ID
     instructions: Json
     dimensions: Json
     toolIds: [ID]
@@ -246,7 +238,7 @@ module.exports = /* GraphQL */ `
     userId: ID
     website: String
     description: Json
-    image: ImageInput
+    image: ID
     mediaItems: [ID]
   }
 
@@ -294,7 +286,7 @@ module.exports = /* GraphQL */ `
     logoutSession(clientId: ID): Int
     logoutEverywhereElse: Int
     logoutEverywhere: Int
-    signup(user: UserInput!, email: String!, password: String!): User
+    signup(user: UserInput!, email: String, password: String!): User
 
     addTool(tool: ToolInput): Tool
     updateTool(toolId: ID!, tool: ToolInput): Tool
@@ -324,6 +316,8 @@ module.exports = /* GraphQL */ `
     setPrimaryPhoneNumber(userId: ID!, number: String!): Phone
     removeEmailAddress(userId: ID!, email: String): Null
     removePhoneNumber(userId: ID!, number: String): Null
+
+    setUserPhoto(userId: ID!, file: Upload): HostedFile
 
     addPlaylistMediaItem(playlistId: ID!, mediaId: ID!, toBeginning: Boolean): Playlist
     removePlaylistMediaItem(playlistId: ID!, mediaId: ID!): Playlist

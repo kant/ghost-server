@@ -15,11 +15,6 @@ async function populateDatabaseAsync() {
             location: "Dallas"
             username: "american"
             about: "Made some video games"
-            photo: {
-              url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/American_McGee.jpg/936px-American_McGee.jpg"
-              height: 468
-              width: 600
-            }
             isTeam: false
           }
           password: "alice"
@@ -40,11 +35,6 @@ async function populateDatabaseAsync() {
             location: "Sebastopol"
             username: "jgay"
             about: "Made some video games and also invented Flash"
-            photo: {
-              url: "https://static.giantbomb.com/uploads/scale_small/0/5395/323199-spot_gay.jpg"
-              height: 160
-              width: 160
-            }
             isTeam: false
           }
           password: "flash"

@@ -58,6 +58,10 @@ test('Test login and me and logout', async () => {
 });
 
 test('Test making a media item', async () => {
+  // Jest has a default timeout of 5 seconds, and sometimes this test
+  // will take longer than that
+  jest.setTimeout(30000);
+
   let gqAsync = gq.withClientId('testMakeMedia');
   let login = (await gqAsync(/* GraphQL */ `
     mutation {
@@ -81,11 +85,6 @@ test('Test making a media item', async () => {
               website: "https://starcraft2.com/"
               liquipedia: "https://liquipedia.net/starcraft2"
             }
-            coverImage: {
-              url: "https://upload.wikimedia.org/wikipedia/en/2/20/StarCraft_II_-_Box_Art.jpg"
-              width: 256
-              height: 363
-            }
             instructions: "Play the game"
             dimensions: { height: 100, width: 100 }
             toolIds: $toolIds
@@ -99,11 +98,6 @@ test('Test making a media item', async () => {
           name
           description
           userId
-          coverImage {
-            width
-            height
-            url
-          }
           instructions
           dimensions
           links
@@ -139,11 +133,6 @@ test('Test making a media item', async () => {
           name
           description
           userId
-          coverImage {
-            width
-            height
-            url
-          }
           instructions
           dimensions
           links
@@ -172,11 +161,6 @@ test('Test making a media item', async () => {
   expect(media.description).toBe('Maru is a literal god Tasteless');
   expect(media.links.website).toBe('https://starcraft2.com/');
   expect(media.links.liquipedia).toBe('https://liquipedia.net/starcraft2');
-  expect(media.coverImage).toMatchObject({
-    url: 'https://upload.wikimedia.org/wikipedia/en/2/20/StarCraft_II_-_Box_Art.jpg',
-    width: 256,
-    height: 363,
-  });
   expect(media.instructions).toBe('Play the game');
   expect(media.dimensions).toMatchObject({ height: 100, width: 100 });
   expect(media.tools).toHaveLength(2);
@@ -210,11 +194,6 @@ test('Test making a media item', async () => {
           name
           description
           userId
-          coverImage {
-            width
-            height
-            url
-          }
           instructions
           dimensions
           links
@@ -355,11 +334,10 @@ test('Test making a media item', async () => {
 });
 
 test('Signing up a user and updating a user and logging in and logging out', async () => {
-
   // Jest has a default timeout of 5 seconds, and sometimes this test
   // will take longer than that
   jest.setTimeout(30000);
-  
+
   let gqAsync = gq.withClientId('testUserOperations');
   let gqAllowErrorsAsync = gq.withClientId('testUserOperations', { allowErrors: true });
   let signup = (await gqAsync(
@@ -373,11 +351,6 @@ test('Signing up a user and updating a user and logging in and logging out', asy
             about: "The head of Valve"
             otherUsernames: { steam: "gabelogannewell" }
             links: { website: "https://www.valvesoftware.com/en/people" }
-            photo: {
-              url: "data:image/jpeg;base64,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"
-              width: 268
-              height: 268
-            }
           }
           password: "hl3confirmed"
         ) {
@@ -388,11 +361,6 @@ test('Signing up a user and updating a user and logging in and logging out', asy
           about
           otherUsernames
           links
-          photo {
-            url
-            height
-            width
-          }
           isTeam
           members {
             username
@@ -408,7 +376,6 @@ test('Signing up a user and updating a user and logging in and logging out', asy
   let gaben = signup.userId;
 
   expect(signup.name).toBe('Gabe Newell');
-  expect(signup.photo.url).toHaveLength(7639);
   expect(signup.isTeam).toBeFalsy();
 
   let updateUser = (await gqAsync(

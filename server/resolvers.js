@@ -515,6 +515,16 @@ module.exports = {
       });
       return await context.loaders.file.load(createdFile.fileId);
     },
+    setUserPhoto: async (_, { userId, file }, context) => {
+      await permissions.canUpdateUserAsync(context, userId);
+      let createdFile = await uploads.storeUploadAsync(file, {
+        userId: context.userId,
+        uploadIp: context.request.ip,
+      });
+      if (!(createdFile.height && createdFile.width)) {
+        throw ClientError("Couldn't determine height and width of image", 'IMAGE_ERROR');
+      }
+    },
     uploadMultipleFiles: async (_, { files }, context) => {
       let a$ = [];
       for (let file of files) {
