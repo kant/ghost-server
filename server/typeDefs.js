@@ -199,6 +199,7 @@ module.exports = /* GraphQL */ `
   }
 
   input UserInput {
+    userId: String
     name: String
     location: String
     username: String
