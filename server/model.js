@@ -625,6 +625,35 @@ async function getUserIdForPhoneNumberAsync(number, opts) {
   }
 }
 
+async function addPlaylistMediaItemAsync(playlistId, mediaId, opts) {
+  let r = db.replacer();
+  opts = opts || {};
+  let q;
+  if (opts.toBeginning) {
+    q = /* SQL */ `
+  UPDATE "playlist" SET "mediaItems" = ${r(JSON.stringify([mediaId]))}::jsonb || "mediaItems"
+  WHERE "playlistId" = ${r(playlistId)};
+  `;
+  } else {
+    q = /* SQL */ `
+  UPDATE "playlist" SET "mediaItems" = "mediaItems" || ${r(JSON.stringify([mediaId]))}::jsonb 
+  WHERE "playlistId" = ${r(playlistId)};
+  `;
+  }
+  let result = await db.queryAsync(q, r.values());
+  return result.rowCount === 1;
+}
+
+async function removePlaylistMediaItemAsync(playlistId, mediaId) {
+  let r = db.replacer();
+  let q = /* SQL */ `
+  UPDATE "playlist" SET "mediaItems" = "mediaItems" - ${r(mediaId)}
+  WHERE "playlistId" = ${r(playlistId)};
+  `;
+  let result = await db.queryAsync(q, r.values());
+  return result.rowCount === 1;
+}
+
 module.exports = {
   newPlayRecordAsync,
   getPlayRecordsAsync,
@@ -695,4 +724,6 @@ module.exports = {
   getPhoneNumberInfoAsync,
   getUserIdForEmailAsync,
   getUserIdForPhoneNumberAsync,
+  addPlaylistMediaItemAsync,
+  removePlaylistMediaItemAsync,
 };

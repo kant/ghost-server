@@ -61,7 +61,10 @@ async function storeUploadAsync(file, opts) {
     { dontLogValues: true }
   );
 
-  let dimensions = bufferImageSize(content);
+  let dimensions = null;
+  try {
+    dimensions = bufferImageSize(content);
+  } catch (e) {}
   let height = null;
   let width = null;
   if (dimensions) {

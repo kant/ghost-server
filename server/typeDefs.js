@@ -324,5 +324,8 @@ module.exports = /* GraphQL */ `
     setPrimaryPhoneNumber(userId: ID!, number: String!): Phone
     removeEmailAddress(userId: ID!, email: String): Null
     removePhoneNumber(userId: ID!, number: String): Null
+
+    addPlaylistMediaItem(playlistId: ID!, mediaId: ID!, toBeginning: Boolean): Playlist
+    removePlaylistMediaItem(playlistId: ID!, mediaId: ID!): Playlist
   }
 `;

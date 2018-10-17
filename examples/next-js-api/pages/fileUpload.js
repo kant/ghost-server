@@ -53,7 +53,6 @@ export default class UploadPage extends React.Component {
           type="file"
           id="avatar"
           name="avatar"
-          accept="image/png, image/jpeg"
           onChange={(e) => {
             let files = e.target.files;
             this.setState({ avatarFile: files });

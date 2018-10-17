@@ -564,6 +564,16 @@ module.exports = {
       let nNumber = sms.normalize(number);
       await sms.removePhoneNumberAsync(userId, nNumber);
     },
+    addPlaylistMediaItem: async (_, { playlistId, mediaId, toBeginning }, context) => {
+      await permissions.canUpdatePlaylistAsync(context, playlistId);
+      await model.addPlaylistMediaItemAsync(playlistId, mediaId, { toBeginning });
+      return await context.loaders.playlist.load(playlistId);
+    },
+    removePlaylistMediaItem: async (_, { playlistId, mediaId }, context) => {
+      await permissions.canUpdatePlaylistAsync(context, playlistId);
+      await model.removePlaylistMediaItemAsync(playlistId, mediaId);
+      return await context.loaders.playlist.load(playlistId);
+    },
   },
   MediaMutation: {
     update: async (media, { update }, context) => {},
