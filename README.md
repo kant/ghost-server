@@ -76,3 +76,10 @@ The production server is at https://ghost-server.app.render.com/
 
 You can play with the GraphQL API against production at https://ghost-server.app.render.com/graphql
 
+### To resize screenshots as thumbnails
+1. Install ImageMagick: ```brew install imagemagick```
+2. Put screenshots in a directory (e.g. ```outer```), create a sub-directory named ```thumbs```
+3. Within ```outer```, run the following command, which will output images into ```thumbs``` :
+```mogrify -resize 512x512 -background black -gravity center -extent 512x512 -path thumbs *.png```
+
+
