@@ -194,6 +194,8 @@ module.exports = /* GraphQL */ `
 
     sessionInfoForClientIds(clientIdList: [ID!]!): [SessionInfo]
     userForLoginInput(who: String!): User
+
+    validateSignup(inputs: Json!): Json
   }
 
   input UserInput {
@@ -322,5 +324,6 @@ module.exports = /* GraphQL */ `
 
     addPlaylistMediaItem(playlistId: ID!, mediaId: ID!, toBeginning: Boolean): Playlist
     removePlaylistMediaItem(playlistId: ID!, mediaId: ID!): Playlist
+
   }
 `;

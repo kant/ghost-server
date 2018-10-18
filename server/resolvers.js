@@ -139,6 +139,9 @@ module.exports = {
     userForLoginInput: async (_, { who }, context) => {
       return await auth.getUserForLoginAsync({ who });
     },
+    validateSignup: async (_, { inputs }, context) => {
+      return await validation.validateSignupAsync({ context, inputs });
+    },
   },
   SessionInfo: {
     user: async (obj, {}, context) => {
@@ -165,7 +168,7 @@ module.exports = {
     },
     url: async () => {
       return null;
-    }
+    },
   },
   MediaAndPlaylistSearchResults: {
     mediaItems: async (results, {}, context) => {
@@ -330,6 +333,9 @@ module.exports = {
           }
         }
       }
+    },
+    photo: async (user, {}, context) => {
+      return null;
     },
   },
   Playlist: {
@@ -518,7 +524,7 @@ module.exports = {
       });
       return await context.loaders.file.load(createdFile.fileId);
     },
-    setUserPhoto: async (_, { userId, file }, context) => {
+    setUserPhoto: async (_, { userId, file, fileId, empty }, context) => {
       await permissions.canUpdateUserAsync(context, userId);
       let createdFile = await uploads.storeUploadAsync(file, {
         userId: context.userId,

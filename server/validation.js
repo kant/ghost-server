@@ -1,4 +1,7 @@
+let isemail = require('isemail');
+
 let ClientError = require('./ClientError');
+let db = require('./db');
 
 async function _validateSubdomainString(str, type) {
   // Let's just use the rules for subdomains
@@ -63,7 +66,53 @@ async function validatePasswordAsync(password) {
 }
 
 async function validateSlugAsync(slug) {
-  return await _validateSubdomainString(slug, 'slug');
+  return _validateSubdomainString(slug, 'slug');
+}
+
+async function validateEmailAsync(email) {
+  return isemail.validate(email);
+}
+
+async function _captureErrorAsync(validationFunctionAsync, args) {
+  try {
+    await validationFunctionAsync(...args);
+    return null;
+  } catch (e) {
+    return {message: e.message};
+  }
+}
+
+async function validateNameAsync(name) {
+  if (typeof name === 'string' && name.length > 0) {
+    return null;
+  }
+  throw ClientError('Names must be at least one character long', 'INVALID_NAME');
+}
+
+async function isUsernameTakenAsync(username) {
+  let r = db.replacer();
+  let result = await db.queryAsync(
+    /* SQL */ `SELECT "userId" FROM "user" WHERE "username" = ${r(username)};`,
+    r.values()
+  );
+  return result.rowCount > 0;
+}
+
+async function validateSignupAsync({ context, inputs }) {
+  let { username, name, email, password } = inputs;
+
+  let isUsernameTaken = await isUsernameTakenAsync(inputs.username);
+  let usernameError = isUsernameTaken ? {message: 'That username is already taken'} : null;
+  if (!usernameError) {
+    usernameError = await _captureErrorAsync(validateUsernameAsync, [username]);
+  }
+
+  return {
+    username: usernameError,
+    name: await _captureErrorAsync(validateNameAsync, [name]),
+    password: await _captureErrorAsync(validatePasswordAsync, [password]),
+    email: await _captureErrorAsync(validateEmailAsync, [email]),
+  };
 }
 
 module.exports = {
@@ -72,4 +121,5 @@ module.exports = {
   validateTagAsync,
   validatePasswordAsync,
   validateTagListAsync,
+  validateSignupAsync,
 };
