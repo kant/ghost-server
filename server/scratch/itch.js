@@ -10,8 +10,13 @@ async function addItchGameAsync(url) {
   let response = await fetch(url);
   let body = await response.text();
   let iframeUrl = 'https:' + body.match(/(\/\/v6p9d9t4.ssl.hwcdn.net\/[^"&]*)/)[1];
+  let username = url.match(/https?:\/\/([a-z0-9-]+)\.itch\.io\/.*/)[1];
+
+  await addItchUserAsync(username);
+
   return {
     iframeUrl,
+    body,
   };
 }
 
@@ -21,6 +26,18 @@ async function addItchUserAsync(itchUsername) {
   let name = itchUsername + ' on itch.io';
   let website = `https://${itchUsername}.itch.io`;
   let itchProfile = `https://itch.io/profile/${itchUsername}`;
+
+  let r = db.replacer();
+  let result = await db.queryAsync(
+    /* SQL */ `
+  SELECT "userId" FROM "user" WHERE "userId" = ${r(userId)};
+  `,
+    r.values()
+  );
+  if (result.rowCount) {
+    console.log(`Itch user ${itchUsername} already exists; skipping.`);
+    return;
+  }
   gqAsync(
     /* GraphQL */ `
       mutation(
