@@ -43,7 +43,7 @@ async function addItchGameAsync(url) {
       mutation(
         $name: String!
         $mediaUrl: String!
-        $description: Json!
+        $description: Json
         $userId: ID!
         $itchUrl: String
       ) {
