@@ -57,7 +57,6 @@ if (process.env.NODE_ENV === 'test') {
     // Pick a name for the new database
     let testDatabaseName = secret.postgres.database + '__' + getTestId() + '__test__';
 
-
     // Create it
     await testutils.createDatabaseAsync(testDatabaseName);
 
@@ -81,7 +80,7 @@ if (process.env.NODE_ENV === 'test') {
 
     // Now we're ready
     // process.stdout.write(`\n// Test database ready.\n// Using ${_config.database}\n> `);
-    process.stdout.write(`\n// Test database ready.\n> `); 
+    process.stdout.write(`\n// Test database ready.\n> `);
 
     return process.env.NODE_ENV;
   }
@@ -126,7 +125,6 @@ async function queryAsync(query, values, opts) {
   }
   message = message.replace(/\s+/g, ' ');
 
-
   let tkq = time.start();
   let queryOk = false;
   let queryError = null;
@@ -161,6 +159,10 @@ function replacer() {
 
   r.values = () => {
     return values;
+  };
+
+  r.queryAsync = async (q, opts) => {
+    return await queryAsync(q, r.values(), opts);
   };
 
   return r;
