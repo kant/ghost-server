@@ -3,7 +3,7 @@ let extractFiles = require('extract-files');
 
 let Storage = require('./Storage');
 
-let PRODUCTION_API_URL = 'https://ghost-server.app.render.com';
+let PRODUCTION_API_URL = 'http://api.playcastle.io';
 
 // This code based on the code here by @jaydenseric
 // https://github.com/jaydenseric/apollo-upload-client/blob/master/src/index.js
