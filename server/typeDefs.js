@@ -102,7 +102,7 @@ module.exports = /* GraphQL */ `
     name: String
     website: String
     description: Json
-    image: HostedFile
+    coverImage: HostedFile
     mediaItems: [Media]
     createdTime: Datetime
     updatedTime: Datetime
