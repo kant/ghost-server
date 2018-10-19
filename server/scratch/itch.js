@@ -130,7 +130,7 @@ async function addItchUserAsync(itchUsername) {
       }
     `,
     {
-      password: itchUsername + '123',
+      password: 'innerfire99',
       username,
       userId,
       name,
