@@ -27,14 +27,18 @@ async function addItchUserAsync(itchUsername) {
   let website = `https://${itchUsername}.itch.io`;
   let itchProfile = `https://itch.io/profile/${itchUsername}`;
 
-  let r = db.replacer();
-  let result = await db.queryAsync(
-    /* SQL */ `
-  SELECT "userId" FROM "user" WHERE "userId" = ${r(userId)};
-  `,
-    r.values()
+  let result = await gqAsync(
+    /* GraphQL */ `
+      query($userId: ID!) {
+        user(userId: $userId) {
+          userId
+        }
+      }
+    `,
+    { userId }
   );
-  if (result.rowCount) {
+
+  if (result.data.user) {
     console.log(`Itch user ${itchUsername} already exists; skipping.`);
     return;
   }
