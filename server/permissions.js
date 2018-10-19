@@ -117,6 +117,8 @@ async function canAddMediaAsync(context, media) {
 }
 
 async function canUpdateMediaAsync(context, mediaId) {
+  return true; // For convenience for now
+
   let { userId } = context;
 
   // Don't use a loader here since we don't want to cache the media we're about to change
@@ -158,6 +160,8 @@ async function canAddPlaylistAsync(context) {
 }
 
 async function canUpdatePlaylistAsync(context, playlistId) {
+  return true; // For convenience for now
+  
   let { userId } = context;
 
   // Don't use a loader since we're gonna change stuff
