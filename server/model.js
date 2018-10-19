@@ -316,6 +316,7 @@ let mediaColumns = [
   'slug',
   'published',
   'deleted',
+  'coverImageFileId',
   'createdTime',
   'updatedTime',
 ];

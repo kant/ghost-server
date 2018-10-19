@@ -21,6 +21,7 @@ module.exports = /* GraphQL */ `
     name: String
     description: Json
     userId: ID
+    coverImageFileId: ID
     coverImage: HostedFile
     instructions: Json
     dimensions: Json
@@ -103,6 +104,7 @@ module.exports = /* GraphQL */ `
     website: String
     description: Json
     coverImage: HostedFile
+    coverImageFileId: ID
     mediaItems: [Media]
     createdTime: Datetime
     updatedTime: Datetime
@@ -229,7 +231,7 @@ module.exports = /* GraphQL */ `
     description: Json
     links: Json
     userId: ID
-    coverImage: ID
+    coverImageFileId: ID
     instructions: Json
     dimensions: Json
     toolIds: [ID]
@@ -242,7 +244,7 @@ module.exports = /* GraphQL */ `
     userId: ID
     website: String
     description: Json
-    image: ID
+    coverImageFileId: ID
     mediaItems: [ID]
   }
 

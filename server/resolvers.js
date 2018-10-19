@@ -198,6 +198,11 @@ module.exports = {
     toolIds: async (media, {}, context) => {
       return data.setToList(media.toolSet);
     },
+    coverImage: async (media, {}, context) => {
+      if (media.coverImageFileId) {
+        return await context.loaders.file.load(media.coverImageFileId);
+      }
+    }
   },
   SearchResult: {
     object: async (result, {}, context) => {
@@ -348,6 +353,11 @@ module.exports = {
         return await context.loaders.user.load(playlist.userId);
       }
     },
+    coverImage: async (playlist, {}, context, info) => {
+      if (playlist.coverImageFileId) {
+        return await context.loaders.file.load(playlist.coverImageFileId);
+      }
+    }
   },
   Mutation: {
     User: async (_, { userId, username }, context) => {
