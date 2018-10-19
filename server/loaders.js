@@ -13,7 +13,9 @@ function createLoaders(context) {
   let user = new DataLoader(async (keys) => {
     let users = await loadUsersAsync(keys);
     for (let user of users) {
-      context.loaders.userByUsername.prime(user.username, user);
+      if (user) {
+        context.loaders.userByUsername.prime(user.username, user);
+      }
     }
     return users;
   });

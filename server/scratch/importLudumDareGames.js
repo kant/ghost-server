@@ -1,6 +1,6 @@
 let requestImageSize = require('request-image-size');
 
-let itches = require('./itches42b.json');
+//let itches = require('./itches42b.json');
 let model = require('../model');
 let test = require('./test');
 
