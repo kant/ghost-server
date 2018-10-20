@@ -346,7 +346,12 @@ module.exports = {
   Playlist: {
     mediaItems: async (playlist, {}, context, info) => {
       let mediaItems = await context.loaders.media.loadMany(playlist.mediaItems || []);
-      return mediaItems.filter((x) => !x.deleted);
+      // for (let i = 0; i < playlist.mediaItems.length; i++) {
+      //   if (!mediaItems[i]) {
+      //     console.error(`Missing mediaItem: ${playlist.mediaItems[i]} from ${playlist.playlistId}`);
+      //   }
+      // }
+      return mediaItems.filter((x) => x && !x.deleted);
     },
     user: async (playlist, {}, context) => {
       if (playlist.userId) {
