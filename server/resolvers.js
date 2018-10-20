@@ -202,7 +202,7 @@ module.exports = {
       if (media.coverImageFileId) {
         return await context.loaders.file.load(media.coverImageFileId);
       }
-    }
+    },
   },
   SearchResult: {
     object: async (result, {}, context) => {
@@ -356,8 +356,18 @@ module.exports = {
     coverImage: async (playlist, {}, context, info) => {
       if (playlist.coverImageFileId) {
         return await context.loaders.file.load(playlist.coverImageFileId);
+      } else {
+        // Return a random coverImage from one of the media items in the list
+        // if any exists
+        let mediaItems = await context.loaders.media.loadMany(playlist.mediaItems || []);
+        let coverImageFileIdList = mediaItems.map((x) => x.coverImageFileId).filter((x) => !!x);
+        if (coverImageFileIdList.length) {
+          let fileId =
+            coverImageFileIdList[Math.floor(Math.random() * coverImageFileIdList.length)];
+          return await context.loaders.file.load(fileId);
+        }
       }
-    }
+    },
   },
   Mutation: {
     User: async (_, { userId, username }, context) => {
