@@ -6,6 +6,14 @@ let gq = require('../testlib/gq');
 
 let gqAsync = gq.withClientId('__shell__/addItch');
 
+async function checkForMediaUrlAsync(mediaUrl) {
+  let r = db.replacer();
+  let result = await r.queryAsync(/* SQL */ `
+    SELECT "mediaId" FROM "media" 
+    WHERE "mediaUrl" = ${r(mediaUrl)};`);
+  return result.rowCount > 0;
+}
+
 async function addItchGameAsync(url) {
   let response = await fetch(url);
   let body = await response.text();
@@ -17,6 +25,10 @@ async function addItchGameAsync(url) {
   let ld = JSON.parse(ldJson);
   let name = ld.name;
   let description = ld.description;
+
+  if (await checkForMediaUrlAsync(iframeUrl)) {
+    console.log("This game is already in the database; bailing...");
+  }
 
   let gqAsync = gq.withClientId('__shell__/addItch+' + username);
 
