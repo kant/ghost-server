@@ -1,6 +1,6 @@
 {
   "name": "castle-api-client",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "Castle API Client",
   "main": "CastleApiClient.js",
   "repository": "https://github.com/expo/ghost-server.git",

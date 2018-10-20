@@ -97,8 +97,8 @@ module.exports = {
       // shuffle(playlist_.mediaItems);
       return playlist_;
     },
-    search: async (_, { query, cursorPosition, limit }, context) => {
-      return await search.queryAsync(query, cursorPosition, { limit });
+    search: async (_, { query, cursorPosition, types, limit }, context) => {
+      return await search.queryAsync(query, cursorPosition, { limit, types });
     },
     searchMediaAndPlaylists: async (_, { query, cursorPosition, limit }, context) => {
       return await search.queryJustMediaAndPlaylistsAsync(query, cursorPosition, { limit });

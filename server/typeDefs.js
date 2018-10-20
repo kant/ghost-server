@@ -172,7 +172,7 @@ module.exports = /* GraphQL */ `
     playlist(playlistId: ID!): Playlist
     playlistsForUser(userId: ID!): [Playlist]
     currentPlaylist: Playlist
-    search(query: String, cursorPosition: Int, limit: Int): [SearchResult]
+    search(query: String, cursorPosition: Int, types: Json, limit: Int): [SearchResult]
     searchMediaAndPlaylists(
       query: String
       cursorPosition: Int

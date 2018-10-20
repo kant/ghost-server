@@ -50,14 +50,28 @@ async function queryJustMediaAndPlaylistsAsync(query, cursorPosition, opts) {
 }
 
 async function queryAsync(query, cursorPosition, opts) {
+  opts = opts || {};
   let sq = makeSearchQuery(query, cursorPosition, opts);
-  let listOfResultLists = await Promise.all([
-    getUserResultsAsync(sq),
-    getMediaResultsAsync(sq),
-    getToolResultsAsync(sq),
-    getPlaylistResultsAsync(sq),
-    getTagResultsAsync(sq),
-  ]);
+  let a$ = [];
+
+  if (!opts.types || opts.types.user) {
+    a$.push(getUserResultsAsync(sq));
+  }
+  if (!opts.types || opts.types.tool) {
+    a$.push(getToolResultsAsync(sq));
+  }
+  if (!opts.types || opts.types.playlist) {
+    a$.push(getPlaylistResultsAsync(sq));
+  }
+  if (!opts.types || opts.types.media) {
+    a$.push(getMediaResultsAsync(sq));
+  }
+  if (!opts.types || opts.types.tag) {
+    a$.push(getTagResultsAsync(sq));
+  }
+
+  let listOfResultLists = await Promise.all(a$);
+
   let results = [].concat(...listOfResultLists);
   results.sort((a, b) => {
     return a.score < b.score;

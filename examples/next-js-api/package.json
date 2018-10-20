@@ -10,8 +10,8 @@
     "react-dom": "^16.5.2"
   },
   "scripts": {
-    "dev": "next",
+    "start": "next -p 3080",
     "build": "next build",
-    "start": "next start"
+    "prod": "next start"
   }
 }

@@ -3,7 +3,8 @@ let extractFiles = require('extract-files');
 
 let Storage = require('./Storage');
 
-let PRODUCTION_API_URL = 'http://api.playcastle.io';
+let PRODUCTION_API_URL = 'https://apis.playcastle.io';
+let LOCAL_API_URL = 'http://localhost:1380';
 
 // This code based on the code here by @jaydenseric
 // https://github.com/jaydenseric/apollo-upload-client/blob/master/src/index.js
@@ -166,4 +167,5 @@ Object.assign(module.exports, {
   CastleApiClient,
   Storage,
   PRODUCTION_API_URL,
+  LOCAL_API_URL,
 });
