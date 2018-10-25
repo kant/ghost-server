@@ -34,7 +34,7 @@ module.exports = /* GraphQL */ `
     tools: [Tool]
     toolIds: [ID]
     jamPlaylist: Playlist
-    jamId: ID
+    jamPlaylistId: ID
     jamVotingUrl: String
   }
 

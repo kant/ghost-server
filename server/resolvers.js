@@ -203,7 +203,7 @@ module.exports = {
         return await context.loaders.file.load(media.coverImageFileId);
       }
     },
-    jamId: async (media, {}, context, info) => {},
+    jamPlaylistId: async (media, {}, context, info) => {},
     jamPlaylist: async (media, {}, context, info) => {},
     jamVotingUrl: async (media, {}, context, info) => {
       let mediaId = media.mediaId;
