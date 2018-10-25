@@ -203,6 +203,15 @@ module.exports = {
         return await context.loaders.file.load(media.coverImageFileId);
       }
     },
+    jamId: async (media, {}, context, info) => {},
+    jamPlaylist: async (media, {}, context, info) => {},
+    jamVotingUrl: async (media, {}, context, info) => {
+      let mediaId = media.mediaId;
+      switch (mediaId) {
+        default:
+          return null;
+      }
+    },
   },
   SearchResult: {
     object: async (result, {}, context) => {

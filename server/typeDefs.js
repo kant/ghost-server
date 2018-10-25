@@ -33,6 +33,9 @@ module.exports = /* GraphQL */ `
     user: User
     tools: [Tool]
     toolIds: [ID]
+    jamPlaylist: Playlist
+    jamId: ID
+    jamVotingUrl: String
   }
 
   type User {
