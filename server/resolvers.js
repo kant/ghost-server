@@ -207,10 +207,14 @@ module.exports = {
     jamPlaylist: async (media, {}, context, info) => {},
     jamVotingUrl: async (media, {}, context, info) => {
       let mediaId = media.mediaId;
-      switch (mediaId) {
-        default:
-          return null;
+      let procjamPlaylist = await context.loaders.playlist.load('playlist:procjam-2018');
+      let mediaItemIds = procjamPlaylist.mediaItems;
+      for (let x of mediaItemIds) {
+        if (mediaId === x) {
+          return 'https://itch.io/jam/procjam/entries';
+        }
       }
+      return null;
     },
   },
   SearchResult: {
