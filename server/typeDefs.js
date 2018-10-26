@@ -109,6 +109,7 @@ module.exports = /* GraphQL */ `
     coverImage: HostedFile
     coverImageFileId: ID
     mediaItems: [Media]
+    metadata: Json
     createdTime: Datetime
     updatedTime: Datetime
   }
@@ -249,6 +250,7 @@ module.exports = /* GraphQL */ `
     description: Json
     coverImageFileId: ID
     mediaItems: [ID]
+    metadata: Json
   }
 
   type UserMutation {

@@ -584,7 +584,7 @@ let jsonFields = {
   media: ['description', 'coverImage', 'instructions', 'dimensions', 'links', 'toolSet'],
   tool: ['about', 'image'],
   user: ['about', 'photo', 'info'],
-  playlist: ['description', 'mediaItems', 'image'],
+  playlist: ['description', 'mediaItems', 'image', 'metadata'],
 };
 
 async function getUploadedFileAsync(fileId) {
