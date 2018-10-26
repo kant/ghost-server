@@ -8,7 +8,7 @@ module.exports = /* GraphQL */ `
     url: String
     height: Float
     width: Float
-    donwloaded: Int
+    downloaded: Int
     type: String
   }
 
