@@ -187,7 +187,8 @@ async function loadPlaylistIdsForUserIdsAsync(userIdList) {
   let r = db.replacer();
   let results = await db.queryAsync(
     /* SQL */ `
-    SELECT "playlistId", "userId" FROM "playlist" WHERE "userId" IN ${r.inList(userIdList)};
+    SELECT "playlistId", "userId" FROM "playlist" WHERE "userId" IN ${r.inList(userIdList)}
+    ORDER BY "updatedTime" DESC;
     `,
     r.values()
   );
