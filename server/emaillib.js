@@ -127,7 +127,7 @@ Thanks for signing up for Castle!
 
 Visit this link to confirm your email address (${emailData.email}).
 
-https://www.playcastle.io/confirm-email?email=${encodeURIComponent(emailData.email)}&code=${encodeURIComponent(emailData.confirmationCode)}
+https://www.playcastle.io/confirmEmail?email=${encodeURIComponent(emailData.email)}&code=${encodeURIComponent(emailData.confirmationCode)}
 
 We're trying to build Castle to be a healthy place to instantly play and create games and experience digital art with other people.
 
