@@ -105,7 +105,7 @@ async function _writeNewEmailAsync(obj) {
 }
 
 async function _sendConfirmationEmail(emailData) {
-  let people = ['@jim', '@ben', '@jesse', '@schazers', '@nikki', '@ccheever'];
+  let people = ['@wwwjim', '@ben', '@jesse', '@schazers', '@nikki', '@ccheever'];
   let shuffle = (a) => {
     let j, x, i;
     for (i = a.length - 1; i > 0; i--) {
@@ -121,17 +121,19 @@ async function _sendConfirmationEmail(emailData) {
   await sendEmailAsync({
     to: emailData.email,
     from: 'castle@expo.io',
-    subject: 'Thanks for signup up for Castle! Please confirm your e-mail',
+    subject: 'Thanks for signing up for Castle! Please confirm your e-mail',
     text: `
 Thanks for signing up for Castle!
 
-Your code to confirm this e-mail address (${emailData.email}) is ${emailData.confirmationCode}
+Visit this link to confirm your email address (${emailData.email}).
+
+https://www.playcastle.io/confirm-email?email=${encodeURIComponent(emailData.email)}&code=${encodeURIComponent(emailData.confirmationCode)}
 
 We're trying to build Castle to be a healthy place to instantly play and create games and experience digital art with other people.
 
 We hope you find some cool stuff that inspires you and have some fun.
 
-Send us feedback any time at feedback@playcastle.io
+Send us feedback any time at castle.feedback@gmail.com
 
     -- ${people.join(', ')}
 
