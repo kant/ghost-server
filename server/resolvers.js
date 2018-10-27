@@ -206,6 +206,7 @@ module.exports = {
     jamPlaylistId: async (media, {}, context, info) => {},
     jamPlaylist: async (media, {}, context, info) => {},
     jamVotingUrl: async (media, {}, context, info) => {
+      return null;
       let mediaId = media.mediaId;
       let procjamPlaylist = await context.loaders.playlist.load('playlist:procjam-2018');
       let mediaItemIds = procjamPlaylist.mediaItems;
