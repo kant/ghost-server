@@ -14,6 +14,20 @@ async function checkForMediaUrlAsync(mediaUrl) {
   return result.rowCount > 0;
 }
 
+async function addItchGameListAsync(urls) {
+  var gamesAdded = []
+  for(const url of urls) {
+    let gameAdded = await addItchGameAsync(url)
+    if (!!gameAdded) {
+      gamesAdded.push(gameAdded)
+    }
+  }
+  gamesAdded.forEach(function(game) {
+    console.log(game.mediaId)
+  })
+  return gamesAdded
+}
+
 async function addItchGameAsync(url) {
   let response = await fetch(url);
   let body = await response.text();
@@ -154,6 +168,7 @@ async function addItchUserAsync(itchUsername) {
 }
 
 module.exports = {
+  addItchGameListAsync,
   addItchGameAsync,
   addItchUserAsync,
 };
