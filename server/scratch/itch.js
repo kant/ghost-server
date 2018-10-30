@@ -28,6 +28,7 @@ async function addItchGameAsync(url) {
 
   if (await checkForMediaUrlAsync(iframeUrl)) {
     console.log("This game is already in the database; bailing...");
+    return
   }
 
   let gqAsync = gq.withClientId('__shell__/addItch+' + username);
