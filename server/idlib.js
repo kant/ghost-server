@@ -1,5 +1,3 @@
-let crypto = require('crypto');
-
 let uuidV4 = require('uuid/v4');
 
 function makeUuid(length = 27) {
