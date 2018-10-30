@@ -142,8 +142,8 @@ Send us feedback any time at castle.feedback@gmail.com
   });
 }
 
-function stripNonDigits(s) {
-  return s.replace(/[^0-9]+/g, '');
+function stripSpacers(s) {
+  return s.replace(/[^0-9a-zA-Z]+/g, '');
 }
 
 async function confirmEmailAsync(userId, email, code) {
@@ -164,7 +164,7 @@ async function confirmEmailAsync(userId, email, code) {
     // Already confirmed
     return true;
   }
-  if (emailInfo.confirmationCode === stripNonDigits(code)) {
+  if (emailInfo.confirmationCode === stripSpacers(code)) {
     r = db.replacer();
     result = await db.queryAsync(
       /* SQL */ `
