@@ -15,17 +15,22 @@ async function checkForMediaUrlAsync(mediaUrl) {
 }
 
 async function addItchGameListAsync(urls) {
-  var gamesAdded = []
-  for(const url of urls) {
-    let gameAdded = await addItchGameAsync(url)
-    if (!!gameAdded) {
-      gamesAdded.push(gameAdded)
+  let gamesAdded = [];
+  let gamesErrored = [];
+  for (let url of urls) {
+    try {
+      let gameAdded = await addItchGameAsync(url);
+      if (gameAdded) {
+        gamesAdded.push(gameAdded);
+      } else {
+        gamesErrored.push([url, 'probably already added?']);
+      }
+    } catch (e) {
+      console.error(e);
+      gamesErrored.push([url, e]);
     }
   }
-  gamesAdded.forEach(function(game) {
-    console.log(game.mediaId)
-  })
-  return gamesAdded
+  return { gamesAdded, gamesErrored };
 }
 
 async function addItchGameAsync(url) {
@@ -41,8 +46,8 @@ async function addItchGameAsync(url) {
   let description = ld.description;
 
   if (await checkForMediaUrlAsync(iframeUrl)) {
-    console.log("This game is already in the database; bailing...");
-    return
+    console.log('This game is already in the database; bailing...');
+    return;
   }
 
   let gqAsync = gq.withClientId('__shell__/addItch+' + username);
