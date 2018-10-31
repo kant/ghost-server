@@ -646,6 +646,26 @@ async function getUserIdForPhoneNumberAsync(number, opts) {
   }
 }
 
+async function addPlaylistMediaItemsAsync(playlistId, mediaItemIds, opts) {
+  let itemsAdded = [];
+  let itemsErrored = [];
+
+  for (let mediaItemId of mediaItemIds) {
+    try {
+      let itemAdded = await addPlaylistMediaItemAsync(playlistId, mediaItemId, opts);
+      if (itemAdded) {
+        itemsAdded.push(itemAdded);
+      } else {
+        itemsErrored.push([mediaItemId, 'probably already added?']);
+      }
+    } catch (e) {
+      console.error(e);
+      itemsErrored.push([mediaItemId, e]);
+    }
+  }
+  return { itemsAdded, itemsErrored };
+}
+
 async function addPlaylistMediaItemAsync(playlistId, mediaId, opts) {
   let r = db.replacer();
   opts = opts || {};
@@ -745,6 +765,7 @@ module.exports = {
   getPhoneNumberInfoAsync,
   getUserIdForEmailAsync,
   getUserIdForPhoneNumberAsync,
+  addPlaylistMediaItemsAsync,
   addPlaylistMediaItemAsync,
   removePlaylistMediaItemAsync,
   _deleteUserAndDataAsync,
