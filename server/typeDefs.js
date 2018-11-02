@@ -36,6 +36,7 @@ module.exports = /* GraphQL */ `
     jamPlaylist: Playlist
     jamPlaylistId: ID
     jamVotingUrl: String
+    usesGhost: Boolean
   }
 
   type User {

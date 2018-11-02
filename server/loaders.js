@@ -157,10 +157,22 @@ async function loadToolsAsync(toolIdList) {
 }
 
 async function loadMediaAsync(mediaIdList) {
-  // This is a little hacky :/
-  return await data.loadObjectsAsync(mediaIdList, 'media', 'mediaId', {
+  
+  let mediaObjects = await data.loadObjectsAsync(mediaIdList, 'media', 'mediaId', {
     columns: model.mediaColumns,
   });
+
+  // Don't use filter because we don't want to remove the items, just replace them
+  // with nulls
+  for (let i = 0; i < mediaIdList.length; i++) {
+    let media = mediaObjects[i];
+    if (media && (media.deleted || !media.usesGhost)) {
+      mediaObjects[i] = null;
+    }
+  }
+
+  return mediaObjects;
+
 }
 
 async function loadMediaIdsForUserIdsAsync(userIdList) {
