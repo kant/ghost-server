@@ -162,6 +162,8 @@ async function loadMediaAsync(mediaIdList) {
     columns: model.mediaColumns,
   });
 
+  return mediaObjects;
+
   // Don't use filter because we don't want to remove the items, just replace them
   // with nulls
   for (let i = 0; i < mediaIdList.length; i++) {
