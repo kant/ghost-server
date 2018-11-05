@@ -205,6 +205,28 @@ module.exports = /* GraphQL */ `
     validateSignup(inputs: Json!): Json
   }
 
+  type Userplay {
+    userplayId: ID
+    userId: ID
+    mediaId: ID
+    playId: ID
+    startTime: Datetime
+    endTime: Datetime
+    notes: Json
+    createdTime: Datetime
+    updatedTime: Datetime
+  }
+
+  type Play {
+    playId: ID
+    mediaId: ID
+    startTime: Datetime
+    endTime: Datetime
+    notes: Json
+    createdTime: Datetime
+    updatedTime: Datetime
+  }
+
   input UserInput {
     userId: String
     name: String

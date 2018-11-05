@@ -199,3 +199,30 @@ CREATE TABLE "phone" (
 );
 
 CREATE TRIGGER "phone_setUpdatedTime" BEFORE UPDATE ON "phone" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+create TABLE "userplay" (
+  "userplayId" text PRIMARY KEY,
+  "userId" text,
+  "mediaId" text,
+  "playId" text,
+  "startTime" timestamptz default now(),
+  "endTime" timestamptz,
+  "notes" jsonb,
+  "createdTime" timestamptz noT null default now(),
+  "updatedTime" timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TRIGGER "userplay_setUpdatedTime" BEFORE UPDATE ON "userplay" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+
+create TABLE "play" (
+  "playId" text PRIMARY KEY,
+  "mediaId" text,
+  "startTime" timestamptz default now(),
+  "endTime" timestamptz,
+  "notes" jsonb,
+  "createdTime" timestamptz noT null default now(),
+  "updatedTime" timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TRIGGER "play_setUpdatedTime" BEFORE UPDATE ON "userplay" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
