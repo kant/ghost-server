@@ -209,6 +209,7 @@ module.exports = /* GraphQL */ `
     userplayId: ID
     userId: ID
     mediaId: ID
+    mediaUrl: String
     playId: ID
     startTime: Datetime
     endTime: Datetime
@@ -355,6 +356,9 @@ module.exports = /* GraphQL */ `
 
     addPlaylistMediaItem(playlistId: ID!, mediaId: ID!, toBeginning: Boolean): Playlist
     removePlaylistMediaItem(playlistId: ID!, mediaId: ID!): Playlist
+
+    recordUserplayStart(userplayId: ID!, userId: ID, mediaId: ID, mediaUrl: String): Userplay
+    recordUserplayEnd(userplayId: ID!): Userplay
 
   }
 `;

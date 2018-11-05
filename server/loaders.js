@@ -90,6 +90,10 @@ function createLoaders(context) {
     return await loadPhoneAsync(keys);
   });
 
+  let userplay = new DataLoader(async (keys) => {
+    return await loadUserplayAsync(keys);
+  });
+
   return {
     user,
     userByUsername,
@@ -107,6 +111,7 @@ function createLoaders(context) {
     subscriberCount,
     email,
     phone,
+    userplay,
   };
 }
 
@@ -157,7 +162,6 @@ async function loadToolsAsync(toolIdList) {
 }
 
 async function loadMediaAsync(mediaIdList) {
-  
   let mediaObjects = await data.loadObjectsAsync(mediaIdList, 'media', 'mediaId', {
     columns: model.mediaColumns,
   });
@@ -174,7 +178,6 @@ async function loadMediaAsync(mediaIdList) {
   }
 
   return mediaObjects;
-
 }
 
 async function loadMediaIdsForUserIdsAsync(userIdList) {
@@ -348,6 +351,15 @@ async function loadPhoneAsync(userIdList) {
     results.push(byUserId[userId]);
   }
   return results;
+}
+
+async function loadUserplayAsync(userplayIdList) {
+  let r = db.replacer();
+  let q = /* SQL */ `
+  SELECT * FROM "userplay" WHERE "userplayId" IN ${r.inList(userplayIdList)}
+  `;
+  let result = await r.queryAsync(q);
+  return _orderedListFromResults(result, userplayIdList, 'userplayId');
 }
 
 module.exports = {

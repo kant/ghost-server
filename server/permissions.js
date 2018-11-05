@@ -249,6 +249,14 @@ async function canConfirmContactInfoAsync(context, userId) {
   // when confirming an e-mail address
 }
 
+async function canRecordUserplayAsync(context, userplayId, userId) {
+  if (userId) {
+    if (context.userId !== userId) {
+      throw PermissionError("Can't record a userplay for a different user");
+    }
+  }
+}
+
 module.exports = {
   _checkUserIsUserOrMemberOfTeamAsync,
   _checkUserIsUserOrAdminOfTeamAsync,
@@ -271,4 +279,5 @@ module.exports = {
   canSeeContactInfoAsync,
   canUpdateContactInfoAsync,
   canConfirmContactInfoAsync,
+  canRecordUserplayAsync,
 };

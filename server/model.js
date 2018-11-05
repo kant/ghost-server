@@ -696,6 +696,43 @@ async function removePlaylistMediaItemAsync(playlistId, mediaId) {
   return result.rowCount === 1;
 }
 
+async function recordUserplayStartAsync(clientId, userId, userplayId, mediaId, mediaUrl) {
+  let r = db.replacer();
+  let result = await r.queryAsync(/* SQL */ `
+  INSERT INTO "userplay" (
+    "userplayId",
+    "clientId",
+    "userId",
+    "mediaId",
+    "mediaUrl",
+    "startTime",
+    "endTime"
+  ) VALUES (
+    ${r(userplayId)},
+    ${r(clientId)},
+    ${r(userId)},
+    ${r(mediaId)},
+    ${r(mediaUrl)},
+    NOW(),
+    NULL
+  );
+  `);
+  // TODO: Maybe make this idempotent, or otherwise handle conflicts? maybe?
+  return result.rowCount === 1;
+}
+
+async function recordUserplayEndAsync(clientId, userId, userplayId) {
+  let r = db.replacer();
+  let result = await r.queryAsync(/* SQL */ `
+  UPDATE "userplay" SET "endTime" = NOW() WHERE 
+    "userplayId" = ${r(userplayId)} AND
+    "clientId" = ${r(clientId)} AND
+    "userId" = ${r(userId)}
+  ;
+  `);
+  return result.rowCount === 1;
+}
+
 module.exports = {
   newPlayRecordAsync,
   getPlayRecordsAsync,
@@ -770,4 +807,6 @@ module.exports = {
   addPlaylistMediaItemAsync,
   removePlaylistMediaItemAsync,
   _deleteUserAndDataAsync,
+  recordUserplayStartAsync,
+  recordUserplayEndAsync,
 };

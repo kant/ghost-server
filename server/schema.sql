@@ -202,6 +202,7 @@ CREATE TRIGGER "phone_setUpdatedTime" BEFORE UPDATE ON "phone" FOR EACH ROW EXEC
 
 create TABLE "userplay" (
   "userplayId" text PRIMARY KEY,
+  "clientId" text,
   "userId" text,
   "mediaId" text,
   "playId" text,
