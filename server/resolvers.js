@@ -379,7 +379,7 @@ module.exports = {
         // Return a random coverImage from one of the media items in the list
         // if any exists
         let mediaItems = await context.loaders.media.loadMany(playlist.mediaItems || []);
-        let coverImageFileIdList = mediaItems.map((x) => x.coverImageFileId).filter((x) => !!x);
+        let coverImageFileIdList = mediaItems.map((x) => x && x.coverImageFileId).filter((x) => !!x);
         if (coverImageFileIdList.length) {
           let fileId =
             coverImageFileIdList[Math.floor(Math.random() * coverImageFileIdList.length)];
