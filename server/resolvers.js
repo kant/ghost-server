@@ -642,13 +642,13 @@ module.exports = {
       await model.removePlaylistMediaItemAsync(playlistId, mediaId);
       return await context.loaders.playlist.load(playlistId);
     },
-    recordUserplayStart: async (_, { userplayId, userId, mediaId, mediaUrl }, context) => {
+    recordUserplayStart: async (_, { userplayId, mediaId, mediaUrl }, context) => {
       assertOrClientError(
         userplayId.startsWith('userplay:'),
         'userplayId must start with `userplay:`'
       );
-      await permissions.canRecordUserplayAsync(context, userplayId, userId);
-      await model.recordUserplayStartAsync(context.clientId, userId, userplayId, mediaId, mediaUrl);
+      await permissions.canRecordUserplayAsync(context, userplayId);
+      await model.recordUserplayStartAsync(context.clientId, context.userId, userplayId, mediaId, mediaUrl);
       return await context.loaders.userplay.load(userplayId);
     },
     recordUserplayEnd: async (_, { userplayId }, context) => {
