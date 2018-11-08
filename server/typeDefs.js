@@ -48,6 +48,11 @@ module.exports = /* GraphQL */ `
     otherUsernames: Json
     links: Json
     photo: HostedFile
+    websiteUrl: String
+    githubUsername: String
+    twitterUsername: String
+    itchUsername: String
+    twitchUsername: String
     isTeam: Boolean
     members: [User]
     admins: [User]
@@ -239,6 +244,11 @@ module.exports = /* GraphQL */ `
     info: Json
     photoFileId: ID
     isTeam: Boolean
+    websiteUrl: String
+    githubUsername: String
+    twitterUsername: String
+    itchUsername: String
+    twitchUsername: String
   }
 
   input ToolInput {
