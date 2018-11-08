@@ -342,6 +342,8 @@ module.exports = /* GraphQL */ `
 
     uploadFile(file: Upload!): HostedFile
     uploadMultipleFiles(files: [Upload!]!): [HostedFile]
+    downloadFile(url: String!): HostedFile
+    downloadMultipleFiles(urls: [String!]!): [HostedFile]
 
     addEmailAddress(userId: ID!, email: String!, makePrimary: Boolean): Email
     addPhoneNumber(userId: ID!, number: String!, makePrimary: Boolean): Phone

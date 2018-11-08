@@ -257,6 +257,10 @@ async function canRecordUserplayAsync(context, userplayId, userId) {
   }
 }
 
+async function canDownloadFilesAsync(context) {
+  loginRequiredAsync(context);
+}
+
 module.exports = {
   _checkUserIsUserOrMemberOfTeamAsync,
   _checkUserIsUserOrAdminOfTeamAsync,
@@ -280,4 +284,5 @@ module.exports = {
   canUpdateContactInfoAsync,
   canConfirmContactInfoAsync,
   canRecordUserplayAsync,
+  canDownloadFilesAsync,
 };

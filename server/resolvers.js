@@ -567,6 +567,28 @@ module.exports = {
       });
       return await context.loaders.file.load(createdFile.fileId);
     },
+    downloadFile: async (_, { url }, context) => {
+      await permissions.canDownloadFilesAsync(context);
+      let createdFile = await uploads.downloadUrlAsync(url, {
+        userId: context.userId,
+        uploadIp: context.request.ip,
+      });
+      return await context.loaders.file.load(createdFile.fileId);
+    },
+    downloadMultipleFiles: async (_, { urls }, context) => {
+      await permissions.canDownloadFilesAsync(context);
+      let a$ = [];
+      for (let url of urls) {
+        a$.push(
+          uploads.downloadUrlAsync(url, {
+            userId: context.userId,
+            uploadIp: context.request.ip,
+          })
+        );
+      }
+      let createdFiles = await Promise.all(a$);
+      return await context.loaders.file.loadMany(createdFiles.map((x) => x.fileId));
+    },
     setUserPhoto: async (_, { userId, file, fileId, empty }, context) => {
       await permissions.canUpdateUserAsync(context, userId);
       let createdFile = await uploads.storeUploadAsync(file, {
