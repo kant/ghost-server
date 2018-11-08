@@ -237,7 +237,7 @@ module.exports = /* GraphQL */ `
     links: Json
     about: Json
     info: Json
-    photo: ID
+    photoFileId: ID
     isTeam: Boolean
   }
 
@@ -359,6 +359,8 @@ module.exports = /* GraphQL */ `
 
     recordUserplayStart(userplayId: ID!, userId: ID, mediaId: ID, mediaUrl: String): Userplay
     recordUserplayEnd(userplayId: ID!): Userplay
+
+    updateUser(userId: ID!, user: UserInput): User
 
   }
 `;

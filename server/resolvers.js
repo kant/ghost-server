@@ -354,7 +354,9 @@ module.exports = {
       }
     },
     photo: async (user, {}, context) => {
-      return null;
+      if (user.photoFileId) {
+        return await context.loaders.file.load(user.photoFileId);
+      }
     },
   },
   Playlist: {
@@ -379,7 +381,9 @@ module.exports = {
         // Return a random coverImage from one of the media items in the list
         // if any exists
         let mediaItems = await context.loaders.media.loadMany(playlist.mediaItems || []);
-        let coverImageFileIdList = mediaItems.map((x) => x && x.coverImageFileId).filter((x) => !!x);
+        let coverImageFileIdList = mediaItems
+          .map((x) => x && x.coverImageFileId)
+          .filter((x) => !!x);
         if (coverImageFileIdList.length) {
           let fileId =
             coverImageFileIdList[Math.floor(Math.random() * coverImageFileIdList.length)];
@@ -648,7 +652,13 @@ module.exports = {
         'userplayId must start with `userplay:`'
       );
       await permissions.canRecordUserplayAsync(context, userplayId);
-      await model.recordUserplayStartAsync(context.clientId, context.userId, userplayId, mediaId, mediaUrl);
+      await model.recordUserplayStartAsync(
+        context.clientId,
+        context.userId,
+        userplayId,
+        mediaId,
+        mediaUrl
+      );
       return await context.loaders.userplay.load(userplayId);
     },
     recordUserplayEnd: async (_, { userplayId }, context) => {
@@ -659,6 +669,13 @@ module.exports = {
       await permissions.canRecordUserplayAsync(context, userplayId);
       await model.recordUserplayEndAsync(context.clientId, context.userId, userplayId);
       return await context.loaders.userplay.load(userplayId);
+    },
+    updateUser: async (_, { userId, user }, context) => {
+      await permissions.canUpdateUserAsync(context, userId);
+      let update = { ...user, userId: userId };
+      await model.updateUserAsync(update);
+      context.loaders.user.clear(userId);
+      return await context.loaders.user.load(userId);
     },
   },
   MediaMutation: {
