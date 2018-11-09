@@ -15,8 +15,12 @@ async function makeGraphqlContextAsync({ request, clientId }) {
     clientId = clientId || '__shell__' + db.getTestId();
   }
   let userId = null;
+  let publicId = null;
   if (clientId) {
-    userId = await model.getUserIdForSessionAsync(clientId);
+    [userId, publicId] = await Promise.all([
+      model.getUserIdForSessionAsync(clientId),
+      model.getPublicIdForClientIdAsync(clientId),
+    ]);
   }
   request = request || {};
 
@@ -24,6 +28,7 @@ async function makeGraphqlContextAsync({ request, clientId }) {
     request,
     clientId,
     userId,
+    publicId,
   };
   // The loaders need access to the context in case any of them
   // need to call into other loaders
@@ -32,7 +37,6 @@ async function makeGraphqlContextAsync({ request, clientId }) {
 }
 
 async function makeGraphqlAppAsync() {
-  
   let graphqlMiddleware = async (resolve, parent, args, context, info) => {
     if (!parent) {
       // Hide anything that looks like a password from logs

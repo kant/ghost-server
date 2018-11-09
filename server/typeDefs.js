@@ -173,6 +173,7 @@ module.exports = /* GraphQL */ `
   type Query {
     env: String
     _debugInfo: Json
+    publicId: ID
     hello(name: String): String!
     media(mediaId: ID!): Media
     mediaByMediaUrl(mediaUrl: String!): Media

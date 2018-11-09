@@ -733,6 +733,33 @@ async function recordUserplayEndAsync(clientId, userId, userplayId) {
   return result.rowCount === 1;
 }
 
+async function _getPublicIdAsync(clientId) {
+  let r = db.replacer();
+  let result = await r.queryAsync(/* SQL */ `
+    SELECT "publicId" FROM "client" WHERE "clientId" = ${r(clientId)}
+    ;
+  `);
+  if (result.rowCount > 0) {
+    return result.rows[0].publicId;
+  }
+}
+async function getPublicIdForClientIdAsync(clientId) {
+  let publicId = await _getPublicIdAsync(clientId);
+  // If we didn't find a publicId for this client, make one
+  if (!publicId) {
+    let r = db.replacer();
+    let provisionalPublicId = idlib.makeOpaqueId('public');
+    let result = await r.queryAsync(/* SQL */ `
+      INSERT INTO "client" ("clientId", "publicId") 
+      VALUES (${r(clientId)}, ${r(provisionalPublicId)}) 
+      ON CONFLICT DO NOTHING
+      ;
+    `);
+  }
+  // Fetch from database in case there was some kind of race condition
+  return await _getPublicIdAsync(clientId);
+}
+
 module.exports = {
   newPlayRecordAsync,
   getPlayRecordsAsync,
@@ -809,4 +836,6 @@ module.exports = {
   _deleteUserAndDataAsync,
   recordUserplayStartAsync,
   recordUserplayEndAsync,
+  _getPublicIdAsync,
+  getPublicIdForClientIdAsync,
 };

@@ -226,4 +226,13 @@ create TABLE "play" (
   "updatedTime" timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TRIGGER "play_setUpdatedTime" BEFORE UPDATE ON "userplay" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+CREATE TRIGGER "play_setUpdatedTime" BEFORE UPDATE ON "play" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+CREATE TABLE "client" (
+  "clientId" text PRIMARY KEY,
+  "publicId" text,
+  "createdTime" timestamptz noT null default now(),
+  "updatedTime" timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TRIGGER "client_setUpdatedTime" BEFORE UPDATE ON "client" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

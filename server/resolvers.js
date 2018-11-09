@@ -53,6 +53,9 @@ module.exports = {
         return result.rows[0].value;
       }
     },
+    publicId: async (_, {}, context) => {
+      return context.publicId;
+    },
     fileInfo: async (_, { fileId }, context) => {
       return await context.loaders.file.load(fileId);
     },
