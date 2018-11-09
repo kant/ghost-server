@@ -696,12 +696,12 @@ async function removePlaylistMediaItemAsync(playlistId, mediaId) {
   return result.rowCount === 1;
 }
 
-async function recordUserplayStartAsync(clientId, userId, userplayId, mediaId, mediaUrl) {
+async function recordUserplayStartAsync(userplayId, userId, publicId, mediaId, mediaUrl) {
   let r = db.replacer();
   let result = await r.queryAsync(/* SQL */ `
   INSERT INTO "userplay" (
     "userplayId",
-    "clientId",
+    "publicId",
     "userId",
     "mediaId",
     "mediaUrl",
@@ -709,7 +709,7 @@ async function recordUserplayStartAsync(clientId, userId, userplayId, mediaId, m
     "endTime"
   ) VALUES (
     ${r(userplayId)},
-    ${r(clientId)},
+    ${r(publicId)},
     ${r(userId)},
     ${r(mediaId)},
     ${r(mediaUrl)},
@@ -721,13 +721,25 @@ async function recordUserplayStartAsync(clientId, userId, userplayId, mediaId, m
   return result.rowCount === 1;
 }
 
-async function recordUserplayEndAsync(clientId, userId, userplayId) {
+async function getUserplayAsync(userplayId) {
+  return await data.getObjectAsync(userplayId, 'userplay');
+}
+
+async function recordUserplayPingAsync(userplayId) {
+  let r = db.replacer();
+  let result = await r.queryAsync(/* SQL */ `
+  UPDATE "userplay" SET "lastPingTime" = NOW() WHERE
+    "userplayId" = ${r(userplayId)}
+  ;
+  `);
+  return result.rowCount === 1;
+}
+
+async function recordUserplayEndAsync(userplayId) {
   let r = db.replacer();
   let result = await r.queryAsync(/* SQL */ `
   UPDATE "userplay" SET "endTime" = NOW() WHERE 
-    "userplayId" = ${r(userplayId)} AND
-    "clientId" = ${r(clientId)} AND
-    "userId" = ${r(userId)}
+    "userplayId" = ${r(userplayId)} 
   ;
   `);
   return result.rowCount === 1;
@@ -745,8 +757,8 @@ async function _getPublicIdAsync(clientId) {
 }
 async function getPublicIdForClientIdAsync(clientId) {
   let publicId = await _getPublicIdAsync(clientId);
-  // If we didn't find a publicId for this client, make one
   if (!publicId) {
+    // If we didn't find a publicId for this client, make one
     let r = db.replacer();
     let provisionalPublicId = idlib.makeOpaqueId('public');
     let result = await r.queryAsync(/* SQL */ `
@@ -755,9 +767,11 @@ async function getPublicIdForClientIdAsync(clientId) {
       ON CONFLICT DO NOTHING
       ;
     `);
+    // Fetch from database in case there was some kind of race condition
+    return await _getPublicIdAsync(clientId);
+  } else {
+    return publicId;
   }
-  // Fetch from database in case there was some kind of race condition
-  return await _getPublicIdAsync(clientId);
 }
 
 module.exports = {
@@ -836,6 +850,8 @@ module.exports = {
   _deleteUserAndDataAsync,
   recordUserplayStartAsync,
   recordUserplayEndAsync,
+  recordUserplayPingAsync,
+  getUserplayAsync,
   _getPublicIdAsync,
   getPublicIdForClientIdAsync,
 };

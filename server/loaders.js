@@ -94,6 +94,10 @@ function createLoaders(context) {
     return await loadUserplayAsync(keys);
   });
 
+  let userplayByUserId = new DataLoader(async (keys) => {
+    return await loadUserplaysForUserIdsAsync(keys);
+  });
+
   return {
     user,
     userByUsername,
@@ -112,6 +116,7 @@ function createLoaders(context) {
     email,
     phone,
     userplay,
+    userplayByUserId,
   };
 }
 
@@ -362,6 +367,28 @@ async function loadUserplayAsync(userplayIdList) {
   return _orderedListFromResults(result, userplayIdList, 'userplayId');
 }
 
+async function loadUserplaysForUserIdsAsync(userIdList) {
+  let r = db.replacer();
+  let q = /* SQL */ `
+  SELECT * FROM "userplay" WHERE "userId" IN ${r.inList(userIdList)}
+  ;`
+  let result = await r.queryAsync(q);
+  let byUserId = {};
+  for (let row of result.rows) {
+    let userplay = {...row};
+    let userId = userplay.userId;
+    byUserId[userId] = byUserId[userId] || [];
+    byUserId[userId].push(userplay);
+    // TODO: prime 
+    // context.loaders.userplay.prime(userplay.userplayId, userplay);
+  }
+  let ordered = [];
+  for (let userId of userIdList) {
+    ordered.push(byUserId[userId]);
+  }
+  return ordered;
+}
+
 module.exports = {
   createLoaders,
   loadMediaAsync,
@@ -377,4 +404,6 @@ module.exports = {
   loadSessionInfoAsync,
   loadEmailAsync,
   loadPhoneAsync,
+  loadUserplayAsync,
+  loadUserplaysForUserIdsAsync,
 };

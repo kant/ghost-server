@@ -209,16 +209,22 @@ module.exports = /* GraphQL */ `
     userForLoginInput(who: String!): User
 
     validateSignup(inputs: Json!): Json
+
+    userplay(userplayId: ID!): Userplay
+    userplaysForUser(userId: ID!): [Userplay]
   }
 
   type Userplay {
     userplayId: ID
     userId: ID
+    publicId: ID
     mediaId: ID
     mediaUrl: String
     playId: ID
     startTime: Datetime
+    lastPingTime: Datetime
     endTime: Datetime
+    duration: Int
     notes: Json
     createdTime: Datetime
     updatedTime: Datetime
@@ -371,6 +377,7 @@ module.exports = /* GraphQL */ `
     removePlaylistMediaItem(playlistId: ID!, mediaId: ID!): Playlist
 
     recordUserplayStart(userplayId: ID!, userId: ID, mediaId: ID, mediaUrl: String): Userplay
+    recordUserplayPing(userplayId: ID!): Userplay
     recordUserplayEnd(userplayId: ID!): Userplay
 
     updateUser(userId: ID!, user: UserInput): User

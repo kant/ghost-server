@@ -145,6 +145,23 @@ module.exports = {
     validateSignup: async (_, { inputs }, context) => {
       return await validation.validateSignupAsync({ context, inputs });
     },
+    userplay: async (_, { userplayId }, context) => {
+      return await context.loaders.userplay.load(userplayId);
+    },
+    userplaysForUser: async (_, { userId }, context) => {
+      return await context.loaders.userplayByUserId.load(userId);
+    },
+  },
+  Userplay: {
+    duration: async (userplay, {}, context) => {
+      if (userplay.endTime) {
+        return userplay.endTime - userplay.startTime;
+      } else if (userplay.lastPingTime) {
+        return userplay.lastPingTime - userplay.startTime;
+      } else {
+        return 30000;
+      }
+    },
   },
   SessionInfo: {
     user: async (obj, {}, context) => {
@@ -678,12 +695,21 @@ module.exports = {
       );
       await permissions.canRecordUserplayAsync(context, userplayId);
       await model.recordUserplayStartAsync(
-        context.clientId,
-        context.userId,
         userplayId,
+        context.userId,
+        context.publicId,
         mediaId,
         mediaUrl
       );
+      return await context.loaders.userplay.load(userplayId);
+    },
+    recordUserplayPing: async (_, { userplayId }, context) => {
+      assertOrClientError(
+        userplayId.startsWith('userplay:'),
+        'userplayId must start with `userplay:`'
+      );
+      await permissions.canUpdateUserplayAsync(context, userplayId);
+      await model.recordUserplayPingAsync(userplayId);
       return await context.loaders.userplay.load(userplayId);
     },
     recordUserplayEnd: async (_, { userplayId }, context) => {
@@ -691,7 +717,7 @@ module.exports = {
         userplayId.startsWith('userplay:'),
         'userplayId must start with `userplay:`'
       );
-      await permissions.canRecordUserplayAsync(context, userplayId);
+      await permissions.canUpdateUserplayAsync(context, userplayId);
       await model.recordUserplayEndAsync(context.clientId, context.userId, userplayId);
       return await context.loaders.userplay.load(userplayId);
     },

@@ -161,7 +161,7 @@ async function canAddPlaylistAsync(context) {
 
 async function canUpdatePlaylistAsync(context, playlistId) {
   return true; // For convenience for now
-  
+
   let { userId } = context;
 
   // Don't use a loader since we're gonna change stuff
@@ -257,7 +257,18 @@ async function canRecordUserplayAsync(context, userplayId, userId) {
   }
 }
 
+async function canUpdateUserplayAsync(context, userplayId) {
+  let userplay = await model.getUserplayAsync(userplayId);
+  if (!userplay) {
+    throw PermissionError("Can't update that userplay");
+  }
+  if (userplay.userId !== context.userId || userplay.publicId !== context.publicId) {
+    throw PermissionError("Can't record a userplay for a different user");
+  }
+}
+
 async function canDownloadFilesAsync(context) {
+  // Should login be required for this? Maybe safer to?
   loginRequiredAsync(context);
 }
 
@@ -284,5 +295,6 @@ module.exports = {
   canUpdateContactInfoAsync,
   canConfirmContactInfoAsync,
   canRecordUserplayAsync,
+  canUpdateUserplayAsync,
   canDownloadFilesAsync,
 };
