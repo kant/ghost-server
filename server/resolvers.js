@@ -3,6 +3,7 @@ let ClientError = require('./ClientError');
 let db = require('./db');
 let data = require('./data');
 let emaillib = require('./emaillib');
+let idlib = require('./idlib');
 let sms = require('./sms');
 let model = require('./model');
 let permissions = require('./permissions');
@@ -160,6 +161,15 @@ module.exports = {
         return userplay.lastPingTime - userplay.startTime;
       } else {
         return 30000;
+      }
+    },
+    active: async (userplay, {}, context) => {
+      if (userplay.endTime) {
+        return false;
+      } else {
+        // 30 seconds plus 5 seconds for latency, etc.
+        let dtLimit = 30000 + 5000;
+        return userplay.lastPingTime - userplay.startTime < dtLimit;
       }
     },
   },
@@ -689,10 +699,14 @@ module.exports = {
       return await context.loaders.playlist.load(playlistId);
     },
     recordUserplayStart: async (_, { userplayId, mediaId, mediaUrl }, context) => {
-      assertOrClientError(
-        userplayId.startsWith('userplay:'),
-        'userplayId must start with `userplay:`'
-      );
+      if (!userplayId) {
+        userplayId = idlib.makeOpaqueId('userplay');
+      } else {
+        assertOrClientError(
+          userplayId.startsWith('userplay:'),
+          'userplayId must start with `userplay:`'
+        );
+      }
       await permissions.canRecordUserplayAsync(context, userplayId);
       await model.recordUserplayStartAsync(
         userplayId,

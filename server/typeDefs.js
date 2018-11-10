@@ -225,6 +225,7 @@ module.exports = /* GraphQL */ `
     lastPingTime: Datetime
     endTime: Datetime
     duration: Int
+    active: Boolean
     notes: Json
     createdTime: Datetime
     updatedTime: Datetime
@@ -376,7 +377,7 @@ module.exports = /* GraphQL */ `
     addPlaylistMediaItem(playlistId: ID!, mediaId: ID!, toBeginning: Boolean): Playlist
     removePlaylistMediaItem(playlistId: ID!, mediaId: ID!): Playlist
 
-    recordUserplayStart(userplayId: ID!, userId: ID, mediaId: ID, mediaUrl: String): Userplay
+    recordUserplayStart(userplayId: ID, userId: ID, mediaId: ID, mediaUrl: String): Userplay
     recordUserplayPing(userplayId: ID!): Userplay
     recordUserplayEnd(userplayId: ID!): Userplay
 
