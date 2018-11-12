@@ -262,7 +262,8 @@ async function canUpdateUserplayAsync(context, userplayId) {
   if (!userplay) {
     throw PermissionError("Can't update that userplay");
   }
-  if (userplay.userId !== context.userId || userplay.publicId !== context.publicId) {
+  // if (userplay.userId !== context.userId || userplay.publicId !== context.publicId) {
+  if (userplay.userId !== context.userId) {
     throw PermissionError("Can't record a userplay for a different user");
   }
 }

@@ -732,7 +732,7 @@ module.exports = {
         'userplayId must start with `userplay:`'
       );
       await permissions.canUpdateUserplayAsync(context, userplayId);
-      await model.recordUserplayEndAsync(context.clientId, context.userId, userplayId);
+      await model.recordUserplayEndAsync(userplayId);
       return await context.loaders.userplay.load(userplayId);
     },
     updateUser: async (_, { userId, user }, context) => {
