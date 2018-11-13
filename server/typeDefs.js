@@ -221,9 +221,11 @@ module.exports = /* GraphQL */ `
     publicId: ID
     mediaId: ID
     mediaUrl: String
+    media: Media
     playId: ID
     startTime: Datetime
     lastPingTime: Datetime
+    imputedEndTime: Datetime
     endTime: Datetime
     duration: Int
     active: Boolean

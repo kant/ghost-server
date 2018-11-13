@@ -163,6 +163,13 @@ module.exports = {
         return 30000;
       }
     },
+    imputedEndTime: async (userplay, {}, context) => {
+      if (userplay.endTime) {
+        return userplay.endTime;
+      } else {
+        return userplay.lastPingTime;
+      }
+    },
     active: async (userplay, {}, context) => {
       if (userplay.endTime) {
         return false;
@@ -170,6 +177,11 @@ module.exports = {
         // 30 seconds plus 5 seconds for latency, etc.
         let dtLimit = 30000 + 5000;
         return userplay.lastPingTime - userplay.startTime < dtLimit;
+      }
+    },
+    media: async (userplay, {}, context) => {
+      if (userplay.mediaId) {
+        return await context.loaders.media.load(userplay.mediaId);
       }
     },
   },
