@@ -98,6 +98,10 @@ function createLoaders(context) {
     return await loadUserplaysForUserIdsAsync(keys);
   });
 
+  let mostRecentUserplay = new DataLoader(async (keys) => {
+    return await loadMostRecentUserplayAsync(keys);
+  });
+
   return {
     user,
     userByUsername,
@@ -117,6 +121,7 @@ function createLoaders(context) {
     phone,
     userplay,
     userplayByUserId,
+    mostRecentUserplay,
   };
 }
 
@@ -389,6 +394,28 @@ async function loadUserplaysForUserIdsAsync(userIdList) {
   return ordered;
 }
 
+async function mostRecentUserplayForUserAsync(userId) {
+  let r = db.replacer();
+  let q = /* SQL */ `
+  SELECT * FROM "userplay" WHERE "userId" = ${r(userId)}
+  ORDER BY "lastPingTime" DESC
+  LIMIT 1
+  ;
+  `;
+  let result = await r.queryAsync(q);
+  if (result.rowCount > 0) {
+    return {...(result.rows[0])};
+  }
+}
+
+async function loadMostRecentUserplayAsync(userIdList) {
+  let a$ = [];
+  for (let userId of userIdList) {
+    a$.push(mostRecentUserplayForUserAsync(userId));
+  }
+  return await Promise.all(a$);
+}
+
 module.exports = {
   createLoaders,
   loadMediaAsync,
@@ -406,4 +433,5 @@ module.exports = {
   loadPhoneAsync,
   loadUserplayAsync,
   loadUserplaysForUserIdsAsync,
+  loadMostRecentUserplayAsync,
 };

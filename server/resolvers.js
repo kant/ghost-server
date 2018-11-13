@@ -388,6 +388,9 @@ module.exports = {
         return await context.loaders.file.load(user.photoFileId);
       }
     },
+    mostRecentUserplay: async (user, {}, context) => {
+      return await context.loaders.mostRecentUserplay.load(user.userId);
+    },
   },
   Playlist: {
     mediaItems: async (playlist, {}, context, info) => {

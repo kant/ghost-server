@@ -71,6 +71,7 @@ module.exports = /* GraphQL */ `
     email: String # Primary email
     phoneNumbers: [Phone]
     phone: String # Primary phone number
+    mostRecentUserplay: Userplay
   }
 
   type Email {
