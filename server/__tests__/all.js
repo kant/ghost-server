@@ -4,7 +4,7 @@ let populateTestDatabase = require('../testlib/populateTestDatabase');
 
 afterAll(async () => {
   await db.drainPoolAsync();
-}, 10000);
+}, 60000);
 
 let SharedIds = {};
 

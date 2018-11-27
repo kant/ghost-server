@@ -13,7 +13,7 @@ module.exports = /* GraphQL */ `
   }
 
   type Media {
-    mediaId: ID! @unique
+    mediaId: ID!
     mediaUrl: String
     homepageUrl: String
     sourceCodeUrl: String
@@ -40,7 +40,7 @@ module.exports = /* GraphQL */ `
   }
 
   type User {
-    userId: ID! @unique
+    userId: ID!
     name: String
     location: String
     username: String
@@ -94,7 +94,7 @@ module.exports = /* GraphQL */ `
   }
 
   type Tool {
-    toolId: ID! @unique
+    toolId: ID!
     name: String
     url: String
     about: Json
@@ -107,7 +107,7 @@ module.exports = /* GraphQL */ `
   }
 
   type Playlist {
-    playlistId: ID! @unique
+    playlistId: ID!
     userId: ID
     user: User
     name: String
