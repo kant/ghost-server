@@ -11,6 +11,7 @@ let search = require('./search');
 let signup = require('./signup');
 let uploads = require('./uploads');
 let validation = require('./validation');
+let gamelift = require('./gamelift');
 
 function assertOrClientError(test, message, code) {
   if (!test) {
@@ -756,6 +757,10 @@ module.exports = {
       await model.updateUserAsync(update);
       context.loaders.user.clear(userId);
       return await context.loaders.user.load(userId);
+    },
+    multiplayerJoin: async (_, { mediaUrl }, context) => {
+      await permissions.loginRequiredAsync(context);
+      return await gamelift.multiplayerJoinAsync(mediaUrl, context.userId);
     },
   },
   MediaMutation: {

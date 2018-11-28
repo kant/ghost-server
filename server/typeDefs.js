@@ -328,7 +328,6 @@ module.exports = /* GraphQL */ `
     delete: Null
   }
 
-
   type Mutation {
     User(userId: ID, username: String): UserMutation
     me: UserMutation
@@ -386,5 +385,6 @@ module.exports = /* GraphQL */ `
 
     updateUser(userId: ID!, user: UserInput): User
 
+    multiplayerJoin(mediaUrl: String): Null
   }
 `;
