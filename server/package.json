@@ -40,6 +40,7 @@
     "escape-html": "^1.0.3",
     "file-type": "^9.0.0",
     "graphql-yoga": "^1.16.2",
+    "ip": "^1.1.5",
     "isemail": "^3.2.0",
     "luaparse": "^0.2.1",
     "moment": "^2.22.2",
