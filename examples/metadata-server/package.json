@@ -1,0 +1,16 @@
+{
+  "name": "metadata-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Expo Castle Team <castle@expo.io>",
+  "scripts": {
+    "start": "nodemon ."
+  },
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.4"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.7"
+  }
+}
