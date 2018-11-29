@@ -35,14 +35,13 @@
     "aws-sdk": "^2.356.0",
     "body-parser": "^1.18.3",
     "buffer-image-size": "^0.6.4",
+    "castle-metadata": "^1.0.0",
     "cors": "^2.8.4",
     "dataloader": "^1.4.0",
     "escape-html": "^1.0.3",
     "file-type": "^9.0.0",
     "graphql-yoga": "^1.16.2",
-    "ip": "^1.1.5",
     "isemail": "^3.2.0",
-    "luaparse": "^0.2.1",
     "moment": "^2.22.2",
     "node-fetch": "^2.2.0",
     "password-hash-and-salt": "^0.1.4",
@@ -51,8 +50,7 @@
     "sgmlite": "^1.0.0",
     "stream-buffers": "^3.0.2",
     "twilite": "^1.1.4",
-    "uuid": "^3.3.2",
-    "yaml": "^1.0.3"
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "jest": "^23.6.0",

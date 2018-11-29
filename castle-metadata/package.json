@@ -1,6 +1,6 @@
 {
   "name": "castle-metadata",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "For parsing and interpreting the metadata of a Castle project",
   "main": "index.js",
   "repository": "https://github.com/expo/ghost-server.git",

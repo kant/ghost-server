@@ -102,7 +102,12 @@ async function parseCastleDataAsync(text, format) {
     case 'json':
       return await parseJsonCastleDataAsync(text);
     case 'yaml':
-      return await parseYamlCastleDataAsync(text);
+      try {
+        return await parseYamlCastleDataAsync(text);
+      } catch (e) {
+        console.error('Failed to parse YAML: ' + e);
+      }
+      break;
     default:
       try {
         return await parseJsonCastleDataAsync(text);
@@ -122,11 +127,7 @@ async function parseCastleDataAsync(text, format) {
 }
 
 async function parseYamlCastleDataAsync(text) {
-  try {
-    return yaml.parse(text);
-  } catch (e) {
-    console.error('Failed to parse YAML:' + e);
-  }
+  return yaml.parse(text);
 }
 
 async function parseJsonCastleDataAsync(text) {
@@ -183,7 +184,7 @@ async function fetchMetadataForUrlAsync(url_, opts) {
   let urlIsAlsoSourceCode = false;
   opts = opts || {};
 
-  if (opts.allowPrivateUrls || isPublicUrlAsync(url_)) {
+  if (opts.allowPrivateUrls || (await isPublicUrlAsync(url_))) {
     let response = await fetch(url_);
     let body = await response.text();
     let metadata;
