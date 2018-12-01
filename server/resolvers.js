@@ -457,15 +457,18 @@ module.exports = {
       return await context.loaders.playlist.load(playlistId);
     },
     login: async (_, { who, userId, username, password }, context, info) => {
+      await permissions.hasClientIdAsync(context);
       return await auth.loginAsync(context.clientId, { userId, username, who }, password, {
         createdIp: context.request.ip,
       });
     },
     logout: async (_, {}, context, info) => {
+      await permissions.hasClientIdAsync(context);
       await auth.logoutAsync(context.clientId);
       return null;
     },
     logoutSession: async (_, { clientId }, context, info) => {
+      await permissions.hasClientIdAsync(context);
       return await auth.logoutAsync(clientId);
     },
     logoutEverywhere: async (_, {}, context, info) => {
@@ -477,6 +480,7 @@ module.exports = {
       return await auth.logoutEverywhereElseAsync(context.userId, context.clientId);
     },
     changePassword: async (_, { oldPassword, newPassword }, context, info) => {
+      await permissions.hasClientIdAsync(context);
       return await auth.changePasswordAsync(context.userId, oldPassword, newPassword);
     },
     signup: async (_, { user, password, email }, context, info) => {
