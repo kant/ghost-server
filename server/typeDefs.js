@@ -385,6 +385,6 @@ module.exports = /* GraphQL */ `
 
     updateUser(userId: ID!, user: UserInput): User
 
-    multiplayerJoin(mediaUrl: String): Null
+    multiplayerJoin(mediaUrl: String): Json
   }
 `;
