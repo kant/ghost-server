@@ -20,7 +20,7 @@ const GAMELIFT_ALIAS_ID = 'alias-893656f2-c282-48a7-a3f9-60dc98332062';
 async function multiplayerJoinAsync(mediaUrl, userId) {
   let castleUrlHash = crypto
     .createHash('md5')
-    .update(mediaUrl)
+    .update('castle' + mediaUrl)
     .digest('hex');
 
   let existingSessions = await gamelift
@@ -47,7 +47,7 @@ async function multiplayerJoinAsync(mediaUrl, userId) {
         AliasId: GAMELIFT_ALIAS_ID,
         // This rate limits sessions created per user
         // CreatorId: userId,
-        GameSessionData: mediaUrl,
+        GameSessionData: 'castle' + mediaUrl,
         GameProperties: [
           {
             Key: 'castleUrlHash',
