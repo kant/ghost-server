@@ -1,9 +1,3 @@
-let ClientError = require('./ClientError');
-let emaillib = require('./emaillib');
-let model = require('./model');
-let passwordlib = require('./passwordlib');
-let sms = require('./sms');
-let validation = require('./validation');
 let AWS = require('aws-sdk');
 let secret = require('./secret');
 let crypto = require('crypto');
@@ -63,7 +57,8 @@ async function multiplayerJoinAsync(mediaUrl, userId) {
   }
 
   console.log(session);
-  return null;
+  session.address = session.IpAddress + ':' + session.Port;
+  return session;
 }
 
 module.exports = {
