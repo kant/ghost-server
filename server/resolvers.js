@@ -1,3 +1,5 @@
+let castleMetadata = require('castle-metadata');
+
 let auth = require('./auth');
 let ClientError = require('./ClientError');
 let db = require('./db');
@@ -6,6 +8,7 @@ let emaillib = require('./emaillib');
 let idlib = require('./idlib');
 let sms = require('./sms');
 let model = require('./model');
+let npreflib = require('./npreflib');
 let permissions = require('./permissions');
 let search = require('./search');
 let signup = require('./signup');
@@ -152,6 +155,11 @@ module.exports = {
     },
     userplaysForUser: async (_, { userId }, context) => {
       return await context.loaders.userplayByUserId.load(userId);
+    },
+    // mediaMetadataForUrl(url: ID!): MediaMetadata
+    mediaMetadataForUrl: async (_, { url }, context) => {
+      let npref = npreflib.nprefFromUrl(url);
+      return await context.loaders.mediaMetadata.load(npref);
     },
   },
   Userplay: {
@@ -765,6 +773,18 @@ module.exports = {
     multiplayerJoin: async (_, { mediaUrl }, context) => {
       await permissions.loginRequiredAsync(context);
       return await gamelift.multiplayerJoinAsync(mediaUrl, context.userId);
+    },
+    setMediaMetadata: async (_, { url, metadata }, context) => {
+      let npref = npreflib.nprefFromUrl(url);
+      await model.setMediaMetadataForNprefAsync(npref, metadata);
+      return await context.loaders.mediaMetadata.load(npref);
+    },
+    fetchMediaMetadata: async (_, { url }, context) => {
+      let metadata = await castleMetadata.fetchMetadataForUrlAsync(url);
+      console.log({ metadata });
+      let npref = npreflib.nprefFromUrl(url);
+      await model.setMediaMetadataForNprefAsync(npref, metadata);
+      return await context.loaders.mediaMetadata.load(npref);
     },
   },
   MediaMutation: {

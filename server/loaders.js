@@ -102,6 +102,10 @@ function createLoaders(context) {
     return await loadMostRecentUserplayAsync(keys);
   });
 
+  let mediaMetadata = new DataLoader(async (keys) => {
+    return await loadMediaMetadataAsync(keys);
+  });
+
   return {
     user,
     userByUsername,
@@ -122,6 +126,7 @@ function createLoaders(context) {
     userplay,
     userplayByUserId,
     mostRecentUserplay,
+    mediaMetadata,
   };
 }
 
@@ -416,6 +421,16 @@ async function loadMostRecentUserplayAsync(userIdList) {
   return await Promise.all(a$);
 }
 
+async function loadMediaMetadataAsync(nprefList) {
+  let r = db.replacer();
+  let q = /* SQL */ `
+  SELECT * FROM "mediaMetadata"
+  WHERE "npref" IN ${r.inList(nprefList)}
+  `;
+  let results = await r.queryAsync(q);
+  return _orderedListFromResults(results, nprefList, 'npref');
+}
+
 module.exports = {
   createLoaders,
   loadMediaAsync,
@@ -434,4 +449,5 @@ module.exports = {
   loadUserplayAsync,
   loadUserplaysForUserIdsAsync,
   loadMostRecentUserplayAsync,
+  loadMediaMetadataAsync,
 };

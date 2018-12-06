@@ -774,6 +774,19 @@ async function getPublicIdForClientIdAsync(clientId) {
   }
 }
 
+async function setMediaMetadataForNprefAsync(npref, metadata) {
+  let r = db.replacer();
+  let jm = JSON.stringify(metadata);
+  let q = /* SQL */ `
+  INSERT INTO "mediaMetadata" ("npref", "metadata") VALUES (
+    ${r(npref)}, ${r(jm)}
+  ) ON CONFLICT ("npref") DO UPDATE SET "metadata" = ${r(jm)}
+  ;
+  `;
+  let result = await r.queryAsync(q);
+  return result.rowCount;
+}
+
 module.exports = {
   newPlayRecordAsync,
   getPlayRecordsAsync,
@@ -854,4 +867,5 @@ module.exports = {
   getUserplayAsync,
   _getPublicIdAsync,
   getPublicIdForClientIdAsync,
+  setMediaMetadataForNprefAsync,
 };

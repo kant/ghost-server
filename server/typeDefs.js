@@ -171,6 +171,14 @@ module.exports = /* GraphQL */ `
     url: Null
   }
 
+  type MediaMetadata {
+    npref: String
+    metadata: Json
+    canonicalUrl: String
+    updatedTime: Datetime
+    createdTime: Datetime
+  }
+
   type Query {
     env: String
     _debugInfo: Json
@@ -213,6 +221,7 @@ module.exports = /* GraphQL */ `
 
     userplay(userplayId: ID!): Userplay
     userplaysForUser(userId: ID!): [Userplay]
+    mediaMetadataForUrl(url: ID!): MediaMetadata
   }
 
   type Userplay {
@@ -386,5 +395,8 @@ module.exports = /* GraphQL */ `
     updateUser(userId: ID!, user: UserInput): User
 
     multiplayerJoin(mediaUrl: String): Json
+
+    setMediaMetadata(url: String!, metadata: Json): MediaMetadata
+    fetchMediaMetadata(url: String!): MediaMetadata
   }
 `;

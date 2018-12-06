@@ -1,3 +1,4 @@
+let dns = require('dns');
 let url = require('url');
 
 let fetch = require('cross-fetch');
