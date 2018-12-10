@@ -6,6 +6,13 @@ let ip = require('ip');
 let luaparse = require('luaparse');
 let yaml = require('yaml');
 
+function MetadataError(message) {
+  let e = new Error(message);
+  e.type = 'CLIENT_ERROR';
+  e.code = 'METADATA_ERROR';
+  return e;
+}
+
 async function dnsResolveAsync(hostname, rrtype) {
   return await new Promise((resolve, reject) => {
     let cb = (err, result) => {
@@ -185,7 +192,9 @@ async function fetchMetadataForUrlAsync(url_, opts) {
   let urlIsAlsoSourceCode = false;
   opts = opts || {};
 
-  if (opts.allowPrivateUrls || (await isPublicUrlAsync(url_))) {
+  let urlIsPublicUrl = await isPublicUrlAsync(url_);
+
+  if (opts.allowPrivateUrls || urlIsPublicUrl) {
     let response = await fetch(url_);
     let body = await response.text();
     let metadata;
@@ -236,6 +245,16 @@ async function fetchMetadataForUrlAsync(url_, opts) {
       }
     }
 
+    // Remove anything that starts with $__ since that could
+    // potentially be a security problem, or at least a source
+    // of confusion, and there's no reason you should want to do this
+    for (let key of Object.keys(metadata)) {
+      if (key.startsWith('$__')) {
+        console.warn('Got a `$__`-prefixed key in metadata from file (' + key + '); discaring it.');
+        delete metadata[key];
+      }
+    }
+
     // Add in the information about the requested URL
     metadata.$__requestedFromUrl = url_;
     metadata.$__requestedUrlIsAlsoMainEntryPoint = urlIsAlsoSourceCode;
@@ -253,9 +272,30 @@ async function fetchMetadataForUrlAsync(url_, opts) {
       }
     }
 
+    let mainUrlIsPublic = await isPublicUrlAsync(metadata.$__mainUrl);
+    if (urlIsPublicUrl && !mainUrlIsPublic) {
+      // Maybe there is some reason to allow this, but I think
+      // it could cause problems and confusion
+      throw MetadataError('Cannot have a private URL be the main URL for a public URL');
+    }
+
+    metadata.$__urlIsPublic = urlIsPublicUrl;
+    metadata.$__mainUrlIsPublic = mainUrlIsPublic;
+
+    if (metadata.canonicalUrl) {
+      metadata.$__canonicalUrl = metadata.canonicalUrl;
+      if (!(await isPublicUrlAsync(metadata.$__canonicalUrl))) {
+        throw MetadataError('Canonical URL must be a public URL');
+      }
+    } else {
+      if (urlIsPublicUrl) {
+        metadata.$__canonicalUrl = url_;
+      }
+    }
+
     return metadata;
   } else {
-    throw Error("Not a public URL; won't get metadata for it");
+    throw MetadataError("Not a public URL; won't get metadata for it");
   }
 }
 

@@ -174,6 +174,7 @@ module.exports = /* GraphQL */ `
   type MediaMetadata {
     npref: String
     metadata: Json
+    mainUrl: String
     canonicalUrl: String
     updatedTime: Datetime
     createdTime: Datetime
@@ -396,7 +397,6 @@ module.exports = /* GraphQL */ `
 
     multiplayerJoin(mediaUrl: String): Json
 
-    setMediaMetadata(url: String!, metadata: Json): MediaMetadata
     fetchMediaMetadata(url: String!): MediaMetadata
   }
 `;

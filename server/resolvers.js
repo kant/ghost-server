@@ -446,6 +446,14 @@ module.exports = {
       }
     },
   },
+  MediaMetadata: {
+    mainUrl: async (mediaMetadata, {}, context) => {
+      return mediaMetadata && mediaMetadata.metadata && mediaMetadata.metadata.$__mainUrl;
+    },
+    canonicalUrl: async (mediaMetadata, {}, context) => {
+      return mediaMetadata && mediaMetadata.metadata && mediaMetadata.metadata.$__canonicalUrl;
+    },
+  },
   Mutation: {
     User: async (_, { userId, username }, context) => {
       if (userId) {
@@ -773,11 +781,6 @@ module.exports = {
     multiplayerJoin: async (_, { mediaUrl }, context) => {
       await permissions.loginRequiredAsync(context);
       return await gamelift.multiplayerJoinAsync(mediaUrl, context.userId);
-    },
-    setMediaMetadata: async (_, { url, metadata }, context) => {
-      let npref = npreflib.nprefFromUrl(url);
-      await model.setMediaMetadataForNprefAsync(npref, metadata);
-      return await context.loaders.mediaMetadata.load(npref);
     },
     fetchMediaMetadata: async (_, { url }, context) => {
       let metadata = await castleMetadata.fetchMetadataForUrlAsync(url);
