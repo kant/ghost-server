@@ -17,12 +17,13 @@ async function multiplayerJoinAsync(mediaUrl, userId) {
     .update('castle' + mediaUrl)
     .digest('hex');
 
+  // Use 2 to signal that there are open spots. 1 to signal that there aren't. You can't search using PlayerSessionCreationPolicy :/
   let existingSessions = await gamelift
     .searchGameSessions({
       AliasId: GAMELIFT_ALIAS_ID,
       Limit: 1,
       FilterExpression:
-        "hasAvailablePlayerSessions=true AND gameSessionProperties.castleUrlHash='" +
+        "maximumSessions > 1 AND hasAvailablePlayerSessions=true AND gameSessionProperties.castleUrlHash='" +
         castleUrlHash +
         "'",
     })
@@ -37,7 +38,8 @@ async function multiplayerJoinAsync(mediaUrl, userId) {
     // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/GameLift.html#createGameSession-property
     let newSession = await gamelift
       .createGameSession({
-        MaximumPlayerSessionCount: 10, // TODO: let the game configure this
+        // Use 2 to signal that there are open spots. 1 to signal that there aren't. You can't search using PlayerSessionCreationPolicy :/
+        MaximumPlayerSessionCount: 2,
         AliasId: GAMELIFT_ALIAS_ID,
         // This rate limits sessions created per user
         // CreatorId: userId,
