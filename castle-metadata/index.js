@@ -1,5 +1,5 @@
-let dns = require('dns');
-let fs = require('fs');
+// let dns = require('dns');
+// let fs = require('fs');
 let url = require('url');
 
 let fetch = require('cross-fetch');
@@ -15,6 +15,9 @@ function MetadataError(message) {
 }
 
 async function dnsResolveAsync(hostname, rrtype) {
+  if (!dns) {
+    throw new Error('`dns` module not available in this context');
+  }
   return await new Promise((resolve, reject) => {
     let cb = (err, result) => {
       if (err) {
@@ -154,6 +157,9 @@ function isFileUrl(url_) {
 }
 
 async function readFileUrlAsync(url_) {
+  if (!fs) {
+    throw new Error('`fs` not available in this context');
+  }
   // We don't check that `url_` is a file URL here
   // We just assume that the caller has verified that
   // the URL isa i
@@ -316,7 +322,7 @@ async function fetchMetadataForUrlAsync(url_, opts) {
         info.main = url.resolve(info.requestedUrl, 'main.lua');
       }
     }
-    
+
     let mainUrlIsPublic = await isPublicUrlAsync(info.main);
     if (urlIsPublicUrl && !mainUrlIsPublic) {
       // Maybe there is some reason to allow this, but I think
