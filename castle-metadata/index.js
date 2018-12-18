@@ -1,4 +1,5 @@
 let dns = require('dns');
+let fs = require('fs');
 let url = require('url');
 
 let fetch = require('cross-fetch');
@@ -142,6 +143,32 @@ async function parseJsonCastleDataAsync(text) {
   return JSON.parse(text);
 }
 
+function isFileUrl(url_) {
+  let pu = url.parse(url_);
+  if (pu.protocol) {
+    if (pu.protocol === 'file:') {
+      return true;
+    }
+  }
+  return false;
+}
+
+async function readFileUrlAsync(url_) {
+  // We don't check that `url_` is a file URL here
+  // We just assume that the caller has verified that
+  // the URL isa i
+  let filename = url_.substr('file:'.length);
+  return await new Promise((resolve, reject) => {
+    fs.readFile(filename, 'utf8', (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+}
+
 /**
  * Checks to see if a URL is on the public Internet
  *
@@ -191,15 +218,31 @@ function _keyNameForHeader(header) {
 async function fetchMetadataForUrlAsync(url_, opts) {
   let urlIsAlsoSourceCode = false;
   opts = opts || {};
+  let info = {};
+  let metadata;
 
   let urlIsPublicUrl = await isPublicUrlAsync(url_);
+  info.isPublicUrl = urlIsPublicUrl;
+  info.isFileUrl = isFileUrl(url_);
+  let response = null;
+
+  let warnings = [];
+  let errors = [];
 
   if (opts.allowPrivateUrls || urlIsPublicUrl) {
-    let response = await fetch(url_);
-    let body = await response.text();
-    let metadata;
-    let contentType = response.headers.get('content-type');
-    let shortContentType = contentType.split(';', 1)[0];
+    let contentType, shortContentType, body;
+    if (info.isFileUrl) {
+      body = await readFileUrlAsync(url_);
+      contentType = null;
+      shortContentType = null;
+    } else {
+      response = await fetch(url_);
+      body = await response.text();
+      contentType = response.headers.get('content-type');
+      shortContentType = contentType.split(';', 1)[0];
+    }
+    info.contentType = contentType;
+    info.shortContentType = shortContentType;
     switch (shortContentType) {
       case 'app/castle':
         metadata = await parseCastleDataAsync(body);
@@ -239,9 +282,11 @@ async function fetchMetadataForUrlAsync(url_, opts) {
     // Add in metadata from headers
     // TODO(cheever): Should header metadata or metadata in the
     // file take precedence?
-    for (let key of response.headers.keys()) {
-      if (key.startsWith('x-castle-')) {
-        metadata[_keyNameForHeader(key)] = response.headers.get(key);
+    if (response) {
+      for (let key of response.headers.keys()) {
+        if (key.startsWith('x-castle-')) {
+          metadata[_keyNameForHeader(key)] = response.headers.get(key);
+        }
       }
     }
 
@@ -256,44 +301,51 @@ async function fetchMetadataForUrlAsync(url_, opts) {
     }
 
     // Add in the information about the requested URL
-    metadata.$__requestedFromUrl = url_;
-    metadata.$__requestedUrlIsAlsoMainEntryPoint = urlIsAlsoSourceCode;
+    info.requestedUrl = url_;
+    info.urlIsAlsoMainEntryPoint = urlIsAlsoSourceCode;
 
     if (urlIsAlsoSourceCode) {
-      metadata.$__mainUrl = metadata.$__requestedFromUrl;
-      if (opts.includeSourceCode) {
-        metadata.$__sourceCode = body;
+      info.main = info.requestedUrl;
+      if (opts.includeSourceCode && body) {
+        info.sourceCode = body;
       }
     } else {
       if (metadata.main) {
-        metadata.$__mainUrl = url.resolve(metadata.$__requestedFromUrl, metadata.main);
+        info.main = url.resolve(info.requestedUrl, metadata.main);
       } else {
-        metadata.$__mainUrl = url.resolve(metadata.$__requestedFromUrl, 'main.lua');
+        info.main = url.resolve(info.requestedUrl, 'main.lua');
       }
     }
-
-    let mainUrlIsPublic = await isPublicUrlAsync(metadata.$__mainUrl);
+    
+    let mainUrlIsPublic = await isPublicUrlAsync(info.main);
     if (urlIsPublicUrl && !mainUrlIsPublic) {
       // Maybe there is some reason to allow this, but I think
       // it could cause problems and confusion
-      throw MetadataError('Cannot have a private URL be the main URL for a public URL');
+      info.main = null;
+      errors.push('Cannot have a private URL be the main URL for a public URL');
     }
 
-    metadata.$__urlIsPublic = urlIsPublicUrl;
-    metadata.$__mainUrlIsPublic = mainUrlIsPublic;
+    info.urlIsPublic = urlIsPublicUrl;
+    info.mainUrlIsPublic = mainUrlIsPublic;
 
     if (metadata.canonicalUrl) {
-      metadata.$__canonicalUrl = metadata.canonicalUrl;
-      if (!(await isPublicUrlAsync(metadata.$__canonicalUrl))) {
-        throw MetadataError('Canonical URL must be a public URL');
+      info.canonicalUrl = metadata.canonicalUrl;
+      if (!(await isPublicUrlAsync(info.canonicalUrl))) {
+        info.canonicalUrl = null;
+        errors.push('Canonical URL must be a public URL');
       }
     } else {
       if (urlIsPublicUrl) {
-        metadata.$__canonicalUrl = url_;
+        info.canonicalUrl = url_;
       }
     }
 
-    return metadata;
+    return {
+      metadata,
+      info,
+      errors,
+      warnings,
+    };
   } else {
     throw MetadataError("Not a public URL; won't get metadata for it");
   }
@@ -309,4 +361,6 @@ module.exports = {
   isPublicUrlAsync,
   _keyNameForHeader,
   fetchMetadataForUrlAsync,
+  isFileUrl,
+  readFileUrlAsync,
 };
