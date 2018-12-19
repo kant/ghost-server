@@ -15,7 +15,7 @@ function MetadataError(message) {
 }
 
 async function dnsResolveAsync(hostname, rrtype) {
-  if (!dns) {
+  if (typeof dns === 'undefined') {
     throw new Error('`dns` module not available in this context');
   }
   return await new Promise((resolve, reject) => {
@@ -185,6 +185,9 @@ async function readFileUrlAsync(url_) {
  * @param {String} url
  */
 async function isPublicUrlAsync(url_) {
+  if (typeof dns === 'undefined') {
+    return null;
+  }
   let pu = url.parse(url_);
   if (pu.hostname) {
     let hostAddr = await dnsResolveAsync(pu.hostname);
@@ -238,7 +241,11 @@ async function fetchMetadataForUrlAsync(url_, opts) {
   if (opts.allowPrivateUrls || urlIsPublicUrl) {
     let contentType, shortContentType, body;
     if (info.isFileUrl) {
-      body = await readFileUrlAsync(url_);
+      if (opts.readFileUrlAsyncFunction) {
+        body = await opts.readFileUrlAsyncFunction(url_);
+      } else {
+        body = await readFileUrlAsync(url_);
+      }
       contentType = null;
       shortContentType = null;
     } else {
