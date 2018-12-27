@@ -1,3 +1,3 @@
 let CastleApiClient = require('.');
 
-module.exports = CastleApiClient('http://localhost:1380');
+module.exports = CastleApiClient(CastleApiClient.LOCAL_API_URL);

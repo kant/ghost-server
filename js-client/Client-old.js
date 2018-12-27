@@ -1,10 +1,9 @@
 let apolloFetch = require('apollo-fetch');
 let extractFiles = require('extract-files');
 
-let Storage = require('./Storage');
-
 let PRODUCTION_API_URL = 'https://apis.playcastle.io';
 let LOCAL_API_URL = 'http://localhost:1380';
+let STAGING_API_URL = 'https://apis-staging.playcastle.io';
 
 // This code based on the code here by @jaydenseric
 // https://github.com/jaydenseric/apollo-upload-client/blob/master/src/index.js
@@ -43,11 +42,14 @@ function constructUploadOptions(requestOrRequests, options) {
 
 class CastleApiClient {
   constructor(baseUrl, opts) {
-    this.url = baseUrl || PRODUCTION_API_URL;
+    this.baseUrl = baseUrl || PRODUCTION_API_URL;
     this.opts = Object.assign({}, opts);
-    this._storage = this.opts.storage || new Storage();
+    if (!opts.storage) {
+      throw new Error('Must specify `storage` in opts');
+    }
+    this._storage = this.opts.storage;
     this._apolloFetch = apolloFetch.createApolloFetch({
-      uri: this.url + '/graphql',
+      uri: this.baseUrl + '/graphql',
       constructOptions: constructUploadOptions,
     });
 
@@ -158,6 +160,12 @@ module.exports = (...args) => {
 
     return await client.graphqlAsync(...graphqlArgs);
   };
+  for (let k in Object.getOwnPropertyNames(Object.getPrototypeOf(client))) {
+    f[k] = client[k];
+  }
+  for (let k in client) {
+    f[k] = client[k];
+  }
   f.graphqlAsync = f;
   f.client = client;
   return f;
@@ -165,7 +173,7 @@ module.exports = (...args) => {
 
 Object.assign(module.exports, {
   CastleApiClient,
-  Storage,
   PRODUCTION_API_URL,
   LOCAL_API_URL,
+  STAGING_API_URL,
 });

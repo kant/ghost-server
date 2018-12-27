@@ -13,13 +13,13 @@ class ReactNativeAsyncStorage {
   }
 
   async getAsync(key) {
-    let jsonValue = await AsyncStorage(this._prefix + key);
+    let jsonValue = await AsyncStorage.getItem(this._prefix + key);
     if (jsonValue) {
       return JSON.parse(jsonValue);
     }
   }
 
   async deleteAsync(key) {
-    await _AsyncStorage.deleteAsync(this._prefix + key);
+    await _AsyncStorage.removeItem(this._prefix + key);
   }
 }
