@@ -2,7 +2,7 @@ let ReactNative = require('react-native');
 
 let AsyncStorage = ReactNative.AsyncStorage;
 
-class ReactNativeAsyncStorage {
+module.exports = class ReactNativeAsyncStorage {
   constructor(opts) {
     this._opts = { ...opts };
     this._prefix = this._opts.prefix || '$$GhostClient:';
@@ -13,13 +13,13 @@ class ReactNativeAsyncStorage {
   }
 
   async getAsync(key) {
-    let jsonValue = await AsyncStorage(this._prefix + key);
+    let jsonValue = await AsyncStorage.getItem(this._prefix + key);
     if (jsonValue) {
       return JSON.parse(jsonValue);
     }
   }
 
   async deleteAsync(key) {
-    await _AsyncStorage.deleteAsync(this._prefix + key);
+    await AsyncStorage.removeItem(this._prefix + key);
   }
 }
