@@ -1,6 +1,7 @@
 let AWS = require('aws-sdk');
 let secret = require('./secret');
 let crypto = require('crypto');
+let normalizeUrl = require('normalize-url');
 
 let gamelift = new AWS.GameLift({
   apiVersion: '2015-10-01',
@@ -11,7 +12,16 @@ let gamelift = new AWS.GameLift({
 
 const GAMELIFT_ALIAS_ID = 'alias-893656f2-c282-48a7-a3f9-60dc98332062';
 
+function normalizeCastleUrl(url) {
+  return (
+    'http://' +
+    normalizeUrl(url, { stripProtocol: true, stripHash: true }).replace(/^(?:castle:)?\/\//, '')
+  );
+}
+
 async function multiplayerJoinAsync(mediaUrl, userId) {
+  mediaUrl = normalizeCastleUrl(mediaUrl);
+
   let castleUrlHash = crypto
     .createHash('md5')
     .update('castle' + mediaUrl)
