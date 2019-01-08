@@ -48,6 +48,7 @@ yarn run test-watch
 This will watch your filesystem for changes and rerun all your tests every time you save a file. I kind of like this.
 
 ### To run a server that uses a test database
+
 ```bash
 yarn run test-server
 ```
@@ -72,14 +73,21 @@ Then visit http://localhost:1380/graphql
 
 Just git push
 
-The production server is at https://ghost-server.app.render.com/
+The production server is at https://ghost-server.app.render.com/ or https://apis.playcastle.io
+
+The staging server is https://apis-staging.playcastle.io
 
 You can play with the GraphQL API against production at https://ghost-server.app.render.com/graphql
 
+The two setups share an "environment group" which is a new concept on Render but is basically exactly what it sounds like. This means we only have to update the ghost-secret.js file in one place instead of both if something is added.
+
+When you do a `git push`, the staging server is automatically deplohyed.
+
+The production server auto deploys are now configured to **off**, and so you'll manually need to run the deploy by clicking the deploy button on the [render.com](http://render.com) website when you want to deploy. Alternatively, we could make it automatically deploy from some kind of release branch, but this seemed easier.
+
 ### To resize screenshots as thumbnails
-1. Install ImageMagick: ```brew install imagemagick```
-2. Put screenshots in a directory (e.g. ```outer```), create a sub-directory named ```thumbs```
-3. Within ```outer```, run the following command, which will output images into ```thumbs``` :
-```mogrify -resize 512x512 -background black -gravity center -extent 512x512 -path thumbs *.png```
 
-
+1. Install ImageMagick: `brew install imagemagick`
+2. Put screenshots in a directory (e.g. `outer`), create a sub-directory named `thumbs`
+3. Within `outer`, run the following command, which will output images into `thumbs` :
+   `mogrify -resize 512x512 -background black -gravity center -extent 512x512 -path thumbs *.png`
