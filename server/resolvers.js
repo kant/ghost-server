@@ -784,7 +784,7 @@ module.exports = {
     },
     fetchMediaMetadata: async (_, { url }, context) => {
       let metadata = await castleMetadata.fetchMetadataForUrlAsync(url);
-      console.log({ metadata });
+      // console.log({ metadata });
       let npref = npreflib.nprefFromUrl(url);
       await model.setMediaMetadataForNprefAsync(npref, metadata);
       return await context.loaders.mediaMetadata.load(npref);

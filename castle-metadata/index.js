@@ -14,26 +14,6 @@ function MetadataError(message) {
   return e;
 }
 
-async function dnsResolveAsync(hostname, rrtype) {
-  if (typeof dns === 'undefined') {
-    throw new Error('`dns` module not available in this context');
-  }
-  return await new Promise((resolve, reject) => {
-    let cb = (err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result);
-      }
-    };
-    if (rrtype) {
-      dns.resolve(hostname, rrtype, cb);
-    } else {
-      dns.resolve(hostname, cb);
-    }
-  });
-}
-
 async function getRawMetadataFromSourceFileAsync(sourceCode) {
   // Rules for parsing source files:
   // Ignore shebang lines
@@ -185,17 +165,16 @@ async function readFileUrlAsync(url_) {
  * @param {String} url
  */
 async function isPublicUrlAsync(url_) {
-  if (typeof dns === 'undefined') {
-    return null;
-  }
   let pu = url.parse(url_);
+  if (pu.protocol === 'file:') {
+    return false;
+  }
   if (pu.hostname) {
     let hostname = pu.hostname;
     if (hostname === 'localhost') {
       return false;
     }
-    // TODO: Add in actual DNS resolution
-    // let hostAddr = await dnsResolveAsync(pu.hostname);
+    // TODO: Add in actual DNS resolution?
     return ip.isPublic(hostname);
   } else {
     return false;
@@ -374,7 +353,6 @@ module.exports = {
   parseYamlCastleDataAsync,
   parseSourceFileAsync,
   getRawMetadataFromSourceFileAsync,
-  dnsResolveAsync,
   isPublicUrlAsync,
   _keyNameForHeader,
   fetchMetadataForUrlAsync,
