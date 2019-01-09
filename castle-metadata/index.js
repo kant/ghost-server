@@ -190,8 +190,13 @@ async function isPublicUrlAsync(url_) {
   }
   let pu = url.parse(url_);
   if (pu.hostname) {
-    let hostAddr = await dnsResolveAsync(pu.hostname);
-    return ip.isPublic(hostAddr);
+    let hostname = pu.hostname;
+    if (hostname === 'localhost') {
+      return false;
+    }
+    // TODO: Add in actual DNS resolution
+    // let hostAddr = await dnsResolveAsync(pu.hostname);
+    return ip.isPublic(hostname);
   } else {
     return false;
   }
@@ -238,7 +243,7 @@ async function fetchMetadataForUrlAsync(url_, opts) {
   let warnings = [];
   let errors = [];
 
-  if (opts.allowPrivateUrls || urlIsPublicUrl) {
+  if (!opts.publicUrlsOnly || urlIsPublicUrl) {
     let contentType, shortContentType, body;
     if (info.isFileUrl) {
       if (opts.readFileUrlAsyncFunction) {
@@ -338,7 +343,6 @@ async function fetchMetadataForUrlAsync(url_, opts) {
       errors.push('Cannot have a private URL be the main URL for a public URL');
     }
 
-    info.urlIsPublic = urlIsPublicUrl;
     info.mainUrlIsPublic = mainUrlIsPublic;
 
     if (metadata.canonicalUrl) {
