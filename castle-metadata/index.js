@@ -137,7 +137,7 @@ function isFileUrl(url_) {
 }
 
 async function readFileUrlAsync(url_) {
-  if (!fs) {
+  if (typeof fs === 'undefined') {
     throw new Error('`fs` not available in this context');
   }
   // We don't check that `url_` is a file URL here
