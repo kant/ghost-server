@@ -10,6 +10,7 @@ let spawnAsync = require('@expo/spawn-async');
 
 let db = require('./db');
 let graphqlApp = require('./graphqlApp');
+let expressApp = require('./expressApp');
 let model = require('./model');
 let populateTestDatabase = require('./testlib/populateTestDatabase');
 
@@ -78,6 +79,8 @@ ${escapeHtml(gitStatusResult.stdout)}
 </html>
     `);
   });
+
+  app.use('/api', expressApp.router);
 
   app.get(endpoints.origin, async (req, res) => {
     res
