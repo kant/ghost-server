@@ -3,6 +3,9 @@
   "version": "3.0.0",
   "description": "For parsing and interpreting the metadata of a Castle project",
   "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
   "repository": "https://github.com/expo/ghost-server.git",
   "author": "Castle Team <castle@expo.io>",
   "license": "MIT",
@@ -12,6 +15,7 @@
     "yaml": "^1.0.3"
   },
   "devDependencies": {
+    "jest": "^23.6.0",
     "project-repl": "^1.5.0"
   }
 }

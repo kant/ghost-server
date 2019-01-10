@@ -28,7 +28,7 @@ async function readFileUrlAsync(url_) {
   // We don't check that `url_` is a file URL here
   // We just assume that the caller will only pass
   // file:// URLs into this function
-  let filename = url_.substr('file:'.length);
+  let filename = url.fileURLToPath(url_);
   return await new Promise((resolve, reject) => {
     fs.readFile(filename, 'utf8', (err, result) => {
       if (err) {
