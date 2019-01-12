@@ -12,6 +12,7 @@
   "dependencies": {
     "cross-fetch": "^2.2.3",
     "ip": "^1.1.5",
+    "url": "^0.11.0",
     "yaml": "^1.0.3"
   },
   "devDependencies": {
