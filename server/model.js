@@ -4,6 +4,7 @@ let ClientError = require('./ClientError');
 let data = require('./data');
 let db = require('./db');
 let idlib = require('./idlib');
+let sluglib = require('./sluglib');
 let validation = require('./validation');
 
 async function newPlayRecordAsync(obj) {
@@ -787,6 +788,65 @@ async function setMediaMetadataForNprefAsync(npref, metadata) {
   return result.rowCount;
 }
 
+async function userIdForUsernameAsync(username) {
+  let r = db.replacer();
+  let q = /* SQL */ `
+  SELECT "userId" FROM "user" WHERE "username" = ${r(username)};
+  `;
+  let result = await r.queryAsync(q);
+  if (result.rowCount > 0) {
+    return result.rows[0].userId;
+  }
+}
+
+async function usernameForUserIdAsync(userId) {
+  let r = db.replacer();
+  let result = await r.queryAsync(
+    /* SQL */ `SELECT "username" FROM "user" WHERE "userId" = ${r(userId)};`
+  );
+  if (result.rowCount > 0) {
+    return result.rows[0].username;
+  }
+}
+
+async function registerMediaAsync(url, userId, slug, registeredByUserId) {
+  let registeredMediaId = 'registeredMedia:' + userId + '::' + slug;
+  await data.writeNewObjectAsync(
+    {
+      userId,
+      slug,
+      url,
+      registeredByUserId,
+      registeredMediaId,
+    },
+    'registeredMedia',
+    {
+      upsert: true,
+    }
+  );
+  return registeredMediaId;
+}
+
+async function castleUrlForRegisteredMediaPathAsync(registeredMediaPath) {
+  let { slug, username } = sluglib.parseRegisteredMediaPath(registeredMediaPath);
+  if (!slug || !username) {
+    throw ClientError(
+      `Couldn't parse media path ${registeredMediaPath}`,
+      'INVALID_REGISTERED_MEDIA_PATH'
+    );
+  }
+  let userId = await userIdForUsernameAsync(username);
+  let r = db.replacer();
+  let result = await r.queryAsync(/* SQL */ `
+  SELECT "url" FROM "registeredMedia" WHERE "userId" = ${r(userId)} AND "slug" = ${r(slug)};
+  `);
+  if (result.rowCount > 0) {
+    return result.rows[0].url;
+  } else {
+    throw ClientError(`No Castle URL registered for registeredMediaPath ${registeredMediaPath}`);
+  }
+}
+
 module.exports = {
   newPlayRecordAsync,
   getPlayRecordsAsync,
@@ -868,4 +928,8 @@ module.exports = {
   _getPublicIdAsync,
   getPublicIdForClientIdAsync,
   setMediaMetadataForNprefAsync,
+  userIdForUsernameAsync,
+  usernameForUserIdAsync,
+  registerMediaAsync,
+  castleUrlForRegisteredMediaPathAsync,
 };

@@ -223,6 +223,7 @@ module.exports = /* GraphQL */ `
     userplay(userplayId: ID!): Userplay
     userplaysForUser(userId: ID!): [Userplay]
     mediaMetadataForUrl(url: ID!): MediaMetadata
+    castleUrlForRegisteredMediaPath(registeredMediaPath: String!): String
   }
 
   type Userplay {
@@ -398,5 +399,6 @@ module.exports = /* GraphQL */ `
     multiplayerJoin(mediaUrl: String): Json
 
     fetchMediaMetadata(url: String!): MediaMetadata
+    registerMedia(url: String!, additionalUrls: [String]): MediaMetadata
   }
 `;

@@ -236,3 +236,15 @@ CREATE TABLE "client" (
 );
 
 CREATE TRIGGER "client_setUpdatedTime" BEFORE UPDATE ON "client" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+CREATE TABLE "registeredMedia" (
+  "registeredMediaId" text PRIMARY KEY,
+  "userId" text,
+  "slug" text,
+  "npref" text,
+  "registeredByUserId" text,
+  "createdTime" timestamptz noT null default now(),
+  "updatedTime" timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TRIGGER "registeredMedia_setUpdatedTime" BEFORE UPDATE ON "registeredMedia" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

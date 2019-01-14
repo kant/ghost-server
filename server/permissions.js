@@ -273,6 +273,10 @@ async function canDownloadFilesAsync(context) {
   loginRequiredAsync(context);
 }
 
+async function canRegisterMediaAsync(context, metadata, primaryUrl) {
+  loginRequiredAsync(context);
+}
+
 module.exports = {
   _checkUserIsUserOrMemberOfTeamAsync,
   _checkUserIsUserOrAdminOfTeamAsync,
@@ -298,4 +302,5 @@ module.exports = {
   canRecordUserplayAsync,
   canUpdateUserplayAsync,
   canDownloadFilesAsync,
+  canRegisterMediaAsync,
 };

@@ -12,6 +12,7 @@ let npreflib = require('./npreflib');
 let permissions = require('./permissions');
 let search = require('./search');
 let signup = require('./signup');
+let sluglib = require('./sluglib');
 let uploads = require('./uploads');
 let validation = require('./validation');
 let gamelift = require('./gamelift');
@@ -160,6 +161,9 @@ module.exports = {
     mediaMetadataForUrl: async (_, { url }, context) => {
       let npref = npreflib.nprefFromUrl(url);
       return await context.loaders.mediaMetadata.load(npref);
+    },
+    castleUrlForRegisteredMediaPath: async (_, {registeredMediaPath}, context) => {
+      return await model.castleUrlForRegisteredMediaPathAsync(registeredMediaPath);
     },
   },
   Userplay: {
@@ -787,6 +791,31 @@ module.exports = {
       // console.log({ metadata });
       let npref = npreflib.nprefFromUrl(url);
       await model.setMediaMetadataForNprefAsync(npref, metadata);
+      return await context.loaders.mediaMetadata.load(npref);
+    },
+    registerMedia: async (_, { url, additionalUrls }, context) => {
+      await permissions.loginRequiredAsync(context);
+      let metadata = await castleMetadata.fetchMetadataForUrlAsync(url);
+      let username = metadata.username;
+      if (!username) {
+        throw ClientError('`username` required in metadata to register media', 'INVALID_METADATA');
+      }
+      let userId = await model.userIdForUsernameAsync(username);
+      if (context.userId !== userId) {
+        if (!(await model.isMemberOfTeamAsync(context.userId, userId))) {
+          throw ClientError(
+            `You don't have permission to register media for user ${userId}`,
+            'PERMISSION_ERROR'
+          );
+        }
+      }
+      let slug = metadata.slug;
+      if (!slug) {
+        throw ClientError('`slug` required in metadata to register media', 'INVALID_METADATA');
+      }
+      let npref = npreflib.nprefFromUrl(url);
+      await model.setMediaMetadataForNprefAsync(npref, metadata);
+      await model.registerMediaAsync(url, userId, slug, context.userId);
       return await context.loaders.mediaMetadata.load(npref);
     },
   },
