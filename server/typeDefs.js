@@ -399,6 +399,6 @@ module.exports = /* GraphQL */ `
     multiplayerJoin(mediaUrl: String): Json
 
     fetchMediaMetadata(url: String!): MediaMetadata
-    registerMedia(url: String!, additionalUrls: [String]): MediaMetadata
+    registerMedia(url: String!, username: String, slug: String, additionalUrls: [String]): MediaMetadata
   }
 `;

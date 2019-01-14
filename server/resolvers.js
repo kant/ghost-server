@@ -162,7 +162,7 @@ module.exports = {
       let npref = npreflib.nprefFromUrl(url);
       return await context.loaders.mediaMetadata.load(npref);
     },
-    castleUrlForRegisteredMediaPath: async (_, {registeredMediaPath}, context) => {
+    castleUrlForRegisteredMediaPath: async (_, { registeredMediaPath }, context) => {
       return await model.castleUrlForRegisteredMediaPathAsync(registeredMediaPath);
     },
   },
@@ -793,14 +793,13 @@ module.exports = {
       await model.setMediaMetadataForNprefAsync(npref, metadata);
       return await context.loaders.mediaMetadata.load(npref);
     },
-    registerMedia: async (_, { url, additionalUrls }, context) => {
+    registerMedia: async (_, { url, username, slug, additionalUrls }, context) => {
       await permissions.loginRequiredAsync(context);
       let metadata = await castleMetadata.fetchMetadataForUrlAsync(url);
-      let username = metadata.username;
-      if (!username) {
-        throw ClientError('`username` required in metadata to register media', 'INVALID_METADATA');
+      let userId = context.userId;
+      if (username) {
+        userId = await model.userIdForUsernameAsync(username);
       }
-      let userId = await model.userIdForUsernameAsync(username);
       if (context.userId !== userId) {
         if (!(await model.isMemberOfTeamAsync(context.userId, userId))) {
           throw ClientError(
@@ -809,7 +808,6 @@ module.exports = {
           );
         }
       }
-      let slug = metadata.slug;
       if (!slug) {
         throw ClientError('`slug` required in metadata to register media', 'INVALID_METADATA');
       }
