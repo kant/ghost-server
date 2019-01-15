@@ -85,7 +85,11 @@ async function fetchMetadataForUrlAsync(url_, opts) {
         body = await readFileUrlAsync(url_);
       }
     } else {
-      response = await fetch(url_);
+      response = await fetch(url_, {
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      });
       body = await response.text();
     }
 
