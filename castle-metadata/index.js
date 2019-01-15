@@ -105,18 +105,25 @@ async function fetchMetadataForUrlAsync(url_, opts) {
 
     if (metadata.main) {
       info.main = url.resolve(info.requestedUrl, metadata.main);
+      if (info.main === metadata.main) {
+        // absolute entrypoints are disallowed
+        info.main = null;
+        errors.push('The `main` key in a .castle file must be a relative path');
+      }
     } else {
       info.main = url.resolve(info.requestedUrl, 'main.lua');
     }
 
-    let mainIsPublicUrl = await isPublicUrlAsync(info.main);
-    if (urlIsPublicUrl && !mainIsPublicUrl) {
-      // This could be a security risk so we'll disallow it
-      info.main = null;
-      errors.push('Cannot have a private URL be main URL for a public .castle URL');
+    if (!errors.length) {
+      let mainIsPublicUrl = await isPublicUrlAsync(info.main);
+      if (urlIsPublicUrl && !mainIsPublicUrl) {
+        // This could be a security risk so we'll disallow it
+        info.main = null;
+        errors.push('Cannot have a private URL be main URL for a public .castle URL');
+      }
     }
 
-    if (metadata.canonicalUrl) {
+    if (!errors.length && metadata.canonicalUrl) {
       info.canonicalUrl = metadata.canonicalUrl;
       if (!(await isPublicUrlAsync(info.canonicalUrl))) {
         info.canonicalUrl = null;
