@@ -2,6 +2,7 @@
   "private": true,
   "workspaces": [
     "server",
+    "smallserver",
     "js-client",
     "castle-metadata",
     "libraries/time",

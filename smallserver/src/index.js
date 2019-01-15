@@ -1,0 +1,132 @@
+// Support ~ in require
+let Module = require('module');
+var originalRequire = Module.prototype.require;
+Module.prototype.require = function() {
+  if (arguments.length == 1 && arguments[0].charAt(0) == '~') {
+    arguments[0] = __dirname + '/' + arguments[0].substring(1);
+  }
+  return originalRequire.apply(this, arguments);
+};
+
+let time = require('@expo/time');
+let _tkLoaded = time.start();
+let _tkPrimedAndStarted = time.start();
+
+let bodyParser = require('body-parser');
+let cors = require('cors');
+let escapeHtml = require('escape-html');
+let spawnAsync = require('@expo/spawn-async');
+
+let graphqlApp = require('./graphql/graphqlApp');
+let expressApp = require('./rest/expressApp');
+
+async function serveAsync(port) {
+  let endpoints = {
+    status: '/status',
+    graphql: '/graphql',
+    playground: '/graphql',
+    subscriptions: '/subscriptions',
+    origin: '/origin',
+  };
+
+  let app = await graphqlApp.graphqlAppAsync();
+
+  app.use(cors());
+  app.use(bodyParser.json());
+  app.get(endpoints.status, async (req, res) => {
+    // Don't pollute the logs with timing for status requests
+    // unless they become very slow for some reason
+    // (Render will ping every few seconds to make sure the server is OK)
+    req.__timingThreshold = 1000;
+    res.json({ status: 'OK' });
+  });
+
+  // Homepage with some info
+  app.get('/', async (req, res) => {
+    let pkg = require('./package');
+    let gitResult = await spawnAsync('git', ['log', '--pretty=oneline', '-n1']);
+    let gitStatusResult = await spawnAsync('git', ['status']);
+    let links = [];
+    for (let name in endpoints) {
+      links.push(
+        '    ' +
+          name +
+          '  ' +
+          '<a href=' +
+          JSON.stringify(endpoints[name]) +
+          '>' +
+          endpoints[name] +
+          '</a>'
+      );
+    }
+
+    let title = '🏰 ' + pkg.name + ' v' + pkg.version + ' 👻';
+
+    res.send(`
+<html>
+<head>
+<title>${title}</title>
+</head>
+<body>
+<pre>${title}
+
+${links.join('\n')}
+
+
+<hr style=" border-top: 1px dotted #8c8b8b; border-bottom: 1px dotted #fff;" />
+NODE_ENV=${escapeHtml(process.env.NODE_ENV || '')}
+
+<a href="${pkg.repository}">${escapeHtml(gitResult.stdout)}</a>
+<small>
+${escapeHtml(gitStatusResult.stdout)}
+</small>
+</pre>
+</body>
+</html>
+    `);
+  });
+
+  app.use('/api', expressApp.router);
+
+  // Report the time it takes to load all the code separate
+  // from the time it takes to connect to the database
+  time.end(_tkLoaded, 'loaded');
+
+  // Start the server
+  port = port || process.env.PORT;
+  if (!port) {
+    switch (process.env.NODE_ENV) {
+      case 'test':
+        port = 1382;
+        break;
+      case 'production':
+        port = 80;
+        break;
+      default:
+        port = 1380;
+        break;
+    }
+  }
+  app.start(
+    {
+      port,
+      endpoint: endpoints.graphql,
+      subscriptions: endpoints.subscriptions,
+      playground: endpoints.playground,
+      debug: true,
+    },
+    (info) => {
+      time.end(_tkPrimedAndStarted, 'server-start');
+      console.log('Ghost server listening on port ' + info.port);
+      console.log('http://localhost:' + port + '/');
+    }
+  );
+
+  return app;
+}
+
+module.exports = serveAsync;
+
+if (require.main === module) {
+  serveAsync();
+}
