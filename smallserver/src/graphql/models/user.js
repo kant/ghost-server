@@ -1,6 +1,7 @@
 const DB = require('~/utils/db');
 const Password = require('~/utils/password');
 const Permissions = require('~/utils/permissions');
+let _ = require('lodash');
 
 const typeDefs = `
   extend type Query {
@@ -14,73 +15,89 @@ const typeDefs = `
     login(userId: ID, password: String!): User
     signup(user: UserInput!, email: String, password: String!): User
     logout: Null
+
+    updateUser(userId: ID!, user: UserInput): User
   }
 
   input UserInput {
     userId: String
     name: String
-    location: String
-    username: String
-    links: Json
     about: Json
-    info: Json
     photoFileId: ID
-    isTeam: Boolean
     websiteUrl: String
-    githubUsername: String
     twitterUsername: String
     itchUsername: String
-    twitchUsername: String
 
-    # Deprecated
+    # Unused by client
+    location: String
     otherUsernames: Json
+    username: String # Can only change name, not username
+    links: Json
+    info: Json
+    githubUsername: String
+    twitchUsername: String
+    isTeam: Boolean
   }
 
   type Userplay {
     userplayId: ID
     userId: ID
-    publicId: ID
     mediaId: ID
     mediaUrl: String
     media: Media
-    playId: ID
     startTime: Datetime
-    lastPingTime: Datetime
     imputedEndTime: Datetime
-    endTime: Datetime
-    duration: Int
     active: Boolean
-    notes: Json
     createdTime: Datetime
     updatedTime: Datetime
+
+    # Unused by client
+    publicId: ID
+    playId: ID
+    lastPingTime: Datetime
+    endTime: Datetime
+    duration: Int
+    notes: Json
   }
 
   type User {
     userId: ID!
     name: String
-    location: String
     username: String
     about: Json
-    links: Json
     photo: HostedFile
     websiteUrl: String
-    githubUsername: String
     twitterUsername: String
     itchUsername: String
-    twitchUsername: String
+    mediaItems: [Media]
+    mostRecentUserplay: Userplay
     createdTime: Datetime
     updatedTime: Datetime
-    mediaItems: [Media]
-    email: String # Primary email
-    phone: String # Primary phone number
-    mostRecentUserplay: Userplay
-    token: String
+
+    token: String # Only used with login/signup
 
     # Deprecated
     isReal: Boolean
     playlists: [Playlist]
+
+    # Unused by client
+    location: String
+    links: Json
+    githubUsername: String
+    twitchUsername: String
+    email: String
+    phone: String # Primary phone number
   }
 `;
+
+const DB_FIELD_TO_GRAPHQL_FIELD = {
+  user_id: 'userId',
+  created_at: 'createdTime',
+  updated_at: 'updatedTime',
+  website_url: 'websiteUrl',
+  twitter_username: 'twitterUsername',
+  itch_username: 'itchUsername',
+};
 
 async function userForIdAsync(userId) {
   return await DB('users')
@@ -100,10 +117,27 @@ async function userIdForTokenAsync(token) {
 }
 
 async function dbUserToGraphQLUserAsync(user) {
-  user.userId = user.user_id;
-  user.name = user.username; // TODO use real name
-  user.createdTime = user.created_at;
-  user.updatedTime = user.updated_at;
+  _.forOwn(DB_FIELD_TO_GRAPHQL_FIELD, (graphqlName, dbName) => {
+    user[graphqlName] = user[dbName];
+    delete user[dbName];
+  });
+  return user;
+}
+
+async function graphqlUserToDBUserAsync(user) {
+  _.forOwn(DB_FIELD_TO_GRAPHQL_FIELD, (graphqlName, dbName) => {
+    user[dbName] = user[graphqlName];
+    delete user[graphqlName];
+  });
+
+  if (user.username) {
+    user.username_lower_case = user.username.toLowerCase();
+  }
+
+  if (user.email) {
+    user.email_lower_case = user.email.toLowerCase();
+  }
+
   return user;
 }
 
@@ -134,7 +168,9 @@ const resolvers = {
         } catch (e) {}
       }
 
-      return await dbUserToGraphQLUserAsync(userRow);
+      if (userRow) {
+        return await dbUserToGraphQLUserAsync(userRow);
+      }
     },
 
     allUsers: async () => {
@@ -167,13 +203,10 @@ const resolvers = {
     },
 
     signup: async (_, { user, password, email }, context, info) => {
+      user.email = email;
+
       let userRow = await DB('users')
-        .insert({
-          username: user.username,
-          username_lower_case: user.username.toLowerCase(),
-          email: email,
-          email_lower_case: email.toLowerCase(),
-        })
+        .insert(await graphqlUserToDBUserAsync(user))
         .returning('*')
         .get(0);
       let userId = userRow.user_id;
@@ -197,6 +230,21 @@ const resolvers = {
       await DB('sessions')
         .where('token', context.token)
         .del();
+    },
+
+    updateUser: async (_, { userId, user }, context) => {
+      await Permissions.loginRequiredAsync(context);
+      if (context.userId != userId) {
+        throw new Error('bad credentials');
+      }
+
+      let userRow = await DB('users')
+        .where('user_id', userId)
+        .update(await graphqlUserToDBUserAsync(user))
+        .returning('*')
+        .get(0);
+
+      return await dbUserToGraphQLUserAsync(userRow);
     },
   },
 

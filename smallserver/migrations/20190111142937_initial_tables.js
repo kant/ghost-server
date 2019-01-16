@@ -1,4 +1,26 @@
 exports.up = function(knex, Promise) {
+  var createFilesTable = knex.schema.createTable('files', function(table) {
+    table
+      .increments('file_id')
+      .primary()
+      .unique()
+      .notNullable();
+    table
+      .string('url')
+      .unique()
+      .notNullable();
+    table.integer('width');
+    table.integer('height');
+    table
+      .timestamp('created_at')
+      .notNullable()
+      .defaultTo(knex.raw('now()'));
+    table
+      .timestamp('updated_at')
+      .notNullable()
+      .defaultTo(knex.raw('now()'));
+  });
+
   var createUsersTable = knex.schema.createTable('users', function(table) {
     table
       .increments('user_id')
@@ -29,6 +51,15 @@ exports.up = function(knex, Promise) {
       .timestamp('updated_at')
       .notNullable()
       .defaultTo(knex.raw('now()'));
+
+    // User details
+    table.jsonb('about');
+    table.string('name');
+    table.integer('photo_file_id');
+    table.foreign('photo_file_id').references('files.file_id');
+    table.string('website_url');
+    table.string('twitter_username');
+    table.string('itch_username');
   });
 
   var createPasswordsTable = knex.schema.createTable('passwords', function(table) {
@@ -68,7 +99,12 @@ exports.up = function(knex, Promise) {
       .defaultTo(knex.raw('now()'));
   });
 
-  return Promise.all([createUsersTable, createPasswordsTable, createSessionsTable]);
+  return Promise.all([
+    createFilesTable,
+    createUsersTable,
+    createPasswordsTable,
+    createSessionsTable,
+  ]);
 };
 
 exports.down = function(knex, Promise) {
@@ -76,5 +112,6 @@ exports.down = function(knex, Promise) {
     knex.schema.dropTable('sessions'),
     knex.schema.dropTable('passwords'),
     knex.schema.dropTable('users'),
+    knex.schema.dropTable('files'),
   ]);
 };

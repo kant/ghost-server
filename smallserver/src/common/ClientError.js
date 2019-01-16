@@ -3,4 +3,4 @@ module.exports = (message, code) => {
   err.type = 'CLIENT_ERROR';
   err.code = code;
   return err;
-}
+};

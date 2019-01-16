@@ -8,8 +8,10 @@ const typeDefs = `
   type HostedFile {
     width: Int
     height: Int
-    imgixUrl: String
     url: Null
+
+    # Deprecated
+    imgixUrl: String
   }
 
   type Media {
