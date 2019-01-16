@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
-export PGHOST=`node -e "console.log(require('./src/secret').postgres.host)"` 
-export PGUSER=`node -e "console.log(require('./src/secret').postgres.user)"` 
-export PGDATABASE=`node -e "console.log(require('./src/secret').postgres.database)"` 
-export PGPASSWORD=`node -e "console.log(require('./src/secret').postgres.password)"`
+export PGHOST=`node -e "console.log(require('./src/utils/secret').postgres.host)"` 
+export PGUSER=`node -e "console.log(require('./src/utils/secret').postgres.user)"` 
+export PGDATABASE=`node -e "console.log(require('./src/utils/secret').postgres.database)"` 
+export PGPASSWORD=`node -e "console.log(require('./src/utils/secret').postgres.password)"`
 
 echo "// Ghost Database"
 echo 'Type \dt to list tables, \d+ <table-name> to describe a table'

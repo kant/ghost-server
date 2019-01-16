@@ -1,11 +1,10 @@
 exports.up = function(knex, Promise) {
   var createUsersTable = knex.schema.createTable('users', function(table) {
     table
-      .uuid('id')
+      .increments('user_id')
       .primary()
       .unique()
-      .notNullable()
-      .defaultTo(knex.raw('uuid_generate_v4()'));
+      .notNullable();
     table
       .string('username')
       .unique()
@@ -34,12 +33,12 @@ exports.up = function(knex, Promise) {
 
   var createPasswordsTable = knex.schema.createTable('passwords', function(table) {
     table
-      .uuid('user_id')
+      .integer('user_id')
       .primary()
       .unique()
       .notNullable();
-    table.foreign('user_id').references('users.id');
-    table.string('hash').notNullable();
+    table.foreign('user_id').references('users.user_id');
+    table.string('hash', 270).notNullable();
     table
       .timestamp('created_at')
       .notNullable()
@@ -57,8 +56,8 @@ exports.up = function(knex, Promise) {
       .unique()
       .notNullable()
       .defaultTo(knex.raw('uuid_generate_v4()'));
-    table.uuid('user_id').notNullable();
-    table.foreign('user_id').references('users.id');
+    table.integer('user_id').notNullable();
+    table.foreign('user_id').references('users.user_id');
     table
       .timestamp('created_at')
       .notNullable()

@@ -59,85 +59,26 @@ class CastleApiClient {
     });
   }
 
-  _makeClientId() {
-    let alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
-    let t = 'cid:';
-    for (let i = 0; i < 16; i++) {
-      t += alphabet[Math.floor(Math.random() * alphabet.length)];
-    }
-    return t;
+  async setTokenAsync(token) {
+    await this._storage.setAsync('token', token);
   }
 
-  async getClientIdAsync() {
-    let clientId = await this._storage.getAsync('clientId');
-    if (!clientId) {
-      clientId = await this.newSessionAsync();
-    }
-    return clientId;
+  // used in mobile project still
+  async forgetAllSessionsAsync() {
+    this.setTokenAsync(null);
   }
 
   async _getRequestHeadersAsync() {
     let headers = {};
-    headers['X-ClientId'] = await this.getClientIdAsync();
+    let token = await this._storage.getAsync('token');
+    if (token) {
+      headers['X-Auth-Token'] = token;
+    }
     return headers;
   }
 
   async graphqlAsync(...args) {
     return await this._apolloFetch(...args);
-  }
-
-  async _getSessionsAsync() {
-    let sessions = await this._storage.getAsync('sessions');
-    if (typeof sessions !== 'object' || Array.isArray(sessions)) {
-      sessions = {};
-    }
-    return sessions;
-  }
-
-  async newSessionAsync() {
-    let clientId = this._makeClientId();
-    await this.setSessionAsync(clientId);
-    return clientId;
-  }
-
-  async rememberSessionAsync(clientId) {
-    let sessions = await this._getSessionsAsync();
-    sessions[clientId] = true;
-    await this._storage.setAsync('sessions', sessions);
-    return Object.keys(sessions);
-  }
-
-  async forgetSessionAsync(clientId) {
-    let sessions = await this._getSessionsAsync();
-    delete sessions[clientId];
-    await this._storage.setAsync('sessions', sessions);
-
-    // If this is our current clientId, then stop using it
-    // if we are trying to forget it
-    if (clientId === (await this.getClientIdAsync())) {
-      await this._storage.deleteAsync('clientId');
-    }
-
-    return Object.keys(sessions);
-  }
-
-  async forgetAllSessionsAsync() {
-    await this._storage.deleteAsync('sessions');
-    await this._storage.deleteAsync('clientId');
-    return [];
-  }
-
-  async getAllSessionsAsync() {
-    let sessions = await this._getSessionsAsync();
-    return Object.keys(sessions);
-  }
-
-  async setSessionAsync(clientId) {
-    // Don't try to do these in parallel because there are
-    // race conditions in some of the Storage implementations
-    // (ex. the FileSystemStorage especially)
-    await this.rememberSessionAsync(clientId);
-    await this._storage.setAsync('clientId', clientId);
   }
 }
 

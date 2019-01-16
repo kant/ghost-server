@@ -2,6 +2,7 @@ let graphqlYoga = require('graphql-yoga');
 let glob = require('glob');
 let path = require('path');
 let _ = require('lodash');
+let User = require('./models/user');
 
 // https://blog.apollographql.com/modularizing-your-graphql-schema-code-d7f71d5ed5f2
 let models = [];
@@ -25,46 +26,38 @@ const Query = `
 `;
 
 async function makeGraphqlContextAsync({ request }) {
-  /*clientId = request.get('X-ClientId');
+  let token = request.get('X-Auth-Token');
   let userId = null;
-  if (clientId) {
-    [userId, publicId] = await Promise.all([
-      model.getUserIdForSessionAsync(clientId),
-      model.getPublicIdForClientIdAsync(clientId),
-    ]);
+  if (token) {
+    userId = await User.userIdForTokenAsync(token);
   }
-  request = request || {};
+
+  // Testing
+  // userId = 1;
 
   let context = {
     request,
-    clientId,
     userId,
-    publicId,
+    token,
   };
-  // The loaders need access to the context in case any of them
-  // need to call into other loaders
-  context.loaders = loaders.createLoaders(context);
-  return context;*/
 
-  return {
-    request,
-  };
+  return context;
 }
 
 async function makeGraphqlAppAsync() {
-  let graphqlMiddleware = async (resolve, parent, args, context, info) => {
+  /*let graphqlMiddleware = async (resolve, parent, args, context, info) => {
     if (!parent) {
       let message =
         info.path.key + ' ' + JSON.stringify(args) + ' ' + JSON.stringify(info.variableValues);
       console.log(message);
     }
-  };
+  };*/
 
   let app = new graphqlYoga.GraphQLServer({
     typeDefs: [Query, ...models.map((model) => model.typeDefs)],
     resolvers: _.merge(models.map((model) => model.resolvers)),
     context: makeGraphqlContextAsync,
-    middlewares: [graphqlMiddleware],
+    // middlewares: [graphqlMiddleware],
   });
   //app.use(requestTimingMiddleware);
   //app.use(serverInfoMiddleware);
