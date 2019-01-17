@@ -25,4 +25,8 @@ module.exports = {
     password: 'castle',
     database: 'castle_small_server',
   },
+  aws: {
+    accessKeyId: 'AKIAIYZJVIYATRZDBP5Q',
+    secretAccessKey: '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',
+  },
 };

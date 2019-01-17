@@ -9,6 +9,8 @@ exports.up = function(knex, Promise) {
       .string('url')
       .unique()
       .notNullable();
+    table.integer('user_id').notNullable();
+    table.foreign('user_id').references('users.user_id');
     table.integer('width');
     table.integer('height');
     table
@@ -111,7 +113,7 @@ exports.down = function(knex, Promise) {
   return Promise.all([
     knex.schema.dropTable('sessions'),
     knex.schema.dropTable('passwords'),
-    knex.schema.dropTable('users'),
+    knex.raw('DROP TABLE users CASCADE'),
     knex.schema.dropTable('files'),
   ]);
 };

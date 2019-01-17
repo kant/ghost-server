@@ -5,15 +5,6 @@ const typeDefs = `
     allMedia: [Media]
   }
 
-  type HostedFile {
-    width: Int
-    height: Int
-    url: Null
-
-    # Deprecated
-    imgixUrl: String
-  }
-
   type Media {
     mediaId: ID!
     mediaUrl: String

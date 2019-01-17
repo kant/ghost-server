@@ -29,6 +29,7 @@
     "@expo/time": "^1.0.0",
     "aws-sdk": "^2.356.0",
     "body-parser": "^1.18.3",
+    "buffer-image-size": "^0.6.4",
     "castle-metadata": "^1.0.0",
     "cors": "^2.8.4",
     "escape-html": "^1.0.3",
@@ -42,6 +43,7 @@
     "pg": "^7.4.3",
     "pusher": "^2.2.0",
     "sqlite3": "^4.0.6",
+    "stream-buffers": "^3.0.2",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
