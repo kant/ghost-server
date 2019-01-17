@@ -8,10 +8,10 @@ Rules for this repo.
 4. Use the .prettierrc from the root directory
 5. Use project-repl for each subproject
 6. Make sure everything can be installed by just doing `yarn` in any recent officially supported version of node.
-7. Keep other stuff you need to do to an absolute minimium. Ideally just cloning ghost-secret
+7. Keep other stuff you need to do to an absolute minimum. Ideally just cloning ghost-secret
 8. Keep the server running on render.com (or whatever we migrate to).
 9. Keep services directly accessible from your laptop (for now, during this early phase of development)
-10. You should always be able to run ./repl in server/
+10. You should always be able to run `./repl` in `server/`
 
 # To run
 
@@ -71,7 +71,7 @@ Then visit http://localhost:1380/graphql
 
 ### To deploy
 
-Just git push
+Just `git push`
 
 The production server is at https://ghost-server.app.render.com/ or https://apis.playcastle.io
 
@@ -81,7 +81,7 @@ You can play with the GraphQL API against production at https://ghost-server.app
 
 The two setups share an "environment group" which is a new concept on Render but is basically exactly what it sounds like. This means we only have to update the ghost-secret.js file in one place instead of both if something is added.
 
-When you do a `git push`, the staging server is automatically deplohyed.
+When you do a `git push`, the staging server is automatically deployed.
 
 The production server auto deploys are now configured to **off**, and so you'll manually need to run the deploy by clicking the deploy button on the [render.com](http://render.com) website when you want to deploy. Alternatively, we could make it automatically deploy from some kind of release branch, but this seemed easier.
 
